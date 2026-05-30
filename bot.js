@@ -5,55 +5,60 @@ const express = require('express');
 
 const token = process.env.BOT_TOKEN;
 const PORT = process.env.PORT || 3002;
-const BOT_DOMAIN = process.env.BOT_DOMAIN || '';
-const APP_DOMAIN = process.env.APP_DOMAIN || '';
-const WEBHOOK_PATH = `/bot${token}`;
-const WEBHOOK_URL = `${BOT_DOMAIN}${WEBHOOK_PATH}`;
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
+const APP_URL = process.env.APP_DOMAIN || '';
 
 // ── Express server ──
 const app = express();
 app.use(express.json());
 
-// Health check — UptimeRobot ke liye
 app.get('/', (req, res) => res.send('CashZilla Bot is running ✅'));
 
-// ── Database ──
-const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT) || 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: { rejectUnauthorized: false },
-  charset: 'utf8mb4',
-  waitForConnections: true,
-  connectionLimit: 5
-});
-
-db.query('SELECT 1', (err) => {
-  if (err) console.error('❌ DB connection failed:', err.message);
-  else console.log('✅ Database connected');
-});
-
-// ── Bot — Webhook mode ──
-const bot = new TelegramBot(token, { polling: false });
-
-// Webhook route
-app.post(WEBHOOK_PATH, (req, res) => {
+app.post('/bot' + token, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
-// Server start karo pehle, phir webhook set karo
-app.listen(PORT, async () => {
-  console.log(`🌐 Server running on port ${PORT}`);
-  try {
-    await bot.setWebHook(WEBHOOK_URL);
-    console.log(`🚀 CashZilla Bot Active — Webhook: ${WEBHOOK_URL}`);
-  } catch (err) {
-    console.error('Webhook error:', err.message);
-  }
+app.listen(PORT, () => console.log(`🌐 Server running on port ${PORT}`));
+
+// ── Database ──
+const db = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT) || 3306,
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'defaultdb',
+  charset: 'utf8mb4',
+  waitForConnections: true,
+  connectionLimit: 10,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
+
+db.getConnection((err, conn) => {
+  if (err) console.error('❌ DB Error:', err.message);
+  else { console.log('✅ Database connected'); conn.release(); }
+});
+
+// ── Bot ──
+const bot = new TelegramBot(token, { polling: false });
+
+async function startBot() {
+  try {
+    await bot.deleteWebHook();
+    if (WEBHOOK_URL) {
+      await bot.setWebHook(WEBHOOK_URL + '/bot' + token);
+      console.log('🚀 CashZilla Bot Active — Webhook mode');
+    } else {
+      await new Promise(r => setTimeout(r, 2000));
+      bot.startPolling({ restart: true });
+      console.log('🚀 CashZilla Bot Active — Polling mode');
+    }
+  } catch (err) {
+    console.error('Bot start error:', err.message);
+    setTimeout(startBot, 5000);
+  }
+}
+startBot();
 
 // ── /start ──
 bot.onText(/\/start(?:\s+(.+))?/, (msg, match) => {
@@ -99,19 +104,26 @@ function sendWelcome(chatId, firstName, isNew) {
   const keyboard = {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🚀 Open App', web_app: { url: `${APP_DOMAIN}/telegram/dashboard.html` } }],
-        [{ text: '🧠 Quiz', web_app: { url: `${APP_DOMAIN}/telegram/quiz.html` } },
-         { text: '✅ Tasks', web_app: { url: `${APP_DOMAIN}/telegram/tasks.html` } }],
-        [{ text: '🎰 Spin', web_app: { url: `${APP_DOMAIN}/telegram/spin.html` } },
-         { text: '💰 Withdraw', web_app: { url: `${APP_DOMAIN}/telegram/withdrawals.html` } }]
+        [{ text: '🚀 Open App & Earn', web_app: { url: APP_URL + '/telegram/dashboard.html' } }],
+        [
+          { text: '🧠 Play Quiz', web_app: { url: APP_URL + '/telegram/quiz.html' } },
+          { text: '✅ Tasks', web_app: { url: APP_URL + '/telegram/tasks.html' } }
+        ],
+        [
+          { text: '🎰 Spin', web_app: { url: APP_URL + '/telegram/spin.html' } },
+          { text: '💰 Withdraw', web_app: { url: APP_URL + '/telegram/withdrawals.html' } }
+        ]
       ]
     }
   };
+
   const text = isNew
-    ? `🎉 *Welcome ${firstName}!*\n\nYou got *10 free coins* as a welcome gift! 🎁\n\nEarn real crypto — quiz, tasks, spin & refer.`
-    : `👋 *Welcome back ${firstName}!*\n\nReady to earn more today?`;
+    ? `🚀 *Welcome to CashZilla, ${firstName}!*\n\n🌍 *Turn your knowledge into real money!*\n\n📝 *How to Earn:*\n1️⃣ Play Quiz & answer questions 🧠\n2️⃣ Complete Tasks ✅\n3️⃣ Spin the wheel daily 🎰\n4️⃣ Invite friends & earn 10% commission 👥\n\n🎁 You got *10 free coins* as welcome gift!\n\n*Tap below to start earning!* 👇`
+    : `👋 *Welcome back, ${firstName}!*\n\n💰 Ready to earn more today?\n\n*Tap below to continue!* 👇`;
+
   bot.sendMessage(chatId, text, { parse_mode: 'Markdown', ...keyboard })
     .catch(e => console.error('Send error:', e.message));
 }
 
+bot.on('polling_error', err => console.error('Polling error:', err.code, err.message));
 process.on('uncaughtException', err => console.error('Uncaught:', err.message));
