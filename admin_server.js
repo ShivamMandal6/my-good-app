@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const PORT = process.env.ADMIN_PORT || 3001;
+const PORT = process.env.PORT || process.env.ADMIN_PORT || 3001;
 
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(cors());
@@ -16,14 +16,13 @@ const db = mysql.createPool({
   port: parseInt(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'cashzilla',
+  database: process.env.DB_NAME || 'defaultdb',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
-// Test DB connection
 db.getConnection((err, connection) => {
   if (err) {
     console.error('❌ MySQL Connection Failed:', err.message);
@@ -111,6 +110,25 @@ app.get("/admin/api/users/search", adminAuth, (req, res) => {
   });
 });
 
+app.get("/admin/api/users/csv", adminAuth, (req, res) => {
+  db.query("SELECT id, telegram_id, name, points, balance, joined_at FROM users ORDER BY id DESC", (err, results) => {
+    if (err) return res.status(500).json({ success: false });
+    const csv = ["ID,Telegram ID,Name,Points,Balance,Joined At",
+      ...results.map(u => `${u.id},${u.telegram_id},${u.name},${u.points},${u.balance},${u.joined_at}`)
+    ].join("\n");
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", "attachment; filename=users.csv");
+    res.send(csv);
+  });
+});
+
+app.post("/admin/api/users/ban", adminAuth, (req, res) => {
+  const { user_id, is_banned } = req.body;
+  db.query("UPDATE users SET is_banned=? WHERE id=?", [is_banned, user_id], (err) => {
+    res.json({ success: !err });
+  });
+});
+
 app.post("/admin/api/users/:id/ban", adminAuth, (req, res) => {
   db.query("UPDATE users SET is_banned = ? WHERE id = ?", [req.body.is_banned, req.params.id], (err) => {
     res.json({ success: !err });
@@ -123,9 +141,24 @@ app.post("/admin/api/users/:id/add_points", adminAuth, (req, res) => {
   });
 });
 
+app.get("/admin/api/users/:id", adminAuth, (req, res) => {
+  db.query("SELECT * FROM users WHERE id=? OR telegram_id=?", [req.params.id, req.params.id], (err, results) => {
+    if (err || !results.length) return res.json({ success: false });
+    res.json({ success: true, user: results[0] });
+  });
+});
+
 // =============================================
 // QUIZ MANAGEMENT
 // =============================================
+app.get("/admin/api/quiz/stats", adminAuth, (req, res) => {
+  db.query("SELECT COUNT(*) as total FROM quizzes", (err, r1) => {
+    db.query("SELECT COUNT(*) as total_played FROM quiz_results", (err, r2) => {
+      res.json({ success: true, total: r1[0].total, total_played: r2[0].total_played });
+    });
+  });
+});
+
 app.get("/admin/api/quizzes", adminAuth, (req, res) => {
   db.query("SELECT * FROM quizzes ORDER BY id DESC", (err, results) => {
     res.json({ success: true, quizzes: results || [] });
@@ -133,7 +166,6 @@ app.get("/admin/api/quizzes", adminAuth, (req, res) => {
 });
 
 app.post("/admin/api/quizzes", adminAuth, (req, res) => {
-  const { title, total_points, ...rest } = req.body;
   db.query("INSERT INTO quizzes SET ?", [req.body], (err, result) => {
     if (err) return res.json({ success: false, error: err });
     res.json({ success: true, id: result.insertId });
@@ -142,6 +174,12 @@ app.post("/admin/api/quizzes", adminAuth, (req, res) => {
 
 app.put("/admin/api/quizzes/:id", adminAuth, (req, res) => {
   db.query("UPDATE quizzes SET ? WHERE id = ?", [req.body, req.params.id], (err) => {
+    res.json({ success: !err });
+  });
+});
+
+app.post("/admin/api/quizzes/:id/toggle", adminAuth, (req, res) => {
+  db.query("UPDATE quizzes SET is_active=? WHERE id=?", [req.body.is_active, req.params.id], (err) => {
     res.json({ success: !err });
   });
 });
@@ -357,4 +395,3 @@ app.get("/admin/api/leaderboard", adminAuth, (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 CashZilla Admin API running on port ${PORT}`);
 });
-    
