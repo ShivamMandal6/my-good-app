@@ -1,13 +1,12 @@
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const mysql = require('mysql2');
-const http = require('http');
 
 const token = process.env.BOT_TOKEN;
 const PORT = process.env.PORT || 3002;
-const DOMAIN = process.env.DOMAIN || '';
-const WEBHOOK_PATH = `/bot${token}`;
-const WEBHOOK_URL = `${DOMAIN}${WEBHOOK_PATH}`;
+const BOT_DOMAIN = process.env.BOT_DOMAIN || '';   // Bot Service URL — webhook ke liye
+const APP_DOMAIN = process.env.APP_DOMAIN || '';   // User Service URL — Mini App buttons ke liye
+const WEBHOOK_URL = `${BOT_DOMAIN}/bot${token}`;
 
 // ── Database ──
 const db = mysql.createPool({
@@ -31,7 +30,7 @@ db.query('SELECT 1', (err) => {
 const bot = new TelegramBot(token, { webHook: { port: PORT } });
 
 bot.setWebHook(WEBHOOK_URL).then(() => {
-  console.log(`🚀 CashZilla Bot Active — Webhook set: ${WEBHOOK_URL}`);
+  console.log(`🚀 CashZilla Bot Active — Webhook: ${WEBHOOK_URL}`);
 }).catch(err => console.error('Webhook error:', err.message));
 
 // ── /start ──
@@ -78,11 +77,11 @@ function sendWelcome(chatId, firstName, isNew) {
   const keyboard = {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🚀 Open App', web_app: { url: `${DOMAIN}/telegram/dashboard.html` } }],
-        [{ text: '🧠 Quiz', web_app: { url: `${DOMAIN}/telegram/quiz.html` } },
-         { text: '✅ Tasks', web_app: { url: `${DOMAIN}/telegram/tasks.html` } }],
-        [{ text: '🎰 Spin', web_app: { url: `${DOMAIN}/telegram/spin.html` } },
-         { text: '💰 Withdraw', web_app: { url: `${DOMAIN}/telegram/withdrawals.html` } }]
+        [{ text: '🚀 Open App', web_app: { url: `${APP_DOMAIN}/telegram/dashboard.html` } }],
+        [{ text: '🧠 Quiz', web_app: { url: `${APP_DOMAIN}/telegram/quiz.html` } },
+         { text: '✅ Tasks', web_app: { url: `${APP_DOMAIN}/telegram/tasks.html` } }],
+        [{ text: '🎰 Spin', web_app: { url: `${APP_DOMAIN}/telegram/spin.html` } },
+         { text: '💰 Withdraw', web_app: { url: `${APP_DOMAIN}/telegram/withdrawals.html` } }]
       ]
     }
   };
