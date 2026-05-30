@@ -1,0 +1,23 @@
+{
+  "name": "cashzilla",
+  "version": "1.0.0",
+  "description": "CashZilla — Telegram Quiz to Earn Mini App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:admin": "node admin_server.js",
+    "start:bot": "node bot.js",
+    "start:all": "node server.js & node admin_server.js & node bot.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "mysql2": "^3.15.2",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}
