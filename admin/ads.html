@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ads Manager | CashZilla Admin</title>
+<link rel="stylesheet" href="admin_style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:32px;height:32px;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🦕</div>
+    <div><div style="font-size:0.95rem;font-weight:900;">CASH<span style="color:#ff3860;">ZILLA</span></div><div style="font-size:0.62rem;font-weight:800;color:#555;text-transform:uppercase;">Admin Panel</div></div>
+  </div>
+  <ul class="nav-menu">
+    <li class="nav-item"><a href="dashboard.html"  class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li class="nav-item"><a href="user.html"        class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+    <li class="nav-item"><a href="quiz.html"        class="nav-link"><i class="fas fa-brain"></i> Quizzes</a></li>
+    <li class="nav-item"><a href="tasks.html"       class="nav-link"><i class="fas fa-tasks"></i> Tasks</a></li>
+    <li class="nav-item"><a href="spin.html"        class="nav-link"><i class="fas fa-sync-alt"></i> Spin Wheel</a></li>
+    <li class="nav-item"><a href="referrals.html"   class="nav-link"><i class="fas fa-user-friends"></i> Referrals</a></li>
+    <li class="nav-item"><a href="withdrawals.html" class="nav-link"><i class="fas fa-wallet"></i> Withdrawals</a></li>
+    <li class="nav-item"><a href="ads.html"         class="nav-link active"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item" style="margin-top:16px;"><a href="#" class="nav-link nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</div>
+
+<div class="main-content">
+  <div class="header-section">
+    <h2><i class="fas fa-ad"></i> Ads Manager</h2>
+    <button class="btn-action" style="background:var(--gold);" onclick="openAdModal()"><i class="fas fa-plus"></i> Add New Ad</button>
+  </div>
+  <p class="page-subtitle">Manage View Ads — users earn coins by watching ads</p>
+
+  <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:20px;">
+    <div class="stat-card" style="background:var(--gold);">  <i class="fas fa-play"></i>       <h2 id="sTotal">—</h2>  <span>Total Ads</span></div>
+    <div class="stat-card" style="background:var(--cyan);">  <i class="fas fa-eye"></i>        <h2 id="sViews">—</h2>  <span>Total Views</span></div>
+    <div class="stat-card" style="background:var(--green);">  <i class="fas fa-coins"></i>     <h2 id="sCoins">—</h2>  <span>Coins Given</span></div>
+    <div class="stat-card" style="background:var(--purple);"><i class="fas fa-calendar"></i>   <h2 id="sToday">—</h2>  <span>Today Views</span></div>
+  </div>
+
+  <div class="content-box">
+    <h3><i class="fas fa-list"></i> All Ads</h3>
+    <div id="adsList"><div style="text-align:center;padding:30px;color:#888;font-weight:700">Loading...</div></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-backdrop" id="adModal">
+  <div class="modal-box">
+    <div class="modal-title"><span id="modalHead"><i class="fas fa-plus"></i> Add New Ad</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <input type="hidden" id="editAdId">
+    <div class="form-row"><label>Ad Title *</label><input type="text" id="adTitle" placeholder="e.g. Watch YouTube Video"></div>
+    <div class="form-row"><label>Ad Link (URL) *</label><input type="url" id="adLink" placeholder="https://..."></div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Icon (emoji)</label><input type="text" id="adIcon" placeholder="📺" maxlength="4"></div>
+      <div class="form-row"><label>Reward Coins *</label><input type="number" id="adReward" placeholder="5" min="1"></div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Cooldown (minutes)</label><input type="number" id="adCooldown" placeholder="60" min="1"></div>
+      <div class="form-row"><label>Status</label><select id="adStatus"><option value="1">✅ Active</option><option value="0">❌ Inactive</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-save-btn" onclick="saveAd()"><i class="fas fa-save"></i> Save Ad</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toast" id="toast"></div>
+
+<script>
+function logout(){localStorage.removeItem("adminToken");window.location.href="index.html";}
+if(!localStorage.getItem("adminToken"))window.location.href="index.html";
+const TOKEN=localStorage.getItem("adminToken");
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+
+const COLORS=["var(--gold)","var(--cyan)","var(--pink)","var(--purple)","var(--orange)","var(--green)"];
+
+async function loadStats(){
+  try{
+    const r=await fetch("/admin/api/ads/stats",{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await r.json();
+    document.getElementById("sTotal").textContent=d.total||0;
+    document.getElementById("sViews").textContent=d.total_views||0;
+    document.getElementById("sCoins").textContent=d.total_coins||0;
+    document.getElementById("sToday").textContent=d.today_views||0;
+  }catch(e){}
+}
+
+async function loadAds(){
+  const el=document.getElementById("adsList");
+  try{
+    const r=await fetch("/admin/api/ads",{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await r.json();
+    const ads=d.ads||[];
+    if(!ads.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#888;font-weight:700">No ads yet. Add your first ad!</div>';return;}
+    el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+      ${ads.map((ad,i)=>`
+        <div style="border:var(--border);box-shadow:var(--shadow);border-radius:var(--radius);overflow:hidden;">
+          <div style="background:${COLORS[i%COLORS.length]};padding:16px;display:flex;align-items:center;gap:12px;border-bottom:var(--border);">
+            <div style="font-size:2rem">${ad.icon||'📺'}</div>
+            <div><div style="font-weight:900;font-size:0.95rem">${ad.title}</div><div style="font-size:0.72rem;font-weight:700;color:rgba(0,0,0,0.5)">⭐ ${ad.reward_coins} coins · ⏱ ${ad.cooldown_minutes||60}min</div></div>
+            <div style="margin-left:auto;">
+              <label class="toggle-switch"><input type="checkbox" ${ad.is_active?'checked':''} onchange="toggleAd(${ad.id},this.checked)"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+          <div style="padding:12px 16px;background:#fff;">
+            <div style="font-size:0.78rem;font-weight:700;color:#555;margin-bottom:10px;word-break:break-all">${ad.link}</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-action" style="background:var(--cyan);flex:1;" onclick='editAd(${JSON.stringify(ad)})'><i class="fas fa-edit"></i> Edit</button>
+              <button class="btn-action" style="background:var(--pink);" onclick="deleteAd(${ad.id})"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }catch(e){el.innerHTML='<div style="text-align:center;padding:30px;color:#888;font-weight:700">Connect API to see ads</div>';}
+}
+
+function openAdModal(){document.getElementById("editAdId").value="";document.getElementById("modalHead").innerHTML='<i class="fas fa-plus"></i> Add New Ad';document.getElementById("adTitle").value="";document.getElementById("adLink").value="";document.getElementById("adIcon").value="📺";document.getElementById("adReward").value="";document.getElementById("adCooldown").value="60";document.getElementById("adStatus").value="1";document.getElementById("adModal").classList.add("open");}
+function editAd(ad){document.getElementById("editAdId").value=ad.id;document.getElementById("modalHead").innerHTML='<i class="fas fa-edit"></i> Edit Ad';document.getElementById("adTitle").value=ad.title||"";document.getElementById("adLink").value=ad.link||"";document.getElementById("adIcon").value=ad.icon||"📺";document.getElementById("adReward").value=ad.reward_coins||"";document.getElementById("adCooldown").value=ad.cooldown_minutes||60;document.getElementById("adStatus").value=ad.is_active?1:0;document.getElementById("adModal").classList.add("open");}
+function closeModal(){document.getElementById("adModal").classList.remove("open");}
+
+async function saveAd(){
+  const id=document.getElementById("editAdId").value;
+  const p={title:document.getElementById("adTitle").value.trim(),link:document.getElementById("adLink").value.trim(),icon:document.getElementById("adIcon").value||"📺",reward_coins:parseInt(document.getElementById("adReward").value)||0,cooldown_minutes:parseInt(document.getElementById("adCooldown").value)||60,is_active:parseInt(document.getElementById("adStatus").value)};
+  if(!p.title||!p.link||!p.reward_coins){toast("⚠️ Fill Title, Link and Reward!");return;}
+  const btn=document.querySelector(".modal-save-btn");btn.textContent="Saving...";btn.disabled=true;
+  try{
+    const r=await fetch(id?`/admin/api/ads/${id}`:"/admin/api/ads",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify(p)});
+    const d=await r.json();
+    if(d.success){closeModal();loadAds();loadStats();toast("✅ Saved!");}
+    else toast("❌ "+(d.message||"Error"));
+  }catch(e){toast("❌ Network error");}
+  finally{btn.textContent="Save Ad";btn.disabled=false;}
+}
+
+async function toggleAd(id,state){
+  try{await fetch(`/admin/api/ads/${id}/toggle`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify({is_active:state?1:0})});loadStats();}catch(e){}
+}
+async function deleteAd(id){
+  if(!confirm("Delete this ad?"))return;
+  try{const r=await fetch(`/admin/api/ads/${id}`,{method:"DELETE",headers:{"Authorization":"Bearer "+TOKEN}});const d=await r.json();if(d.success){loadAds();loadStats();toast("🗑️ Deleted!");}else toast("❌ Error");}catch(e){toast("❌ Error");}
+}
+loadStats();loadAds();
+</script>
+</body>
+</html>

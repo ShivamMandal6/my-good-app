@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quizzes | CashZilla Admin</title>
+<link rel="stylesheet" href="admin_style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+#questionsWrap .q-block{background:#fafafa;border:2px solid #000;border-radius:12px;padding:14px;margin-bottom:10px;position:relative;}
+.del-q-btn{position:absolute;top:8px;right:8px;background:var(--pink);border:2px solid #000;border-radius:8px;width:26px;height:26px;cursor:pointer;font-weight:900;font-size:0.82rem;display:flex;align-items:center;justify-content:center;}
+.opt-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.opt-inp{padding:8px 10px;border:2px solid #ddd;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;}
+.opt-inp.correct{border-color:var(--green);background:#f0fff5;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:32px;height:32px;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🦕</div>
+    <div><div style="font-size:0.95rem;font-weight:900;">CASH<span style="color:#ff3860;">ZILLA</span></div><div style="font-size:0.62rem;font-weight:800;color:#555;text-transform:uppercase;">Admin Panel</div></div>
+  </div>
+  <ul class="nav-menu">
+    <li class="nav-item"><a href="dashboard.html"  class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li class="nav-item"><a href="user.html"        class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+    <li class="nav-item"><a href="quiz.html"        class="nav-link active"><i class="fas fa-brain"></i> Quizzes</a></li>
+    <li class="nav-item"><a href="tasks.html"       class="nav-link"><i class="fas fa-tasks"></i> Tasks</a></li>
+    <li class="nav-item"><a href="spin.html"        class="nav-link"><i class="fas fa-sync-alt"></i> Spin Wheel</a></li>
+    <li class="nav-item"><a href="referrals.html"   class="nav-link"><i class="fas fa-user-friends"></i> Referrals</a></li>
+    <li class="nav-item"><a href="withdrawals.html" class="nav-link"><i class="fas fa-wallet"></i> Withdrawals</a></li>
+    <li class="nav-item"><a href="ads.html"         class="nav-link"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item" style="margin-top:16px;"><a href="#" class="nav-link nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</div>
+
+<div class="main-content">
+  <div class="header-section">
+    <h2><i class="fas fa-brain"></i> Quizzes</h2>
+    <button class="btn-action" style="background:var(--gold);" onclick="openAdd()"><i class="fas fa-plus"></i> Add New Quiz</button>
+  </div>
+  <p class="page-subtitle">Create and manage quiz questions</p>
+
+  <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:20px;">
+    <div class="stat-card" style="background:var(--gold);"><i class="fas fa-list"></i><h2 id="sTotal">—</h2><span>Total Quizzes</span></div>
+    <div class="stat-card" style="background:var(--green);"><i class="fas fa-check"></i><h2 id="sWon">—</h2><span>Won</span></div>
+    <div class="stat-card" style="background:var(--pink);"><i class="fas fa-times"></i><h2 id="sFailed">—</h2><span>Failed</span></div>
+  </div>
+
+  <div class="content-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+      <h3 style="margin:0"><i class="fas fa-list"></i> All Quizzes</h3>
+      <input type="text" placeholder="🔍 Search quizzes..." oninput="filterQ(this.value)" style="padding:8px 14px;border:var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;outline:none;min-width:200px;">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Title</th><th>Questions</th><th>Reward</th><th>Plays</th><th>Active</th><th>Actions</th></tr></thead>
+        <tbody id="qTable"><tr><td colspan="7" style="text-align:center;padding:30px;color:#888;font-weight:700">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="quizModal">
+  <div class="modal-box" style="max-width:680px;">
+    <div class="modal-title"><span id="mHead"><i class="fas fa-plus"></i> Add Quiz</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <input type="hidden" id="editId">
+    <div class="form-row"><label>Quiz Title *</label><input type="text" id="qTitle" placeholder="e.g. Ultimate Trivia Quiz"></div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Reward Coins *</label><input type="number" id="qReward" placeholder="5" min="1"></div>
+      <div class="form-row"><label>Time per Q (sec)</label><input type="number" id="qTime" placeholder="15" min="5"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <label style="font-size:0.78rem;font-weight:900;text-transform:uppercase;">Questions</label>
+      <button type="button" onclick="addQuestion()" style="background:var(--cyan);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.78rem;cursor:pointer;"><i class="fas fa-plus"></i> Add Q</button>
+    </div>
+    <div id="questionsWrap"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-save-btn" onclick="saveQuiz()"><i class="fas fa-save"></i> Save Quiz</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toast" id="toast"></div>
+
+<script>
+function logout(){localStorage.removeItem("adminToken");window.location.href="index.html";}
+if(!localStorage.getItem("adminToken"))window.location.href="index.html";
+const TOKEN=localStorage.getItem("adminToken");
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+
+let allQ=[],qIdx=0;
+
+async function loadStats(){
+  try{
+    const r=await fetch("/admin/api/quiz/stats",{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await r.json();
+    document.getElementById("sTotal").textContent=d.total||0;
+    document.getElementById("sWon").textContent=d.won||0;
+    document.getElementById("sFailed").textContent=d.failed||0;
+  }catch(e){}
+}
+
+async function loadQuizzes(){
+  const tb=document.getElementById("qTable");
+  try{
+    const r=await fetch("/admin/api/quizzes",{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await r.json();
+    allQ=d.quizzes||[];renderQ(allQ);
+  }catch(e){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:#888;font-weight:700">Connect API to see quizzes</td></tr>';}
+}
+
+function renderQ(qs){
+  const tb=document.getElementById("qTable");
+  if(!qs.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:#888;font-weight:700">No quizzes yet</td></tr>';return;}
+  tb.innerHTML=qs.map((q,i)=>`<tr>
+    <td style="font-weight:900">${i+1}</td>
+    <td style="font-weight:800;max-width:200px">${q.title}</td>
+    <td><strong>${q.question_count||0}</strong></td>
+    <td><span class="badge badge-gold">⭐ ${q.reward_coins}</span></td>
+    <td>${q.play_count||0}</td>
+    <td><label class="toggle-switch"><input type="checkbox" ${q.is_active?'checked':''} onchange="toggleQ(${q.id},this.checked)"><span class="toggle-slider"></span></label></td>
+    <td><div style="display:flex;gap:6px;">
+      <button style="background:var(--cyan);border:2px solid #000;border-radius:8px;padding:5px 10px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.75rem;cursor:pointer;" onclick="editQuiz(${q.id})"><i class="fas fa-edit"></i></button>
+      <button style="background:var(--pink);border:2px solid #000;border-radius:8px;padding:5px 10px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.75rem;cursor:pointer;" onclick="delQ(${q.id})"><i class="fas fa-trash"></i></button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function filterQ(v){renderQ(allQ.filter(q=>q.title.toLowerCase().includes(v.toLowerCase())));}
+
+let questions=[];
+function addQuestion(){
+  qIdx++;
+  questions.push({id:qIdx});
+  const d=document.createElement("div");d.className="q-block";d.id="qb_"+qIdx;
+  d.innerHTML=`<button class="del-q-btn" onclick="removeQ(${qIdx})">✕</button>
+    <label style="font-size:0.75rem;font-weight:900;text-transform:uppercase;display:block;margin-bottom:6px;">Question ${questions.length}</label>
+    <input type="text" id="qt_${qIdx}" placeholder="Enter question..." style="width:100%;padding:9px 12px;border:2px solid #000;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;outline:none;margin-bottom:8px;">
+    <div class="opt-row">
+      <input class="opt-inp correct" type="text" id="qa_${qIdx}" placeholder="✅ Correct answer">
+      <input class="opt-inp" type="text" id="qw1_${qIdx}" placeholder="Wrong 1">
+      <input class="opt-inp" type="text" id="qw2_${qIdx}" placeholder="Wrong 2">
+      <input class="opt-inp" type="text" id="qw3_${qIdx}" placeholder="Wrong 3">
+    </div>`;
+  document.getElementById("questionsWrap").appendChild(d);
+}
+function removeQ(i){document.getElementById("qb_"+i)?.remove();questions=questions.filter(q=>q.id!==i);}
+
+function openAdd(){
+  document.getElementById("editId").value="";document.getElementById("mHead").innerHTML='<i class="fas fa-plus"></i> Add Quiz';
+  document.getElementById("qTitle").value="";document.getElementById("qReward").value="";document.getElementById("qTime").value="15";
+  document.getElementById("questionsWrap").innerHTML="";questions=[];qIdx=0;addQuestion();
+  document.getElementById("quizModal").classList.add("open");
+}
+
+async function editQuiz(id){
+  try{
+    const r=await fetch(`/admin/api/quizzes/${id}`,{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await r.json();const q=d.quiz;
+    document.getElementById("editId").value=id;document.getElementById("mHead").innerHTML='<i class="fas fa-edit"></i> Edit Quiz';
+    document.getElementById("qTitle").value=q.title||"";document.getElementById("qReward").value=q.reward_coins||"";document.getElementById("qTime").value=q.time_per_question||15;
+    document.getElementById("questionsWrap").innerHTML="";questions=[];qIdx=0;
+    (q.questions||[]).forEach(qq=>{qIdx++;questions.push({id:qIdx});
+      const d2=document.createElement("div");d2.className="q-block";d2.id="qb_"+qIdx;
+      d2.innerHTML=`<button class="del-q-btn" onclick="removeQ(${qIdx})">✕</button>
+        <label style="font-size:0.75rem;font-weight:900;text-transform:uppercase;display:block;margin-bottom:6px;">Question ${questions.length}</label>
+        <input type="text" id="qt_${qIdx}" value="${qq.question||''}" style="width:100%;padding:9px 12px;border:2px solid #000;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;outline:none;margin-bottom:8px;">
+        <div class="opt-row">
+          <input class="opt-inp correct" type="text" id="qa_${qIdx}" value="${qq.correct_answer||''}">
+          <input class="opt-inp" type="text" id="qw1_${qIdx}" value="${qq.wrong1||''}">
+          <input class="opt-inp" type="text" id="qw2_${qIdx}" value="${qq.wrong2||''}">
+          <input class="opt-inp" type="text" id="qw3_${qIdx}" value="${qq.wrong3||''}">
+        </div>`;
+      document.getElementById("questionsWrap").appendChild(d2);
+    });
+    document.getElementById("quizModal").classList.add("open");
+  }catch(e){toast("❌ Error loading quiz");}
+}
+
+function closeModal(){document.getElementById("quizModal").classList.remove("open");}
+
+async function saveQuiz(){
+  const id=document.getElementById("editId").value;
+  const qs=questions.map(q=>({question:document.getElementById("qt_"+q.id)?.value?.trim(),correct_answer:document.getElementById("qa_"+q.id)?.value?.trim(),wrong1:document.getElementById("qw1_"+q.id)?.value?.trim(),wrong2:document.getElementById("qw2_"+q.id)?.value?.trim(),wrong3:document.getElementById("qw3_"+q.id)?.value?.trim()})).filter(q=>q.question&&q.correct_answer);
+  const p={title:document.getElementById("qTitle").value.trim(),reward_coins:parseInt(document.getElementById("qReward").value)||0,time_per_question:parseInt(document.getElementById("qTime").value)||15,questions:qs};
+  if(!p.title||!p.reward_coins){toast("⚠️ Fill Title and Reward!");return;}
+  if(!qs.length){toast("⚠️ Add at least 1 question!");return;}
+  const btn=document.querySelector(".modal-save-btn");btn.textContent="Saving...";btn.disabled=true;
+  try{
+    const r=await fetch(id?`/admin/api/quizzes/${id}`:"/admin/api/quizzes",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify(p)});
+    const d=await r.json();
+    if(d.success){closeModal();loadQuizzes();loadStats();toast("✅ Quiz saved!");}
+    else toast("❌ "+(d.message||"Error"));
+  }catch(e){toast("❌ Network error");}
+  finally{btn.textContent="Save Quiz";btn.disabled=false;}
+}
+
+async function toggleQ(id,state){
+  try{await fetch(`/admin/api/quizzes/${id}/toggle`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify({is_active:state?1:0})});}catch(e){}
+}
+async function delQ(id){
+  if(!confirm("Delete this quiz?"))return;
+  try{const r=await fetch(`/admin/api/quizzes/${id}`,{method:"DELETE",headers:{"Authorization":"Bearer "+TOKEN}});const d=await r.json();if(d.success){loadQuizzes();loadStats();toast("🗑️ Deleted!");}else toast("❌ Error");}catch(e){}
+}
+loadStats();loadQuizzes();
+</script>
+</body>
+</html>

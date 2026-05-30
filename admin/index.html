@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CashZilla Admin — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#F5F0E8;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-wrap{width:100%;max-width:400px;}
+.login-logo{background:#FFD600;border:3px solid #000;box-shadow:6px 6px 0 #000;border-radius:18px;padding:18px 22px;text-align:center;margin-bottom:20px;}
+.login-logo .big{font-size:2rem;font-weight:900;letter-spacing:-1px;}
+.login-logo .big span{color:#ff3860;}
+.login-logo .sub{font-size:0.78rem;font-weight:800;color:rgba(0,0,0,0.5);text-transform:uppercase;letter-spacing:2px;margin-top:2px;}
+.login-card{background:#fff;border:3px solid #000;box-shadow:6px 6px 0 #000;border-radius:18px;padding:28px;}
+.login-card h2{font-size:1.3rem;font-weight:900;margin-bottom:6px;}
+.login-card .sub{font-size:0.82rem;font-weight:600;color:#666;margin-bottom:22px;}
+label{display:block;font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:6px;}
+.inp-wrap{position:relative;margin-bottom:16px;}
+input{width:100%;padding:12px 40px 12px 14px;border:3px solid #000;border-radius:12px;font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:700;background:#fafafa;outline:none;}
+input:focus{background:#fff;border-color:#0088ff;}
+.inp-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#888;font-size:16px;}
+.login-btn{width:100%;padding:15px;background:#FFD600;border:3px solid #000;box-shadow:5px 5px 0 #000;border-radius:14px;font-family:'Outfit',sans-serif;font-weight:900;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .1s,box-shadow .1s;margin-top:6px;}
+.login-btn:active{transform:translate(3px,3px);box-shadow:2px 2px 0 #000;}
+.err-box{background:#ffe0e0;border:3px solid #ff4757;border-radius:12px;padding:10px 14px;font-size:0.85rem;font-weight:800;color:#cc0000;margin-bottom:14px;display:none;align-items:center;gap:8px;}
+.err-box.show{display:flex;}
+.admin-note{margin-top:14px;text-align:center;font-size:0.75rem;font-weight:700;color:#888;}
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-logo">
+    <div class="big">CASH<span>ZILLA</span></div>
+    <div class="sub">Admin Panel</div>
+  </div>
+  <div class="login-card">
+    <h2>🔐 Admin Login</h2>
+    <div class="sub">Enter your credentials to access the panel</div>
+    <div class="err-box" id="errBox"><i class="fas fa-exclamation-circle"></i> <span id="errMsg">Invalid credentials!</span></div>
+    <label>Username</label>
+    <div class="inp-wrap">
+      <input type="text" id="username" placeholder="Enter username" autocomplete="off">
+      <i class="fas fa-user inp-icon"></i>
+    </div>
+    <label>Password</label>
+    <div class="inp-wrap">
+      <input type="password" id="password" placeholder="Enter password" id="password">
+      <i class="fas fa-lock inp-icon"></i>
+    </div>
+    <button class="login-btn" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt"></i> LOGIN TO PANEL
+    </button>
+    <div class="admin-note">🦕 CashZilla Admin · Authorized Access Only</div>
+  </div>
+</div>
+<script>
+document.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+async function doLogin(){
+  const u=document.getElementById('username').value.trim();
+  const p=document.getElementById('password').value.trim();
+  const err=document.getElementById('errBox');
+  if(!u||!p){document.getElementById('errMsg').textContent='Please fill all fields!';err.classList.add('show');return;}
+  try{
+    const res=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    const data=await res.json();
+    if(data.success){localStorage.setItem('adminToken',data.token||'ok');window.location.href='dashboard.html';}
+    else{document.getElementById('errMsg').textContent=data.message||'Invalid credentials!';err.classList.add('show');}
+  }catch(e){document.getElementById('errMsg').textContent='Server error. Try again.';err.classList.add('show');}
+}
+// If already logged in
+if(localStorage.getItem('adminToken')) window.location.href='dashboard.html';
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Detail | CashZilla Admin</title>
+<link rel="stylesheet" href="admin_style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo"><div style="width:32px;height:32px;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🦕</div><div><div style="font-size:0.95rem;font-weight:900;">CASH<span style="color:#ff3860;">ZILLA</span></div><div style="font-size:0.62rem;font-weight:800;color:#555;text-transform:uppercase;">Admin Panel</div></div></div>
+  <ul class="nav-menu">
+    <li class="nav-item"><a href="dashboard.html"  class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li class="nav-item"><a href="user.html"        class="nav-link active"><i class="fas fa-users"></i> Users</a></li>
+    <li class="nav-item"><a href="quiz.html"        class="nav-link"><i class="fas fa-brain"></i> Quizzes</a></li>
+    <li class="nav-item"><a href="tasks.html"       class="nav-link"><i class="fas fa-tasks"></i> Tasks</a></li>
+    <li class="nav-item"><a href="spin.html"        class="nav-link"><i class="fas fa-sync-alt"></i> Spin Wheel</a></li>
+    <li class="nav-item"><a href="referrals.html"   class="nav-link"><i class="fas fa-user-friends"></i> Referrals</a></li>
+    <li class="nav-item"><a href="withdrawals.html" class="nav-link"><i class="fas fa-wallet"></i> Withdrawals</a></li>
+    <li class="nav-item"><a href="ads.html"         class="nav-link"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item" style="margin-top:16px;"><a href="#" class="nav-link nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</div>
+<div class="main-content">
+  <div class="header-section">
+    <h2><i class="fas fa-user"></i> User Detail</h2>
+    <a href="user.html" class="btn-action" style="background:var(--white);"><i class="fas fa-arrow-left"></i> Back to Users</a>
+  </div>
+  <div id="userDetail"><div style="text-align:center;padding:40px;color:#888;font-weight:700;font-size:1rem">Loading user data...</div></div>
+</div>
+<div class="admin-toast" id="toast"></div>
+<script>
+function logout(){localStorage.removeItem("adminToken");window.location.href="index.html";}
+if(!localStorage.getItem("adminToken"))window.location.href="index.html";
+const TOKEN=localStorage.getItem("adminToken");
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+const uid=new URLSearchParams(location.search).get("id");
+async function load(){
+  if(!uid){document.getElementById("userDetail").innerHTML='<div style="text-align:center;padding:40px;color:#888;font-weight:700">No user ID provided</div>';return;}
+  try{
+    const r=await fetch("/admin/api/users/"+uid,{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await r.json();const u=d.user;
+    document.getElementById("userDetail").innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div class="content-box" style="text-align:center;">
+          <div style="width:70px;height:70px;background:var(--gold);border:var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 12px;">${(u.first_name||u.name||'U').charAt(0)}</div>
+          <div style="font-size:1.2rem;font-weight:900">${u.first_name||u.name||'—'}</div>
+          <div style="color:#888;font-weight:700;font-size:0.85rem">@${u.username||'—'}</div>
+          <div style="margin-top:10px;"><span class="badge ${u.is_banned?'badge-pink':'badge-green'}">${u.is_banned?'Banned':'Active'}</span></div>
+        </div>
+        <div class="content-box">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div><span style="font-size:0.72rem;font-weight:900;text-transform:uppercase;color:#888">Telegram ID</span><br><strong>${u.telegram_id||u.id}</strong></div>
+            <div><span style="font-size:0.72rem;font-weight:900;text-transform:uppercase;color:#888">Points</span><br><strong>⭐ ${u.points||0}</strong></div>
+            <div><span style="font-size:0.72rem;font-weight:900;text-transform:uppercase;color:#888">Balance</span><br><strong>$${parseFloat(u.total_usd||u.balance||0).toFixed(2)}</strong></div>
+            <div><span style="font-size:0.72rem;font-weight:900;text-transform:uppercase;color:#888">Joined</span><br><strong>${u.created_at?new Date(u.created_at).toLocaleDateString():'—'}</strong></div>
+          </div>
+        </div>
+      </div>`;
+  }catch(e){document.getElementById("userDetail").innerHTML='<div style="text-align:center;padding:40px;color:#888;font-weight:700">Connect API to see user data</div>';}
+}
+load();
+</script>
+</body>
+</html>

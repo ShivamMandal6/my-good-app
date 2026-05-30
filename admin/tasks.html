@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Tasks | CashZilla Admin</title>
+<link rel="stylesheet" href="admin_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+.tasks-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; margin-bottom:25px; }
+.task-stat-card { border:3px solid #000; box-shadow:5px 5px 0px #000; border-radius:15px; padding:16px; text-align:left; }
+.task-stat-card h2 { margin:5px 0; font-size:26px; font-weight:900; }
+.task-stat-card span { font-size:10px; font-weight:800; text-transform:uppercase; }
+
+.filter-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
+.filter-btn { padding:8px 18px; border:3px solid #000; box-shadow:3px 3px 0px #000; border-radius:8px; font-weight:800; font-size:0.85rem; cursor:pointer; background:#fff; font-family:inherit; transition:all 0.15s; }
+.filter-btn.active { background:#000; color:#fff; }
+.filter-btn:active { transform:translate(2px,2px); box-shadow:1px 1px 0px #000; }
+.search-input { padding:8px 14px; border:3px solid #000; border-radius:8px; font-family:inherit; font-weight:700; font-size:0.9rem; outline:none; flex:1; min-width:180px; }
+
+/* TASK TABLE */
+.tasks-table-wrap { background:#fff; border:3px solid #000; border-radius:15px; overflow:hidden; margin-bottom:25px; }
+.tasks-table { width:100%; border-collapse:collapse; }
+.tasks-table th { background:#000; color:#FFD600; padding:12px 14px; text-align:left; font-size:0.78rem; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; }
+.tasks-table td { padding:12px 14px; border-bottom:2px solid #f0f0f0; vertical-align:middle; font-weight:700; font-size:0.88rem; }
+.tasks-table tr:last-child td { border-bottom:none; }
+.tasks-table tr:hover td { background:#fffdf0; }
+.task-type-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border:2px solid #000; border-radius:20px; font-size:0.75rem; font-weight:900; }
+.toggle-switch { position:relative; display:inline-block; width:42px; height:22px; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; top:0;left:0;right:0;bottom:0; background:#ccc; border-radius:22px; border:2px solid #000; transition:.3s; }
+.toggle-slider:before { position:absolute; content:""; height:14px; width:14px; left:2px; bottom:2px; background:#fff; border-radius:50%; transition:.3s; }
+input:checked + .toggle-slider { background:#00E676; }
+input:checked + .toggle-slider:before { transform:translateX(18px); }
+.action-btns-cell { display:flex; gap:6px; }
+.tbl-btn { padding:6px 12px; border:2px solid #000; border-radius:8px; font-family:inherit; font-weight:900; font-size:0.78rem; cursor:pointer; transition:all 0.1s; }
+.tbl-btn:active { transform:translate(1px,1px); }
+.btn-edit { background:#00D1FF; }
+.btn-del { background:#FF66B2; }
+.proof-chip { padding:3px 8px; border:2px solid #000; border-radius:12px; font-size:0.7rem; font-weight:900; background:#f5f5f5; }
+
+/* MODAL */
+.modal-backdrop { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-backdrop.open { display:flex; }
+.modal-box { background:#fff; border:3px solid #000; box-shadow:8px 8px 0px #000; border-radius:20px; padding:28px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; animation:popIn 0.3s ease; }
+.modal-title { font-size:1.2rem; font-weight:900; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; }
+.modal-close { background:#FF66B2; border:3px solid #000; width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; font-weight:900; }
+.form-row { margin-bottom:16px; }
+.form-row label { display:block; font-size:0.78rem; font-weight:900; text-transform:uppercase; margin-bottom:6px; }
+.form-row input, .form-row select, .form-row textarea { width:100%; padding:10px 14px; border:3px solid #000; border-radius:10px; font-family:inherit; font-size:0.92rem; font-weight:700; outline:none; background:#fafafa; }
+.form-row textarea { resize:vertical; min-height:80px; }
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { background:#fff; border-color:#0088ff; }
+.form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.modal-actions { display:flex; gap:10px; margin-top:20px; }
+.modal-save-btn { flex:1; padding:13px; background:#FFD600; border:3px solid #000; box-shadow:4px 4px 0px #000; border-radius:12px; font-family:inherit; font-weight:900; font-size:1rem; cursor:pointer; }
+.modal-cancel-btn { padding:13px 20px; background:#fff; border:3px solid #000; box-shadow:4px 4px 0px #000; border-radius:12px; font-family:inherit; font-weight:900; font-size:0.95rem; cursor:pointer; }
+
+/* SUBMISSIONS PANEL */
+.submissions-panel { background:#fff; border:3px solid #000; border-radius:15px; padding:20px; }
+.sub-filter-tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.sub-tab { padding:8px 16px; border:3px solid #000; border-radius:8px; font-family:inherit; font-weight:900; font-size:0.82rem; cursor:pointer; background:#fff; }
+.sub-tab.active { background:#000; color:#fff; }
+.sub-card { border:3px solid #000; border-radius:14px; padding:16px; margin-bottom:14px; }
+.sub-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.sub-user-info h4 { font-size:0.95rem; font-weight:900; margin-bottom:3px; }
+.sub-user-info span { font-size:0.78rem; color:#666; font-weight:700; }
+.sub-status-badge { padding:5px 14px; border:2px solid #000; border-radius:20px; font-size:0.75rem; font-weight:900; text-transform:uppercase; }
+.sub-proof-img { width:100%; max-height:120px; object-fit:cover; border:3px solid #000; border-radius:10px; margin:10px 0; cursor:pointer; }
+.sub-text-proof { background:#f5f5f5; border:2px solid #ddd; border-radius:8px; padding:8px 12px; font-size:0.82rem; font-weight:600; margin:8px 0; font-style:italic; }
+.sub-actions { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.sub-btn { padding:8px 16px; border:3px solid #000; border-radius:10px; font-family:inherit; font-weight:900; font-size:0.82rem; cursor:pointer; transition:all 0.1s; }
+.sub-btn:active { transform:translate(1px,1px); }
+.btn-approve { background:#00E676; }
+.btn-reject { background:#FF66B2; }
+.rejection-input { width:100%; margin-top:8px; padding:8px 12px; border:3px solid #000; border-radius:10px; font-family:inherit; font-size:0.85rem; font-weight:700; display:none; }
+
+@keyframes popIn { from{transform:scale(0.85);opacity:0} to{transform:scale(1);opacity:1} }
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:30px;height:30px;background:#000;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">🦕</div>
+    <span>CASHZILLA<br><small style="font-size:8px;">ADMIN PANEL</small></span>
+  </div>
+  <ul class="nav-menu">
+    <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li class="nav-item"><a href="user.html" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+    <li class="nav-item"><a href="quiz.html" class="nav-link"><i class="fas fa-question-circle"></i> Quizzes</a></li>
+    <li class="nav-item"><a href="tasks.html" class="nav-link active"><i class="fas fa-tasks"></i> Tasks</a></li>
+    <li class="nav-item"><a href="ads.html" class="nav-link"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item"><a href="withdrawals.html" class="nav-link"><i class="fas fa-wallet"></i> Withdrawals</a></li>
+    <li class="nav-item"><a href="#" class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</div>
+
+<div class="main-content">
+  <div class="header-section">
+    <h2 style="font-weight:900;"><i class="fas fa-tasks"></i> Task Management</h2>
+    <button class="btn-action" style="background:var(--card-yellow);" onclick="openAddModal()">+ Add New Task</button>
+  </div>
+  <p style="color:#666;font-weight:700;margin-top:-20px;margin-bottom:25px;">Create, manage tasks and review user submissions</p>
+
+  <!-- STATS -->
+  <div class="tasks-stats">
+    <div class="task-stat-card" style="background:var(--card-yellow);"><i class="fas fa-list"></i><h2 id="statTotal">0</h2><span>Total Tasks</span></div>
+    <div class="task-stat-card" style="background:var(--card-cyan);"><i class="fas fa-check"></i><h2 id="statActive">0</h2><span>Active</span></div>
+    <div class="task-stat-card" style="background:var(--card-pink);"><i class="fas fa-clock"></i><h2 id="statPending">0</h2><span>Pending Review</span></div>
+    <div class="task-stat-card" style="background:var(--card-purple);"><i class="fas fa-trophy"></i><h2 id="statApproved">0</h2><span>Approved</span></div>
+    <div class="task-stat-card" style="background:var(--card-orange);"><i class="fas fa-times"></i><h2 id="statRejected">0</h2><span>Rejected</span></div>
+  </div>
+
+  <!-- TASKS TABLE -->
+  <div class="content-box" style="margin-bottom:25px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <h3 style="font-weight:900;margin:0;"><i class="fas fa-list"></i> All Tasks</h3>
+      <div class="filter-row" style="margin:0;">
+        <input class="search-input" type="text" id="taskSearch" placeholder="🔍 Search tasks..." oninput="filterTasks()">
+        <button class="filter-btn active" onclick="filterByStatus('all',this)">All</button>
+        <button class="filter-btn" onclick="filterByStatus('active',this)">Active</button>
+        <button class="filter-btn" onclick="filterByStatus('inactive',this)">Inactive</button>
+      </div>
+    </div>
+    <div class="tasks-table-wrap">
+      <table class="tasks-table">
+        <thead><tr>
+          <th>#</th><th>Task</th><th>Type</th><th>Reward</th><th>Proof</th><th>Subs</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="tasksTableBody"><tr><td colspan="8" style="text-align:center;padding:30px;color:#888;font-weight:700">Loading tasks...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SUBMISSION REVIEW -->
+  <div class="submissions-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <h3 style="font-weight:900;margin:0;"><i class="fas fa-inbox"></i> Submission Review</h3>
+      <button class="btn-action" style="background:var(--card-cyan);" onclick="loadSubmissions(currentSubFilter)"><i class="fas fa-sync-alt"></i> Refresh</button>
+    </div>
+    <div class="sub-filter-tabs">
+      <button class="sub-tab active" onclick="loadSubmissions('Pending',this)">⏳ Pending</button>
+      <button class="sub-tab" onclick="loadSubmissions('Approved',this)">✅ Approved</button>
+      <button class="sub-tab" onclick="loadSubmissions('Rejected',this)">❌ Rejected</button>
+      <button class="sub-tab" onclick="loadSubmissions('All',this)">📋 All</button>
+    </div>
+    <div id="submissionsList"><div style="text-align:center;padding:30px;font-weight:700;color:#888">Loading submissions...</div></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT TASK MODAL -->
+<div class="modal-backdrop" id="taskModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span id="modalTitleText"><i class="fas fa-plus"></i> Add New Task</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <input type="hidden" id="editTaskId">
+    <div class="form-row">
+      <label>Task Title *</label>
+      <input type="text" id="taskTitle" placeholder="e.g. Watch our YouTube video">
+    </div>
+    <div class="form-row">
+      <label>Description</label>
+      <textarea id="taskDesc" placeholder="Describe what the user needs to do..."></textarea>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Task Type *</label>
+        <select id="taskType">
+          <option value="youtube">📺 YouTube</option>
+          <option value="instagram">📸 Instagram</option>
+          <option value="website">🌐 Website</option>
+          <option value="telegram">✈️ Telegram</option>
+          <option value="twitter">🐦 Twitter</option>
+          <option value="custom">⭐ Custom</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Proof Type *</label>
+        <select id="proofType">
+          <option value="both">Screenshot + Text</option>
+          <option value="screenshot">Screenshot Only</option>
+          <option value="text">Text Only</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Task Link (URL) *</label>
+      <input type="url" id="taskLink" placeholder="https://...">
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Reward Coins *</label>
+        <input type="number" id="taskReward" placeholder="e.g. 50" min="1">
+      </div>
+      <div class="form-row">
+        <label>Status</label>
+        <select id="taskStatus">
+          <option value="1">✅ Active</option>
+          <option value="0">❌ Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-save-btn" onclick="saveTask()"><i class="fas fa-save"></i> Save Task</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_ADMIN = "";
+const ADMIN_TOKEN = localStorage.getItem("admin_token")||"";
+let allTasks=[]; let currentSubFilter='Pending'; let activeStatusFilter='all';
+
+const TYPE_ICONS={youtube:'📺',instagram:'📸',website:'🌐',telegram:'✈️',twitter:'🐦',custom:'⭐'};
+const TYPE_COLORS={youtube:'#ff4444',instagram:'#E1306C',website:'#00D1FF',telegram:'#0088cc',twitter:'#1da1f2',custom:'#FFD600'};
+
+function logout(){ localStorage.removeItem("admin_token"); window.location.href="login.html"; }
+
+async function apiFetch(url,opts={}){ return fetch(url,{...opts,headers:{'Content-Type':'application/json','Authorization':'Bearer '+ADMIN_TOKEN,...(opts.headers||{})}}); }
+
+async function loadStats(){
+  try{
+    const res=await apiFetch(`${API_ADMIN}/api/tasks/stats`);
+    const data=await res.json();
+    if(data.success){
+      document.getElementById('statTotal').textContent=data.total||0;
+      document.getElementById('statActive').textContent=data.active||0;
+      document.getElementById('statPending').textContent=data.pending||0;
+      document.getElementById('statApproved').textContent=data.approved||0;
+      document.getElementById('statRejected').textContent=data.rejected||0;
+    }
+  }catch(e){}
+}
+
+async function loadTasks(){
+  try{
+    const res=await apiFetch(`${API_ADMIN}/api/tasks`);
+    const data=await res.json();
+    allTasks=data.tasks||[];
+    renderTasks(allTasks);
+  }catch(e){ document.getElementById('tasksTableBody').innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#f66;font-weight:700">Error loading tasks</td></tr>'; }
+}
+
+function renderTasks(tasks){
+  const tbody=document.getElementById('tasksTableBody');
+  if(!tasks.length){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:#888;font-weight:700">No tasks found</td></tr>'; return; }
+  tbody.innerHTML=tasks.map((t,i)=>`
+    <tr>
+      <td style="font-weight:900">${i+1}</td>
+      <td><div style="font-weight:900;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.title}">${t.title}</div></td>
+      <td><span class="task-type-badge" style="background:${TYPE_COLORS[t.task_type]||'#FFD600'}20;border-color:${TYPE_COLORS[t.task_type]||'#000'}">${TYPE_ICONS[t.task_type]||'⭐'} ${t.task_type||'custom'}</span></td>
+      <td><strong>⭐ ${t.reward_coins}</strong></td>
+      <td><span class="proof-chip">${t.proof_type||'both'}</span></td>
+      <td><strong>${t.submission_count||0}</strong></td>
+      <td>
+        <label class="toggle-switch">
+          <input type="checkbox" ${t.is_active?'checked':''} onchange="toggleTask(${t.id},this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <div class="action-btns-cell">
+          <button class="tbl-btn btn-edit" onclick='editTask(${JSON.stringify(t)})'><i class="fas fa-edit"></i></button>
+          <button class="tbl-btn btn-del" onclick="deleteTask(${t.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterTasks(){
+  const q=document.getElementById('taskSearch').value.toLowerCase();
+  let filtered=allTasks.filter(t=>t.title.toLowerCase().includes(q)||t.task_type.toLowerCase().includes(q));
+  if(activeStatusFilter==='active') filtered=filtered.filter(t=>t.is_active);
+  if(activeStatusFilter==='inactive') filtered=filtered.filter(t=>!t.is_active);
+  renderTasks(filtered);
+}
+
+function filterByStatus(status,btn){
+  activeStatusFilter=status;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterTasks();
+}
+
+async function toggleTask(id,state){
+  try{ await apiFetch(`${API_ADMIN}/api/tasks/${id}/toggle`,{method:'POST',body:JSON.stringify({is_active:state?1:0})}); loadStats(); }
+  catch(e){}
+}
+
+async function deleteTask(id){
+  if(!confirm('Delete this task?')) return;
+  try{
+    const res=await apiFetch(`${API_ADMIN}/api/tasks/${id}`,{method:'DELETE'});
+    const data=await res.json();
+    if(data.success){ loadTasks(); loadStats(); }
+    else alert(data.message||'Error');
+  }catch(e){ alert('Network error'); }
+}
+
+function openAddModal(){
+  document.getElementById('editTaskId').value='';
+  document.getElementById('modalTitleText').innerHTML='<i class="fas fa-plus"></i> Add New Task';
+  document.getElementById('taskTitle').value='';
+  document.getElementById('taskDesc').value='';
+  document.getElementById('taskLink').value='';
+  document.getElementById('taskReward').value='';
+  document.getElementById('taskType').value='youtube';
+  document.getElementById('proofType').value='both';
+  document.getElementById('taskStatus').value='1';
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function editTask(t){
+  document.getElementById('editTaskId').value=t.id;
+  document.getElementById('modalTitleText').innerHTML='<i class="fas fa-edit"></i> Edit Task';
+  document.getElementById('taskTitle').value=t.title||'';
+  document.getElementById('taskDesc').value=t.description||'';
+  document.getElementById('taskLink').value=t.link||'';
+  document.getElementById('taskReward').value=t.reward_coins||'';
+  document.getElementById('taskType').value=t.task_type||'custom';
+  document.getElementById('proofType').value=t.proof_type||'both';
+  document.getElementById('taskStatus').value=t.is_active?'1':'0';
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('taskModal').classList.remove('open'); }
+
+async function saveTask(){
+  const id=document.getElementById('editTaskId').value;
+  const payload={
+    title:document.getElementById('taskTitle').value.trim(),
+    description:document.getElementById('taskDesc').value.trim(),
+    link:document.getElementById('taskLink').value.trim(),
+    reward_coins:parseInt(document.getElementById('taskReward').value)||0,
+    task_type:document.getElementById('taskType').value,
+    proof_type:document.getElementById('proofType').value,
+    is_active:parseInt(document.getElementById('taskStatus').value)
+  };
+  if(!payload.title||!payload.link||!payload.reward_coins){ alert('Please fill Title, Link, and Reward!'); return; }
+  const btn=document.querySelector('.modal-save-btn'); btn.textContent='Saving...'; btn.disabled=true;
+  try{
+    const url=id?`${API_ADMIN}/api/tasks/${id}`:`${API_ADMIN}/api/tasks`;
+    const method=id?'PUT':'POST';
+    const res=await apiFetch(url,{method,body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data.success){ closeModal(); loadTasks(); loadStats(); }
+    else alert(data.message||'Error saving task');
+  }catch(e){ alert('Network error'); }
+  finally{ btn.textContent='Save Task'; btn.disabled=false; }
+}
+
+async function loadSubmissions(filter,btn){
+  currentSubFilter=filter;
+  document.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const el=document.getElementById('submissionsList');
+  el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">Loading...</div>';
+  try{
+    const status=filter==='All'?'':filter;
+    const res=await apiFetch(`${API_ADMIN}/api/tasks/submissions?status=${status}`);
+    const data=await res.json();
+    if(!data.success||!data.submissions?.length){ el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">No submissions found for this filter.</div>'; return; }
+    const statusColors={Pending:'background:#FF9F43',Approved:'background:#00E676',Rejected:'background:#FF66B2'};
+    el.innerHTML=data.submissions.map(s=>`
+      <div class="sub-card" style="border-color:${s.status==='Approved'?'#00E676':s.status==='Rejected'?'#FF66B2':'#FF9F43'}">
+        <div class="sub-card-header">
+          <div class="sub-user-info">
+            <h4>👤 ${s.user_name||'User #'+s.user_id} &nbsp;·&nbsp; 📋 ${s.task_title||'Task'}</h4>
+            <span>⭐ ${s.reward_coins||0} coins &nbsp;·&nbsp; 📅 ${new Date(s.submitted_at).toLocaleString()}</span>
+          </div>
+          <span class="sub-status-badge" style="${statusColors[s.status]||statusColors.Pending}">${s.status}</span>
+        </div>
+        ${s.screenshot_url?`<img class="sub-proof-img" src="${s.screenshot_url}" alt="proof" onclick="window.open(this.src,'_blank')">`:'' }
+        ${s.text_proof?`<div class="sub-text-proof">"${s.text_proof}"</div>`:''}
+        ${s.rejection_reason?`<div style="background:#fff0f0;border:2px solid #ff6666;border-radius:8px;padding:8px 12px;font-size:0.82rem;font-weight:700;margin-top:6px">❌ Rejection reason: ${s.rejection_reason}</div>`:''}
+        ${s.status==='Pending'?`
+        <div class="sub-actions">
+          <button class="sub-btn btn-approve" onclick="reviewSubmission(${s.id},'Approved','')">✅ Approve (+${s.reward_coins||0} coins)</button>
+          <button class="sub-btn btn-reject" onclick="showRejectBox(${s.id})">❌ Reject</button>
+        </div>
+        <div style="margin-top:8px;">
+          <input class="rejection-input" id="rej_${s.id}" placeholder="Enter rejection reason...">
+          <button id="rejBtn_${s.id}" style="display:none;margin-top:6px;padding:8px 16px;background:#FF66B2;border:3px solid #000;border-radius:10px;font-family:inherit;font-weight:900;cursor:pointer;" onclick="submitReject(${s.id})">Submit Rejection</button>
+        </div>`:
+        s.status==='Rejected'?`<div class="sub-actions"><button class="sub-btn" style="background:#A29BFE;" onclick="reviewSubmission(${s.id},'Pending','')">↩️ Mark Pending</button></div>`:''}
+      </div>`).join('');
+  }catch(e){ el.innerHTML='<div style="color:#f66;text-align:center;font-weight:700;padding:20px">Error loading submissions</div>'; }
+}
+
+function showRejectBox(id){
+  const inp=document.getElementById('rej_'+id);
+  const btn=document.getElementById('rejBtn_'+id);
+  if(inp){ inp.style.display='block'; btn.style.display='block'; inp.focus(); }
+}
+function submitReject(id){
+  const reason=document.getElementById('rej_'+id)?.value?.trim();
+  if(!reason){ alert('Please enter a rejection reason!'); return; }
+  reviewSubmission(id,'Rejected',reason);
+}
+
+async function reviewSubmission(id,status,reason){
+  try{
+    const res=await apiFetch(`${API_ADMIN}/api/tasks/submissions/${id}/review`,{method:'POST',body:JSON.stringify({status,rejection_reason:reason})});
+    const data=await res.json();
+    if(data.success){ loadSubmissions(currentSubFilter); loadStats(); }
+    else alert(data.message||'Error');
+  }catch(e){ alert('Network error'); }
+}
+
+loadStats(); loadTasks(); loadSubmissions('Pending');
+</script>
+</body>
+</html>

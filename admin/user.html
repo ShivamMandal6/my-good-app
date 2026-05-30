@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users | CashZilla Admin</title>
+<link rel="stylesheet" href="admin_style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+.search-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+.search-inp{flex:1;min-width:200px;padding:10px 14px;border:var(--border);border-radius:12px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.9rem;outline:none;}
+.user-avatar{width:38px;height:38px;border-radius:50%;border:var(--border);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem;flex-shrink:0;}
+.ban-btn{padding:5px 12px;border:2px solid #000;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.75rem;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:32px;height:32px;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🦕</div>
+    <div><div style="font-size:0.95rem;font-weight:900;">CASH<span style="color:#ff3860;">ZILLA</span></div><div style="font-size:0.62rem;font-weight:800;color:#555;text-transform:uppercase;">Admin Panel</div></div>
+  </div>
+  <ul class="nav-menu">
+    <li class="nav-item"><a href="dashboard.html"  class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li class="nav-item"><a href="user.html"        class="nav-link active"><i class="fas fa-users"></i> Users</a></li>
+    <li class="nav-item"><a href="quiz.html"        class="nav-link"><i class="fas fa-brain"></i> Quizzes</a></li>
+    <li class="nav-item"><a href="tasks.html"       class="nav-link"><i class="fas fa-tasks"></i> Tasks</a></li>
+    <li class="nav-item"><a href="spin.html"        class="nav-link"><i class="fas fa-sync-alt"></i> Spin Wheel</a></li>
+    <li class="nav-item"><a href="referrals.html"   class="nav-link"><i class="fas fa-user-friends"></i> Referrals</a></li>
+    <li class="nav-item"><a href="withdrawals.html" class="nav-link"><i class="fas fa-wallet"></i> Withdrawals</a></li>
+    <li class="nav-item"><a href="ads.html"         class="nav-link"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item" style="margin-top:16px;"><a href="#" class="nav-link nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</div>
+
+<div class="main-content">
+  <div class="header-section">
+    <h2><i class="fas fa-users"></i> Users</h2>
+    <button class="btn-action" style="background:var(--cyan);" onclick="downloadCSV()"><i class="fas fa-download"></i> Download CSV</button>
+  </div>
+  <p class="page-subtitle">Manage all registered users</p>
+
+  <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+    <div class="stat-card" style="background:var(--gold);">  <i class="fas fa-users"></i>  <h2 id="totalUsers">—</h2> <span>Total Users</span></div>
+    <div class="stat-card" style="background:var(--green);"> <i class="fas fa-signal"></i> <h2 id="onlineNow">—</h2>  <span>Online Now</span></div>
+    <div class="stat-card" style="background:var(--pink);">  <i class="fas fa-ban"></i>    <h2 id="bannedCount">—</h2><span>Banned</span></div>
+  </div>
+
+  <div class="content-box">
+    <div class="search-row">
+      <input class="search-inp" type="text" id="searchInp" placeholder="🔍 Search by name, username, ID..." oninput="filterUsers()">
+      <button class="btn-action" style="background:var(--gold);" onclick="loadUsers()"><i class="fas fa-sync-alt"></i> Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>User</th><th>Telegram ID</th><th>Points</th><th>Balance ($)</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="usersTable"><tr><td colspan="8" style="text-align:center;padding:30px;color:#888;font-weight:700">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toast" id="toast"></div>
+
+<script>
+function logout(){localStorage.removeItem("adminToken");window.location.href="index.html";}
+if(!localStorage.getItem("adminToken"))window.location.href="index.html";
+const TOKEN=localStorage.getItem("adminToken");
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+
+let allUsers=[];
+
+async function loadUsers(){
+  try{
+    const res=await fetch("/admin/api/users",{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await res.json();
+    allUsers=d.users||[];
+    document.getElementById("totalUsers").textContent=allUsers.length;
+    document.getElementById("bannedCount").textContent=allUsers.filter(u=>u.is_banned).length;
+    renderUsers(allUsers);
+  }catch(e){
+    document.getElementById("usersTable").innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#888;font-weight:700">Connect API to see users</td></tr>';
+  }
+}
+
+async function loadOnline(){
+  try{const r=await fetch("/admin/api/stats",{headers:{"Authorization":"Bearer "+TOKEN}});const d=await r.json();document.getElementById("onlineNow").textContent=d.active_users||0;}catch(e){}
+}
+
+function renderUsers(users){
+  const tb=document.getElementById("usersTable");
+  if(!users.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#888;font-weight:700">No users found</td></tr>';return;}
+  tb.innerHTML=users.map((u,i)=>`
+    <tr>
+      <td style="font-weight:900">${i+1}</td>
+      <td><div style="display:flex;align-items:center;gap:8px;">
+        <div class="user-avatar" style="background:var(--gold)">${(u.first_name||u.name||'U').charAt(0).toUpperCase()}</div>
+        <div><div style="font-weight:800;font-size:0.88rem">${u.first_name||u.name||'—'}</div><div style="font-size:0.72rem;color:#888">@${u.username||'—'}</div></div>
+      </div></td>
+      <td><code style="background:#f5f5f5;padding:3px 8px;border-radius:6px;font-size:0.82rem">${u.telegram_id||u.id}</code></td>
+      <td><strong>⭐ ${u.points||0}</strong></td>
+      <td><strong>$${parseFloat(u.total_usd||u.balance||0).toFixed(2)}</strong></td>
+      <td style="font-size:0.78rem;color:#888">${u.created_at?new Date(u.created_at).toLocaleDateString():'—'}</td>
+      <td><span class="badge ${u.is_banned?'badge-pink':'badge-green'}">${u.is_banned?'Banned':'Active'}</span></td>
+      <td><div style="display:flex;gap:6px;">
+        <button class="ban-btn" style="background:${u.is_banned?'var(--green)':'var(--pink)'}" onclick="toggleBan(${u.id||u.telegram_id},${u.is_banned?0:1},this)">
+          ${u.is_banned?'Unban':'Ban'}
+        </button>
+        <button class="ban-btn" style="background:var(--gold)" onclick="viewUser('${u.telegram_id||u.id}')">View</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function filterUsers(){
+  const q=document.getElementById("searchInp").value.toLowerCase();
+  renderUsers(allUsers.filter(u=>(u.first_name||u.name||'').toLowerCase().includes(q)||(u.username||'').toLowerCase().includes(q)||(String(u.telegram_id||u.id)).includes(q)));
+}
+
+async function toggleBan(id,state,btn){
+  try{
+    await fetch("/admin/api/users/ban",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify({user_id:id,is_banned:state})});
+    toast(state?"🚫 User banned":"✅ User unbanned");
+    loadUsers();
+  }catch(e){toast("❌ Error");}
+}
+
+async function viewUser(id){window.location.href="user-search.html?id="+id;}
+
+async function downloadCSV(){
+  try{
+    const res=await fetch("/admin/api/users/csv",{headers:{"Authorization":"Bearer "+TOKEN}});
+    const blob=await res.blob();
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="users.csv";a.click();
+  }catch(e){toast("❌ CSV download failed");}
+}
+loadUsers();loadOnline();
+</script>
+</body>
+</html>

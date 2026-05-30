@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | CashZilla Admin</title>
+<link rel="stylesheet" href="admin_style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:32px;height:32px;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🦕</div>
+    <div><div style="font-size:0.95rem;font-weight:900;letter-spacing:-0.3px;">CASH<span style="color:#ff3860;">ZILLA</span></div><div style="font-size:0.62rem;font-weight:800;color:#555;text-transform:uppercase;">Admin Panel</div></div>
+  </div>
+  <ul class="nav-menu">
+    <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li class="nav-item"><a href="user.html"       class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+    <li class="nav-item"><a href="quiz.html"       class="nav-link"><i class="fas fa-brain"></i> Quizzes</a></li>
+    <li class="nav-item"><a href="tasks.html"      class="nav-link"><i class="fas fa-tasks"></i> Tasks</a></li>
+    <li class="nav-item"><a href="spin.html"       class="nav-link"><i class="fas fa-sync-alt"></i> Spin Wheel</a></li>
+    <li class="nav-item"><a href="referrals.html"  class="nav-link"><i class="fas fa-user-friends"></i> Referrals</a></li>
+    <li class="nav-item"><a href="withdrawals.html" class="nav-link"><i class="fas fa-wallet"></i> Withdrawals</a></li>
+    <li class="nav-item"><a href="ads.html"        class="nav-link"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item" style="margin-top:20px;"><a href="#" class="nav-link nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</div>
+
+<div class="main-content">
+  <div class="header-section">
+    <h2><i class="fas fa-th-large"></i> Dashboard</h2>
+    <button class="btn-action" style="background:var(--gold);" onclick="loadStats()"><i class="fas fa-sync-alt"></i> Refresh</button>
+  </div>
+  <p class="page-subtitle">CashZilla command center — manage everything from here</p>
+
+  <!-- STATS GRID -->
+  <div class="stats-grid">
+    <div class="stat-card" style="background:var(--gold);">         <i class="fas fa-users"></i>       <h2 id="totalUsers">—</h2>    <span>Total Users</span></div>
+    <div class="stat-card" style="background:var(--cyan);">         <i class="fas fa-dollar-sign"></i> <h2 id="totalEarnings">—</h2> <span>Total Earnings</span></div>
+    <div class="stat-card" style="background:var(--pink);">         <i class="fas fa-clock"></i>        <h2 id="pendingW">—</h2>      <span>Pending Withdraws</span></div>
+    <div class="stat-card" style="background:var(--green);">        <i class="fas fa-trophy"></i>       <h2 id="quizzesWon">—</h2>    <span>Quizzes Won</span></div>
+    <div class="stat-card" style="background:var(--purple);">       <i class="fas fa-brain"></i>        <h2 id="totalQuizzes">—</h2>  <span>Total Quizzes</span></div>
+    <div class="stat-card" style="background:var(--orange);">       <i class="fas fa-times-circle"></i> <h2 id="quizzesFailed">—</h2> <span>Quizzes Failed</span></div>
+    <div class="stat-card" style="background:#00E676;">             <i class="fas fa-signal"></i>      <h2 id="onlineUsers">—</h2>   <span>Online Now (5min)</span></div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="quick-actions">
+    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+    <div class="action-btns">
+      <a href="quiz.html"        class="btn-action" style="background:var(--gold);">          <i class="fas fa-plus"></i> Add New Quiz</a>
+      <a href="tasks.html"       class="btn-action" style="background:var(--purple);">        <i class="fas fa-tasks"></i> Manage Tasks</a>
+      <a href="user.html"        class="btn-action" style="background:var(--cyan);">          <i class="fas fa-download"></i> Users CSV</a>
+      <a href="ads.html"         class="btn-action" style="background:var(--pink);">          <i class="fas fa-ad"></i> Manage Ads</a>
+      <a href="withdrawals.html" class="btn-action" style="background:var(--orange);">        <i class="fas fa-wallet"></i> Withdrawals</a>
+    </div>
+  </div>
+
+  <!-- RECENT NOTIFICATIONS -->
+  <div class="content-box">
+    <h3><i class="fas fa-bell"></i> Recent Notifications</h3>
+    <div id="notifList"><div style="text-align:center;padding:20px;color:#888;font-weight:700">Loading...</div></div>
+  </div>
+</div>
+
+<div class="admin-toast" id="toast"></div>
+
+<script>
+function logout(){ localStorage.removeItem("adminToken"); window.location.href="index.html"; }
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2500); }
+if(!localStorage.getItem("adminToken")) window.location.href="index.html";
+
+async function loadStats(){
+  try{
+    const res=await fetch("/admin/api/stats",{headers:{"Authorization":"Bearer "+localStorage.getItem("adminToken")}});
+    const d=await res.json();
+    if(!d.success){toast("❌ Auth error");return;}
+    document.getElementById("totalUsers").textContent    = d.total_users||0;
+    document.getElementById("totalEarnings").textContent = "$"+(parseFloat(d.total_earnings||0)).toFixed(2);
+    document.getElementById("pendingW").textContent      = d.pending_withdrawals||0;
+    document.getElementById("quizzesWon").textContent    = d.quizzes_won||0;
+    document.getElementById("totalQuizzes").textContent  = d.total_quizzes||0;
+    document.getElementById("quizzesFailed").textContent = d.quizzes_failed||0;
+    document.getElementById("onlineUsers").textContent   = d.active_users||0;
+  }catch(e){
+    // Fallback demo data when API not connected
+    document.getElementById("totalUsers").textContent="0";
+    document.getElementById("totalEarnings").textContent="$0.00";
+    document.getElementById("pendingW").textContent="0";
+    document.getElementById("quizzesWon").textContent="0";
+    document.getElementById("totalQuizzes").textContent="0";
+    document.getElementById("quizzesFailed").textContent="0";
+    document.getElementById("onlineUsers").textContent="0";
+  }
+}
+
+async function loadNotifs(){
+  const el=document.getElementById("notifList");
+  try{
+    const res=await fetch("/admin/api/notifications",{headers:{"Authorization":"Bearer "+localStorage.getItem("adminToken")}});
+    const d=await res.json();
+    if(!d.success||!d.notifications?.length){
+      el.innerHTML='<div style="text-align:center;padding:20px;color:#888;font-weight:700">No notifications yet.</div>'; return;
+    }
+    el.innerHTML=d.notifications.map(n=>`
+      <div class="list-item">
+        <div style="background:var(--gold);padding:10px;border-radius:50%;border:2px solid #000;flex-shrink:0;"><i class="fas fa-bell"></i></div>
+        <div><div style="font-weight:800;font-size:0.9rem">${n.message}</div><div style="font-size:0.72rem;color:#888">${new Date(n.created_at).toLocaleString()}</div></div>
+      </div>`).join('');
+  }catch(e){
+    el.innerHTML=`
+      <div class="list-item"><div style="background:var(--gold);padding:10px;border-radius:50%;border:2px solid #000;flex-shrink:0;"><i class="fas fa-bell"></i></div><div><div style="font-weight:800;font-size:0.9rem">Withdrawal request pending review</div><div style="font-size:0.72rem;color:#888">Connect API to see live notifications</div></div></div>`;
+  }
+}
+loadStats(); loadNotifs();
+</script>
+</body>
+</html>

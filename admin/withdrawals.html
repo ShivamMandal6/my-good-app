@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdrawals | CashZilla Admin</title>
+<link rel="stylesheet" href="admin_style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+.filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.filter-tab{padding:8px 18px;border:var(--border);box-shadow:var(--shadow-sm);border-radius:8px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.82rem;cursor:pointer;background:var(--white);transition:all .15s;}
+.filter-tab.active{background:var(--dark);color:var(--gold);}
+.rej-inp{width:100%;padding:7px 10px;border:2px solid #000;border-radius:8px;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:700;margin-top:6px;display:none;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:32px;height:32px;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🦕</div>
+    <div><div style="font-size:0.95rem;font-weight:900;">CASH<span style="color:#ff3860;">ZILLA</span></div><div style="font-size:0.62rem;font-weight:800;color:#555;text-transform:uppercase;">Admin Panel</div></div>
+  </div>
+  <ul class="nav-menu">
+    <li class="nav-item"><a href="dashboard.html"  class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li class="nav-item"><a href="user.html"        class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+    <li class="nav-item"><a href="quiz.html"        class="nav-link"><i class="fas fa-brain"></i> Quizzes</a></li>
+    <li class="nav-item"><a href="tasks.html"       class="nav-link"><i class="fas fa-tasks"></i> Tasks</a></li>
+    <li class="nav-item"><a href="spin.html"        class="nav-link"><i class="fas fa-sync-alt"></i> Spin Wheel</a></li>
+    <li class="nav-item"><a href="referrals.html"   class="nav-link"><i class="fas fa-user-friends"></i> Referrals</a></li>
+    <li class="nav-item"><a href="withdrawals.html" class="nav-link active"><i class="fas fa-wallet"></i> Withdrawals</a></li>
+    <li class="nav-item"><a href="ads.html"         class="nav-link"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item" style="margin-top:16px;"><a href="#" class="nav-link nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</div>
+
+<div class="main-content">
+  <div class="header-section">
+    <h2><i class="fas fa-wallet"></i> Withdrawals</h2>
+    <button class="btn-action" style="background:var(--gold);" onclick="loadWithdrawals(currentFilter)"><i class="fas fa-sync-alt"></i> Refresh</button>
+  </div>
+  <p class="page-subtitle">Review and manage withdrawal requests</p>
+
+  <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:20px;">
+    <div class="stat-card" style="background:var(--orange);"><i class="fas fa-clock"></i><h2 id="sPending">—</h2><span>Pending</span></div>
+    <div class="stat-card" style="background:var(--green);"><i class="fas fa-check"></i><h2 id="sPaid">—</h2><span>Paid</span></div>
+    <div class="stat-card" style="background:var(--pink);"><i class="fas fa-times"></i><h2 id="sRejected">—</h2><span>Rejected</span></div>
+    <div class="stat-card" style="background:var(--cyan);"><i class="fas fa-dollar-sign"></i><h2 id="sTotal">—</h2><span>Total Paid ($)</span></div>
+  </div>
+
+  <div class="content-box">
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="loadWithdrawals('pending',this)">⏳ Pending</button>
+      <button class="filter-tab" onclick="loadWithdrawals('paid',this)">✅ Paid</button>
+      <button class="filter-tab" onclick="loadWithdrawals('rejected',this)">❌ Rejected</button>
+      <button class="filter-tab" onclick="loadWithdrawals('all',this)">📋 All</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>User</th><th>Amount</th><th>Method / Account</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="wTable"><tr><td colspan="7" style="text-align:center;padding:30px;color:#888;font-weight:700">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="admin-toast" id="toast"></div>
+
+<script>
+function logout(){localStorage.removeItem("adminToken");window.location.href="index.html";}
+if(!localStorage.getItem("adminToken"))window.location.href="index.html";
+const TOKEN=localStorage.getItem("adminToken");
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
+
+let currentFilter="pending";
+
+async function loadStats(){
+  try{
+    const r=await fetch("/admin/api/withdrawals/stats",{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await r.json();
+    document.getElementById("sPending").textContent=d.pending||0;
+    document.getElementById("sPaid").textContent=d.paid||0;
+    document.getElementById("sRejected").textContent=d.rejected||0;
+    document.getElementById("sTotal").textContent="$"+(parseFloat(d.total_paid||0)).toFixed(2);
+  }catch(e){}
+}
+
+async function loadWithdrawals(filter,btn){
+  currentFilter=filter;
+  if(btn){document.querySelectorAll(".filter-tab").forEach(b=>b.classList.remove("active"));btn.classList.add("active");}
+  const tb=document.getElementById("wTable");
+  tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:#888;font-weight:700">Loading...</td></tr>';
+  try{
+    const status=filter==="all"?"":filter;
+    const r=await fetch(`/admin/api/withdrawals?status=${status}`,{headers:{"Authorization":"Bearer "+TOKEN}});
+    const d=await r.json();
+    const ws=d.withdrawals||[];
+    if(!ws.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:#888;font-weight:700">No records found</td></tr>';return;}
+    const sc={pending:"badge-orange",paid:"badge-green",rejected:"badge-pink"};
+    tb.innerHTML=ws.map((w,i)=>`
+      <tr>
+        <td style="font-weight:900">${i+1}</td>
+        <td><div style="font-weight:800">${w.user_name||"User #"+w.user_id}</div><div style="font-size:0.72rem;color:#888">${w.telegram_id||""}</div></td>
+        <td><strong>$${parseFloat(w.amount).toFixed(2)}</strong></td>
+        <td><div style="font-size:0.82rem;font-weight:700">${w.method||"Binance"}</div><div style="font-size:0.72rem;color:#888;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.account||""}</div></td>
+        <td style="font-size:0.78rem;color:#888">${new Date(w.created_at).toLocaleDateString()}</td>
+        <td><span class="badge ${sc[w.status]||"badge-orange"}">${w.status}</span></td>
+        <td>
+          ${w.status==="pending"?`
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="display:flex;gap:6px;">
+                <button class="tbl-btn btn-approve" style="background:var(--green);border:2px solid #000;border-radius:8px;padding:5px 10px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.75rem;cursor:pointer;" onclick="updateW(${w.id},'paid','',this)">✅ Approve</button>
+                <button class="tbl-btn" style="background:var(--pink);border:2px solid #000;border-radius:8px;padding:5px 10px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.75rem;cursor:pointer;" onclick="showRej(${w.id})">❌ Reject</button>
+              </div>
+              <input class="rej-inp" id="rej_${w.id}" placeholder="Rejection reason...">
+              <button id="rejBtn_${w.id}" style="display:none;padding:5px 10px;background:var(--red,#FF4757);border:2px solid #000;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.75rem;cursor:pointer;" onclick="submitRej(${w.id})">Submit</button>
+            </div>`
+          :'<span style="color:#888;font-size:0.78rem;font-weight:700">—</span>'}
+        </td>
+      </tr>`).join('');
+  }catch(e){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:#888;font-weight:700">Connect API to see withdrawals</td></tr>';}
+}
+
+function showRej(id){document.getElementById("rej_"+id).style.display="block";document.getElementById("rejBtn_"+id).style.display="block";}
+function submitRej(id){const r=document.getElementById("rej_"+id).value.trim();if(!r){toast("⚠️ Enter reason!");return;}updateW(id,"rejected",r);}
+
+async function updateW(id,status,reason){
+  try{
+    const r=await fetch("/admin/api/update_withdraw",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify({id,status,rejection_reason:reason})});
+    const d=await r.json();
+    if(d.success){toast(status==="paid"?"✅ Approved!":"❌ Rejected");loadWithdrawals(currentFilter);loadStats();}
+    else toast("❌ "+(d.message||"Error"));
+  }catch(e){toast("❌ Network error");}
+}
+loadStats();loadWithdrawals("pending");
+</script>
+</body>
+</html>
