@@ -13,14 +13,25 @@ app.use(express.static(__dirname + '/user'));
 app.use('/telegram', express.static(__dirname + '/telegram'));
 
 const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT) || 3306,
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'cashzilla',
   waitForConnections: true,
-  connectionLimit: 10
+  connectionLimit: 10,
+  queueLimit: 0,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
+db.getConnection((err, connection) => {
+  if (err) {
+    console.error('❌ MySQL Connection Failed:', err.message);
+  } else {
+    console.log('✅ Connected to MySQL Database (Pool)');
+    connection.release();
+  }
+});
 
 // ── DATABASE SETUP ROUTE (one-time use) ──
 app.get("/setup", (req, res) => {
@@ -413,8 +424,7 @@ app.get("/api/user_earning_history/:telegram_id", (req, res) => {
   });
 });
 
-
-// --- SPIN CONFIG (for admin-controlled segments) ---
+// --- SPIN CONFIG ---
 app.get("/api/spin/config", (req, res) => {
   const defaultSegments = [
     {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
