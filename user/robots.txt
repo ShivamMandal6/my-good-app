@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Block Admin Panel & System Files
+Disallow: /admin/
+Disallow: /api/
+Disallow: /config/
+Disallow: /logs/
+
+# Block Private User Pages (Google should not index user dashboards)
+Disallow: /telegram/dashboard.html
+Disallow: /telegram/withdrawals.html
+Disallow: /telegram/quiz.html
+
+# Sitemap Location
+Sitemap: https://yourdomain.com/sitemap.xml
