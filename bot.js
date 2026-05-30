@@ -5,14 +5,11 @@ const http = require('http');
 
 const token = process.env.BOT_TOKEN;
 const PORT = process.env.PORT || 3002;
+const DOMAIN = process.env.DOMAIN || '';
+const WEBHOOK_PATH = `/bot${token}`;
+const WEBHOOK_URL = `${DOMAIN}${WEBHOOK_PATH}`;
 
-// ── HTTP server — Render ke liye ──
-http.createServer((req, res) => {
-  res.writeHead(200);
-  res.end('CashZilla Bot is running.');
-}).listen(PORT, () => console.log(`🌐 Health check on port ${PORT}`));
-
-// ── Database — Aiven SSL support ──
+// ── Database ──
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT) || 3306,
@@ -25,17 +22,17 @@ const db = mysql.createPool({
   connectionLimit: 5
 });
 
-// DB test
 db.query('SELECT 1', (err) => {
   if (err) console.error('❌ DB connection failed:', err.message);
   else console.log('✅ Database connected');
 });
 
-// ── Bot — 409 conflict fix ──
-const bot = new TelegramBot(token, { polling: false });
-bot.deleteWebHook()
-  .then(() => { bot.startPolling({ restart: false }); console.log('🚀 CashZilla Bot Active...'); })
-  .catch(() => bot.startPolling({ restart: false }));
+// ── Bot — Webhook mode ──
+const bot = new TelegramBot(token, { webHook: { port: PORT } });
+
+bot.setWebHook(WEBHOOK_URL).then(() => {
+  console.log(`🚀 CashZilla Bot Active — Webhook set: ${WEBHOOK_URL}`);
+}).catch(err => console.error('Webhook error:', err.message));
 
 // ── /start ──
 bot.onText(/\/start(?:\s+(.+))?/, (msg, match) => {
@@ -52,7 +49,6 @@ bot.onText(/\/start(?:\s+(.+))?/, (msg, match) => {
         [chatId, firstName, firstName],
         (err2) => {
           if (err2) console.error('Insert error:', err2.message);
-          // Handle referral
           if (refCode?.startsWith('ref_')) {
             const refTgId = refCode.replace('ref_', '');
             db.query('SELECT id FROM users WHERE telegram_id = ?', [refTgId], (e, refRows) => {
@@ -79,15 +75,14 @@ bot.onText(/\/start(?:\s+(.+))?/, (msg, match) => {
 });
 
 function sendWelcome(chatId, firstName, isNew) {
-  const domain = process.env.DOMAIN || '';
   const keyboard = {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🚀 Open App', web_app: { url: `${domain}/telegram/dashboard.html` } }],
-        [{ text: '🧠 Quiz', web_app: { url: `${domain}/telegram/quiz.html` } },
-         { text: '✅ Tasks', web_app: { url: `${domain}/telegram/tasks.html` } }],
-        [{ text: '🎰 Spin', web_app: { url: `${domain}/telegram/spin.html` } },
-         { text: '💰 Withdraw', web_app: { url: `${domain}/telegram/withdrawals.html` } }]
+        [{ text: '🚀 Open App', web_app: { url: `${DOMAIN}/telegram/dashboard.html` } }],
+        [{ text: '🧠 Quiz', web_app: { url: `${DOMAIN}/telegram/quiz.html` } },
+         { text: '✅ Tasks', web_app: { url: `${DOMAIN}/telegram/tasks.html` } }],
+        [{ text: '🎰 Spin', web_app: { url: `${DOMAIN}/telegram/spin.html` } },
+         { text: '💰 Withdraw', web_app: { url: `${DOMAIN}/telegram/withdrawals.html` } }]
       ]
     }
   };
@@ -98,5 +93,4 @@ function sendWelcome(chatId, firstName, isNew) {
     .catch(e => console.error('Send error:', e.message));
 }
 
-bot.on('polling_error', err => console.error('Polling error:', err.code, err.message));
 process.on('uncaughtException', err => console.error('Uncaught:', err.message));
