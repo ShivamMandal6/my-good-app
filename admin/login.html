@@ -60,7 +60,7 @@ async function doLogin() {
     });
     const data = await res.json();
     if (data.success) {
-      localStorage.setItem('admin_token', data.token);
+      localStorage.setItem('adminToken', data.token);
       window.location.href = 'dashboard.html';
     } else {
       errEl.textContent = 'Invalid username or password.';
@@ -73,7 +73,7 @@ async function doLogin() {
 }
 document.addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
 // Redirect if already logged in
-if(localStorage.getItem('admin_token')) window.location.href = 'dashboard.html';
+if(localStorage.getItem('adminToken')) window.location.href = 'dashboard.html';
 </script>
 </body>
 </html>
