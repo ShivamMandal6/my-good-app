@@ -1,12 +1,21 @@
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const mysql = require('mysql2');
+const express = require('express');
 
 const token = process.env.BOT_TOKEN;
 const PORT = process.env.PORT || 3002;
-const BOT_DOMAIN = process.env.BOT_DOMAIN || '';   // Bot Service URL — webhook ke liye
-const APP_DOMAIN = process.env.APP_DOMAIN || '';   // User Service URL — Mini App buttons ke liye
-const WEBHOOK_URL = `${BOT_DOMAIN}/bot${token}`;
+const BOT_DOMAIN = process.env.BOT_DOMAIN || '';
+const APP_DOMAIN = process.env.APP_DOMAIN || '';
+const WEBHOOK_PATH = `/bot${token}`;
+const WEBHOOK_URL = `${BOT_DOMAIN}${WEBHOOK_PATH}`;
+
+// ── Express server ──
+const app = express();
+app.use(express.json());
+
+// Health check — UptimeRobot ke liye
+app.get('/', (req, res) => res.send('CashZilla Bot is running ✅'));
 
 // ── Database ──
 const db = mysql.createPool({
@@ -27,11 +36,24 @@ db.query('SELECT 1', (err) => {
 });
 
 // ── Bot — Webhook mode ──
-const bot = new TelegramBot(token, { webHook: { port: PORT } });
+const bot = new TelegramBot(token, { polling: false });
 
-bot.setWebHook(WEBHOOK_URL).then(() => {
-  console.log(`🚀 CashZilla Bot Active — Webhook: ${WEBHOOK_URL}`);
-}).catch(err => console.error('Webhook error:', err.message));
+// Webhook route
+app.post(WEBHOOK_PATH, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+// Server start karo pehle, phir webhook set karo
+app.listen(PORT, async () => {
+  console.log(`🌐 Server running on port ${PORT}`);
+  try {
+    await bot.setWebHook(WEBHOOK_URL);
+    console.log(`🚀 CashZilla Bot Active — Webhook: ${WEBHOOK_URL}`);
+  } catch (err) {
+    console.error('Webhook error:', err.message);
+  }
+});
 
 // ── /start ──
 bot.onText(/\/start(?:\s+(.+))?/, (msg, match) => {
