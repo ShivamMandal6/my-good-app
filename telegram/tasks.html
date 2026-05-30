@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tasks | CashZilla</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #f5f0e8; --gold: #FFD600; --cyan: #00D1FF; --pink: #FF66B2;
+  --purple: #A29BFE; --orange: #FF9F43; --green: #00E676;
+  --dark: #000; --border: 3px solid #000; --shadow: 5px 5px 0px #000;
+  --shadow-sm: 3px 3px 0px #000; --radius: 18px; --white: #FFFFFF;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; padding: 16px 16px 90px; }
+
+/* HEADER */
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.page-title { font-size:1.4rem; font-weight:900; }
+.coins-chip { background:var(--gold); border:var(--border); box-shadow:var(--shadow-sm); padding:6px 14px; border-radius:30px; font-weight:900; font-size:0.9rem; }
+
+/* VIEW ADS SECTION */
+.ads-section { background:var(--purple); border:var(--border); box-shadow:var(--shadow); border-radius:var(--radius); padding:16px; margin-bottom:18px; }
+.ads-section-title { font-size:1rem; font-weight:900; margin-bottom:12px; }
+.ads-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.ad-btn {
+  border:var(--border); box-shadow:var(--shadow-sm); border-radius:14px;
+  padding:12px 8px; text-align:center; cursor:pointer;
+  transition:transform 0.1s, box-shadow 0.1s; background:var(--white);
+  position:relative;
+}
+.ad-btn:active:not(.disabled) { transform:translate(2px,2px); box-shadow:1px 1px 0px #000; }
+.ad-btn.disabled { opacity:0.5; cursor:not-allowed; }
+.ad-btn .ad-icon { font-size:1.5rem; margin-bottom:4px; }
+.ad-btn .ad-reward { font-size:0.75rem; font-weight:900; }
+.ad-btn .ad-timer { font-size:0.65rem; color:#666; font-weight:700; margin-top:2px; }
+.ad-btn .ad-name { font-size:0.7rem; font-weight:800; margin-bottom:2px; }
+
+/* TABS */
+.tabs { display:flex; gap:0; margin-bottom:16px; border:var(--border); border-radius:14px; overflow:hidden; }
+.tab-btn {
+  flex:1; padding:12px; font-family:'Outfit',sans-serif; font-weight:900;
+  font-size:0.85rem; text-transform:uppercase; cursor:pointer;
+  border:none; background:var(--white); color:#888;
+  transition:background 0.2s, color 0.2s; position:relative;
+}
+.tab-btn.active { background:var(--gold); color:var(--dark); }
+.tab-btn:first-child { border-right:var(--border); }
+.tab-pending-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--pink); color:#fff; border:2px solid #000;
+  border-radius:50%; width:18px; height:18px; font-size:0.6rem;
+  font-weight:900; margin-left:5px; vertical-align:middle;
+}
+
+/* TASK CARDS */
+.task-card {
+  background:var(--white); border:var(--border); box-shadow:var(--shadow);
+  border-radius:var(--radius); padding:16px; margin-bottom:14px;
+  transition:transform 0.1s;
+}
+.task-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; }
+.task-type-icon {
+  width:48px; height:48px; border-radius:14px; border:var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:24px;
+  flex-shrink:0;
+}
+.task-info { flex:1; }
+.task-title { font-size:0.95rem; font-weight:900; margin-bottom:4px; }
+.task-desc { font-size:0.78rem; color:#555; font-weight:600; line-height:1.4; }
+.task-footer { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.reward-badge {
+  background:var(--gold); border:var(--border); box-shadow:var(--shadow-sm);
+  padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:900;
+}
+.start-task-btn {
+  background:var(--cyan); border:var(--border); box-shadow:var(--shadow-sm);
+  padding:8px 16px; border-radius:12px; font-family:'Outfit',sans-serif;
+  font-weight:900; font-size:0.85rem; cursor:pointer;
+  transition:transform 0.1s, box-shadow 0.1s;
+}
+.start-task-btn:active { transform:translate(2px,2px); box-shadow:1px 1px 0px #000; }
+
+/* MY TASKS STATUS BADGES */
+.status-badge {
+  padding:4px 12px; border-radius:20px; border:2px solid #000;
+  font-size:0.72rem; font-weight:900; text-transform:uppercase;
+}
+.status-pending { background:var(--orange); }
+.status-approved { background:var(--green); }
+.status-rejected { background:var(--pink); }
+.rejection-reason { font-size:0.75rem; color:#cc0000; font-weight:700; margin-top:6px; padding:6px 10px; background:#fff0f0; border:2px solid #ff6666; border-radius:8px; }
+
+/* MY TASK CARD */
+.my-task-card {
+  background:var(--white); border:var(--border); box-shadow:var(--shadow);
+  border-radius:var(--radius); padding:16px; margin-bottom:14px;
+}
+.mt-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.mt-title { font-size:0.9rem; font-weight:900; max-width:200px; }
+.mt-meta { font-size:0.72rem; color:#888; font-weight:600; margin-bottom:8px; }
+.mt-proof-img { width:100%; max-height:100px; object-fit:cover; border:2px solid #000; border-radius:10px; margin-top:8px; cursor:pointer; }
+.mt-resubmit-btn {
+  margin-top:10px; width:100%; padding:10px; background:var(--orange);
+  border:var(--border); box-shadow:var(--shadow-sm); border-radius:12px;
+  font-family:'Outfit',sans-serif; font-weight:900; font-size:0.85rem; cursor:pointer;
+}
+
+/* MODAL */
+.modal-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.7); z-index:1000; display:none;
+  align-items:flex-end; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal-sheet {
+  background:var(--bg); border:var(--border); border-bottom:none;
+  border-radius:24px 24px 0 0; padding:20px; width:100%;
+  max-height:88vh; overflow-y:auto;
+  animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-handle { width:40px; height:4px; background:#ccc; border-radius:4px; margin:0 auto 16px; }
+.modal-title { font-size:1.1rem; font-weight:900; margin-bottom:6px; }
+.modal-desc { font-size:0.82rem; color:#555; font-weight:600; line-height:1.5; margin-bottom:16px; }
+.open-link-btn {
+  width:100%; padding:14px; background:var(--cyan); border:var(--border);
+  box-shadow:var(--shadow); border-radius:14px; font-family:'Outfit',sans-serif;
+  font-weight:900; font-size:1rem; cursor:pointer; margin-bottom:16px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  text-decoration:none; color:var(--dark);
+}
+.proof-section { margin-bottom:14px; }
+.proof-label { font-size:0.8rem; font-weight:900; text-transform:uppercase; margin-bottom:6px; }
+.proof-input {
+  width:100%; padding:12px; border:var(--border); border-radius:12px;
+  font-family:'Outfit',sans-serif; font-size:0.9rem; background:var(--white);
+  resize:vertical; min-height:80px;
+}
+.file-upload-btn {
+  width:100%; padding:12px; background:var(--white); border:var(--border);
+  border-radius:12px; font-family:'Outfit',sans-serif; font-weight:800;
+  cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px;
+}
+#screenshotPreview { width:100%; max-height:120px; object-fit:cover; border:2px solid #000; border-radius:10px; margin-top:8px; display:none; }
+.submit-btn {
+  width:100%; padding:16px; background:var(--gold); border:var(--border);
+  box-shadow:var(--shadow); border-radius:14px; font-family:'Outfit',sans-serif;
+  font-weight:900; font-size:1rem; cursor:pointer; margin-top:8px;
+}
+.submit-btn:active { transform:translate(3px,3px); box-shadow:2px 2px 0px #000; }
+.success-msg { background:var(--green); border:var(--border); border-radius:12px; padding:12px; font-weight:800; text-align:center; margin-top:10px; display:none; }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0; z-index:1000;
+  background:var(--white); border-top:var(--border);
+  display:flex; align-items:stretch; box-shadow:0 -3px 0 #000;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:8px 4px; gap:3px; cursor:pointer;
+  border:none; background:transparent; font-family:'Outfit',sans-serif;
+  color:#888; font-size:0.6rem; font-weight:800; text-transform:uppercase;
+  text-decoration:none; border-right:2px solid #000;
+}
+.nav-item:last-child { border-right:none; }
+.nav-btn i { font-size:22px; }
+.nav-btn.active { background:var(--gold); color:var(--dark); }
+
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<!-- TASK MODAL -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="modalTypeIcon" style="font-size:2rem;margin-bottom:8px;"></div>
+    <div class="modal-title" id="modalTitle">Task Title</div>
+    <div class="reward-badge" style="display:inline-block;margin-bottom:12px;" id="modalReward">⭐ 0 coins</div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <a href="#" class="open-link-btn" id="modalLink" target="_blank">🔗 Open Link & Complete Task</a>
+    <div class="proof-section" id="screenshotSection">
+      <div class="proof-label">📸 Upload Screenshot</div>
+      <label class="file-upload-btn" for="screenshotInput">
+        <i class="fas fa-upload" style="font-size:18px;"></i>
+        <span id="fileLabel">Choose screenshot...</span>
+      </label>
+      <input type="file" id="screenshotInput" accept="image/*" style="display:none" onchange="previewScreenshot(this)">
+      <img id="screenshotPreview" src="" alt="Preview">
+    </div>
+    <div class="proof-section" id="textSection">
+      <div class="proof-label">✍️ Text Proof</div>
+      <textarea class="proof-input" id="textProof" placeholder="Enter your proof here..."></textarea>
+    </div>
+    <button class="submit-btn" onclick="submitTask()">✅ Submit Proof</button>
+    <div class="success-msg" id="successMsg">🎉 Submitted! Pending admin review.</div>
+  </div>
+</div>
+
+<div class="header">
+  <div class="page-title">📋 Tasks</div>
+  <div class="coins-chip">⭐ <span id="userCoins">0</span> coins</div>
+</div>
+
+<!-- VIEW ADS -->
+<div class="ads-section">
+  <div class="ads-section-title">📺 View Ads — Earn Instantly!</div>
+  <div class="ads-grid" id="adsGrid">
+    <div style="grid-column:1/-1;text-align:center;font-weight:700;color:#555;padding:10px">Loading ads...</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('available')" id="tab-available">Available Tasks</button>
+  <button class="tab-btn" onclick="switchTab('mine')" id="tab-mine">My Tasks <span class="tab-pending-badge" id="pendingBadge" style="display:none">0</span></button>
+</div>
+
+<!-- AVAILABLE TASKS -->
+<div id="availableTab">
+  <div id="taskList"><div style="text-align:center;padding:20px;font-weight:700;color:#888">Loading tasks...</div></div>
+</div>
+
+<!-- MY TASKS -->
+<div id="myTab" style="display:none">
+  <div id="myTaskList"><div style="text-align:center;padding:20px;font-weight:700;color:#888">Loading...</div></div>
+</div>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="dashboard.html"><i class="fas fa-home"></i>HOME</a>
+  <a class="nav-item" href="quiz.html"><i class="fas fa-brain"></i>QUIZ</a>
+  <a class="nav-item active" href="tasks.html"><i class="fas fa-tasks"></i>TASKS</a>
+  <a class="nav-item" href="spin.html"><i class="fas fa-sync-alt"></i>SPIN</a>
+  <a class="nav-item" href="refer.html"><i class="fas fa-user-plus"></i>REFER</a>
+  <a class="nav-item" href="withdrawals.html"><i class="fas fa-wallet"></i>CASH</a>
+</nav>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+let tg; try { tg=window.Telegram.WebApp; tg.expand(); } catch(e){tg=null;}
+let user = tg?.initDataUnsafe?.user || { id: localStorage.getItem("app_user_id")||0, first_name:"User" };
+const API = "";
+
+const TYPE_ICONS = { youtube:'📺', instagram:'📸', website:'🌐', telegram:'✈️', twitter:'🐦', custom:'⭐' };
+const TYPE_COLORS = { youtube:'#ff4444', instagram:'#E1306C', website:'#00D1FF', telegram:'#0088cc', twitter:'#1da1f2', custom:'#FFD600' };
+
+let currentTask = null;
+let screenshotBase64 = null;
+
+function switchTab(tab) {
+  document.getElementById('availableTab').style.display = tab==='available' ? 'block' : 'none';
+  document.getElementById('myTab').style.display = tab==='mine' ? 'block' : 'none';
+  document.getElementById('tab-available').classList.toggle('active', tab==='available');
+  document.getElementById('tab-mine').classList.toggle('active', tab==='mine');
+}
+
+function openTaskModal(task, isResubmit=false) {
+  currentTask = task; screenshotBase64 = null;
+  const type = (task.task_type||'custom').toLowerCase();
+  document.getElementById('modalTypeIcon').textContent = TYPE_ICONS[type]||'⭐';
+  document.getElementById('modalTitle').textContent = task.title||'Task';
+  document.getElementById('modalReward').textContent = `⭐ ${task.reward_coins} coins`;
+  document.getElementById('modalDesc').textContent = task.description||'';
+  document.getElementById('modalLink').href = task.link||'#';
+  // proof type
+  const pt = (task.proof_type||'both').toLowerCase();
+  document.getElementById('screenshotSection').style.display = (pt==='screenshot'||pt==='both') ? 'block' : 'none';
+  document.getElementById('textSection').style.display = (pt==='text'||pt==='both') ? 'block' : 'none';
+  document.getElementById('textProof').value = '';
+  document.getElementById('fileLabel').textContent = 'Choose screenshot...';
+  document.getElementById('screenshotPreview').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'none';
+  document.getElementById('taskModal').classList.add('open');
+  if(isResubmit) { currentTask._isResubmit = true; currentTask._submissionId = task.submission_id; }
+}
+
+function closeModal() { document.getElementById('taskModal').classList.remove('open'); }
+
+document.getElementById('taskModal').addEventListener('click', function(e) {
+  if(e.target===this) closeModal();
+});
+
+function previewScreenshot(input) {
+  const file = input.files[0];
+  if(!file) return;
+  document.getElementById('fileLabel').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    screenshotBase64 = e.target.result;
+    const img = document.getElementById('screenshotPreview');
+    img.src = screenshotBase64; img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitTask() {
+  if(!currentTask || !user.id) return;
+  const textProof = document.getElementById('textProof').value;
+  const pt = (currentTask.proof_type||'both').toLowerCase();
+  if((pt==='screenshot'||pt==='both') && !screenshotBase64) { alert('Please upload a screenshot!'); return; }
+  if((pt==='text'||pt==='both') && !textProof.trim()) { alert('Please enter text proof!'); return; }
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = 'Submitting...'; btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/api/tasks/submit`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id: user.id, task_id: currentTask.id, screenshot_url: screenshotBase64, text_proof: textProof })
+    });
+    const data = await res.json();
+    if(data.success) {
+      document.getElementById('successMsg').style.display = 'block';
+      btn.style.display = 'none';
+      setTimeout(()=>{ closeModal(); loadAvailable(); loadMyTasks(); }, 2000);
+    } else { alert('Error: '+(data.message||'Submission failed')); }
+  } catch(e){ alert('Network error. Try again.'); }
+  finally { btn.textContent='✅ Submit Proof'; btn.disabled=false; }
+}
+
+async function loadAvailable() {
+  const el = document.getElementById('taskList');
+  try {
+    const res = await fetch(`${API}/api/tasks/available/${user.id}`);
+    const data = await res.json();
+    if(!data.success || !data.tasks?.length) { el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">🎉 No available tasks right now.<br>Check back later!</div>'; return; }
+    el.innerHTML = data.tasks.map(t=>{
+      const type = (t.task_type||'custom').toLowerCase();
+      const icon = TYPE_ICONS[type]||'⭐';
+      const color = TYPE_COLORS[type]||'#FFD600';
+      return `<div class="task-card">
+        <div class="task-header">
+          <div class="task-type-icon" style="background:${color}20;border-color:${color}">${icon}</div>
+          <div class="task-info">
+            <div class="task-title">${t.title}</div>
+            <div class="task-desc">${(t.description||'').substring(0,80)}${(t.description||'').length>80?'...':''}</div>
+          </div>
+        </div>
+        <div class="task-footer">
+          <span class="reward-badge">⭐ ${t.reward_coins} coins</span>
+          <button class="start-task-btn" onclick='openTaskModal(${JSON.stringify(t)})'>Start Task ▶</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){ el.innerHTML='<div style="color:#f66;text-align:center;font-weight:700">Error loading tasks</div>'; }
+}
+
+async function loadMyTasks() {
+  const el = document.getElementById('myTaskList');
+  try {
+    const res = await fetch(`${API}/api/tasks/my/${user.id}`);
+    const data = await res.json();
+    if(!data.success || !data.submissions?.length) { el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">No task submissions yet.</div>'; return; }
+    const pending = data.submissions.filter(s=>s.status==='Pending').length;
+    const badge = document.getElementById('pendingBadge');
+    if(pending>0){ badge.style.display='inline-flex'; badge.textContent=pending; } else { badge.style.display='none'; }
+    el.innerHTML = data.submissions.map(s=>{
+      const type = (s.task_type||'custom').toLowerCase();
+      const icon = TYPE_ICONS[type]||'⭐';
+      const statusClass = s.status==='Approved'?'status-approved':s.status==='Rejected'?'status-rejected':'status-pending';
+      return `<div class="my-task-card">
+        <div class="mt-header">
+          <div class="mt-title">${icon} ${s.title}</div>
+          <span class="status-badge ${statusClass}">${s.status}</span>
+        </div>
+        <div class="mt-meta">⭐ ${s.reward_coins} coins · ${new Date(s.submitted_at).toLocaleDateString()}</div>
+        ${s.screenshot_url ? `<img class="mt-proof-img" src="${s.screenshot_url}" alt="proof" onclick="window.open(this.src)">` : ''}
+        ${s.text_proof ? `<div style="font-size:0.78rem;color:#555;margin-top:6px;padding:8px;background:#f5f5f5;border-radius:8px;border:2px solid #ddd">"${s.text_proof}"</div>` : ''}
+        ${s.status==='Rejected' ? `<div class="rejection-reason">❌ Rejection reason: ${s.rejection_reason||'Not specified'}</div>
+        <button class="mt-resubmit-btn" onclick='openTaskModal({...${JSON.stringify(s)},id:${s.task_id}}, true)'>🔄 Resubmit</button>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e){ el.innerHTML='<div style="color:#f66;text-align:center;font-weight:700">Error loading</div>'; }
+}
+
+async function loadAds() {
+  const el = document.getElementById('adsGrid');
+  try {
+    const res = await fetch(`${API}/api/ads/active`);
+    const data = await res.json();
+    if(!data.success || !data.ads?.length) { el.innerHTML='<div style="grid-column:1/-1;text-align:center;font-weight:700;color:#555;padding:10px">No ads available</div>'; return; }
+    const adColors = ['#FFD600','#00D1FF','#FF66B2'];
+    el.innerHTML = data.ads.slice(0,3).map((ad,i)=>{
+      const cooldownKey = `ad_cd_${ad.id}`;
+      const lastClick = localStorage.getItem(cooldownKey);
+      const cooldownMs = (ad.cooldown_minutes||60)*60*1000;
+      const isOnCooldown = lastClick && (Date.now()-parseInt(lastClick)) < cooldownMs;
+      const remaining = isOnCooldown ? Math.ceil((cooldownMs-(Date.now()-parseInt(lastClick)))/60000) : 0;
+      return `<div class="ad-btn${isOnCooldown?' disabled':''}" id="adBtn${ad.id}" onclick="viewAd(${ad.id},'${ad.link}',${ad.reward_coins},${ad.cooldown_minutes||60})" style="background:${adColors[i%3]}">
+        <div class="ad-icon">${ad.icon||'📺'}</div>
+        <div class="ad-name">${ad.title||'Ad '+(i+1)}</div>
+        <div class="ad-reward">+${ad.reward_coins} coins</div>
+        <div class="ad-timer" id="adTimer${ad.id}">${isOnCooldown?'⏱ '+remaining+'min':'✅ Ready'}</div>
+      </div>`;
+    }).join('');
+  } catch(e){ el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:10px;font-weight:700;color:#555">Could not load ads</div>'; }
+}
+
+async function viewAd(adId, link, reward, cooldownMin) {
+  const btn = document.getElementById(`adBtn${adId}`);
+  if(btn?.classList.contains('disabled')) return;
+  window.open(link,'_blank');
+  try {
+    await fetch(`${API}/api/ads/view`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: user.id, ad_id: adId, reward }) });
+    localStorage.setItem(`ad_cd_${adId}`, Date.now().toString());
+    if(btn){ btn.classList.add('disabled'); document.getElementById(`adTimer${adId}`).textContent='⏱ '+cooldownMin+'min'; }
+    document.getElementById('userCoins').textContent = parseInt(document.getElementById('userCoins').textContent||0) + reward;
+    alert(`🎉 +${reward} coins earned!`);
+  } catch(e){}
+}
+
+async function loadUserCoins() {
+  try {
+    const res = await fetch(`${API}/api/user_balance/${user.id}`);
+    const data = await res.json();
+    if(data.success) document.getElementById('userCoins').textContent = data.user.points||0;
+  } catch(e){}
+}
+
+loadUserCoins(); loadAvailable(); loadMyTasks(); loadAds();
+</script>
+</body>
+</html>

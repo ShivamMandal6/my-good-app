@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Earnings | CashZilla</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+:root{--bg:#F5F0E8;--white:#fff;--dark:#000;--gold:#FFD600;--cyan:#00D1FF;--pink:#FF66B2;--purple:#A29BFE;--orange:#FF9F43;--green:#00E676;--border:3px solid #000;--shadow:5px 5px 0px #000;--shadow-sm:3px 3px 0px #000;--radius:16px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--dark);padding:14px 14px 90px;min-height:100vh;}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.card{background:var(--white);border:var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.earn-item{display:flex;align-items:center;gap:12px;padding:12px;border:2px solid #eee;border-radius:12px;margin-bottom:8px;}
+.earn-icon{width:38px;height:38px;border-radius:10px;border:2px solid #000;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:var(--white);border-top:var(--border);display:flex;align-items:stretch;box-shadow:0 -3px 0 #000;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:3px;border:none;background:transparent;font-family:'Outfit',sans-serif;color:#888;font-size:0.6rem;font-weight:800;text-transform:uppercase;text-decoration:none;border-right:2px solid #000;}
+.nav-item:last-child{border-right:none;}
+.nav-item i{font-size:20px;}
+.nav-item.active{background:var(--gold);color:var(--dark);}
+</style>
+</head>
+<body>
+<div class="page-header">
+  <div style="font-size:1.4rem;font-weight:900;">📈 Earnings</div>
+  <div style="background:var(--gold);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:30px;font-weight:900;">⭐ <span id="coins">0</span></div>
+</div>
+<div class="card" style="background:linear-gradient(135deg,var(--cyan),#0088ff);margin-bottom:14px;">
+  <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:rgba(0,0,0,0.6)">Total Earned</div>
+  <div style="font-size:2.8rem;font-weight:900;margin:4px 0" id="totalEarned">$0.00</div>
+</div>
+<div class="card">
+  <div style="font-size:1rem;font-weight:900;margin-bottom:12px;">📊 Earnings History</div>
+  <div id="earningsList"><div style="text-align:center;padding:20px;color:#888;font-weight:700">Loading...</div></div>
+</div>
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i>HOME</a>
+  <a href="quiz.html" class="nav-item"><i class="fas fa-brain"></i>QUIZ</a>
+  <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i>TASKS</a>
+  <a href="spin.html" class="nav-item"><i class="fas fa-sync"></i>SPIN</a>
+  <a href="refer.html" class="nav-item"><i class="fas fa-user-plus"></i>REFER</a>
+  <a href="withdrawals.html" class="nav-item active"><i class="fas fa-wallet"></i>CASH</a>
+</nav>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+let tg;try{tg=window.Telegram.WebApp;tg.expand();}catch(e){}
+let user=tg?.initDataUnsafe?.user||{id:localStorage.getItem("cz_uid")||0};
+async function load(){
+  try{
+    const r=await fetch("/api/user_balance/"+user.id);const d=await r.json();
+    if(d.success){document.getElementById("coins").textContent=d.user.points||0;document.getElementById("totalEarned").textContent="$"+(parseFloat(d.user.total_usd||0)).toFixed(2);}
+    const r2=await fetch("/api/user_earning_history/"+user.id);const d2=await r2.json();
+    const el=document.getElementById("earningsList");
+    if(!d2.success||!d2.history?.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#888;font-weight:700">No earnings yet</div>';return;}
+    el.innerHTML=d2.history.map(h=>`<div class="earn-item"><div class="earn-icon" style="background:var(--gold)">🎮</div><div style="flex:1"><div style="font-weight:800;font-size:0.88rem">${h.quiz_title||'Quiz'}</div><div style="font-size:0.72rem;color:#888">${new Date(h.created_at).toLocaleDateString()}</div></div><div style="text-align:right"><div style="font-weight:900;color:#00aa44">+$${h.usd_earned||0}</div></div></div>`).join('');
+  }catch(e){}
+}
+load();
+</script>
+</body>
+</html>
