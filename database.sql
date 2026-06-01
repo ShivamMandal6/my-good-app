@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `ads` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(255) NOT NULL,
   `link` VARCHAR(500),
-  `reward_coins` INT DEFAULT 10,
+  `reward_coins` DECIMAL(10,2) DEFAULT 10,
   `cooldown_minutes` INT DEFAULT 60,
   `icon` VARCHAR(10) DEFAULT '📺',
   `is_enabled` TINYINT(1) DEFAULT 1,
