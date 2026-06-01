@@ -299,7 +299,7 @@ app.post("/api/tasks/submit", (req, res) => {
   });
 });
 
-// --- SPIN WHEEL ---
+// --- SPIN WHEEL (User) ---
 app.post("/api/spin/claim", (req, res) => {
   const { user_id, reward } = req.body;
   db.query("SELECT id FROM users WHERE telegram_id = ?", [user_id], (err, users) => {
@@ -322,6 +322,54 @@ app.get("/api/spin/history/:telegram_id", (req, res) => {
       res.json({ success: true, history: results });
     });
   });
+});
+
+// ✅ FIX: Admin Spin Stats endpoint (was missing — caused 0 in all stat cards)
+app.get("/admin/api/spin/history", (req, res) => {
+  const token = (req.headers["authorization"] || "").replace("Bearer ", "");
+  if (token !== process.env.ADMIN_TOKEN) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+  const q1 = "SELECT COUNT(*) as total_spins FROM spins";
+  const q2 = "SELECT COALESCE(SUM(reward_amount), 0) as total_coins FROM spins";
+  const q3 = "SELECT COUNT(*) as today_spins FROM spins WHERE DATE(created_at) = CURDATE()";
+  const q4 = `SELECT s.*, u.name as user_name 
+               FROM spins s 
+               LEFT JOIN users u ON s.user_id = u.id 
+               ORDER BY s.created_at DESC LIMIT 50`;
+
+  db.query(q1, (e1, r1) => {
+    if (e1) return res.status(500).json({ success: false });
+    db.query(q2, (e2, r2) => {
+      if (e2) return res.status(500).json({ success: false });
+      db.query(q3, (e3, r3) => {
+        if (e3) return res.status(500).json({ success: false });
+        db.query(q4, (e4, r4) => {
+          if (e4) return res.status(500).json({ success: false });
+          res.json({
+            total_spins: r1[0].total_spins || 0,
+            total_coins: r2[0].total_coins || 0,
+            today_spins: r3[0].today_spins || 0,
+            history: r4 || []
+          });
+        });
+      });
+    });
+  });
+});
+
+// --- SPIN CONFIG ---
+app.get("/api/spin/config", (req, res) => {
+  const defaultSegments = [
+    {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
+    {label:"Sorry!",color:"#FF66B2",value:0,coins:0},
+    {label:"$0.00",color:"#00D1FF",value:0,coins:0},
+    {label:"$0.05",color:"#00E676",value:0.05,coins:50},
+    {label:"Sorry!",color:"#A29BFE",value:0,coins:0},
+    {label:"$0.00",color:"#FF9F43",value:0,coins:0},
+    {label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
+    {label:"$0.00",color:"#FFD600",value:0,coins:0}
+  ];
+  res.json({ success: true, segments: defaultSegments });
 });
 
 // --- ADS MODULE ---
@@ -422,21 +470,6 @@ app.get("/api/user_earning_history/:telegram_id", (req, res) => {
       res.json({ success: true, history: results });
     });
   });
-});
-
-// --- SPIN CONFIG ---
-app.get("/api/spin/config", (req, res) => {
-  const defaultSegments = [
-    {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
-    {label:"Sorry!",color:"#FF66B2",value:0,coins:0},
-    {label:"$0.00",color:"#00D1FF",value:0,coins:0},
-    {label:"$0.05",color:"#00E676",value:0.05,coins:50},
-    {label:"Sorry!",color:"#A29BFE",value:0,coins:0},
-    {label:"$0.00",color:"#FF9F43",value:0,coins:0},
-    {label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
-    {label:"$0.00",color:"#FFD600",value:0,coins:0}
-  ];
-  res.json({ success: true, segments: defaultSegments });
 });
 
 // --- LEADERBOARD ---
