@@ -51,7 +51,7 @@
 <div class="modal-backdrop" id="adModal">
   <div class="modal-box">
     <div class="modal-title"><span id="modalHead"><i class="fas fa-plus"></i> Add New Ad</span><button class="modal-close" onclick="closeModal()">✕</button></div>
-    <input type="hidden" id="editAdId">
+    <input type="hidden" id="editAdId"><input type="hidden" id="adStatus" value="1">
     <div class="form-row"><label>Ad Title *</label><input type="text" id="adTitle" placeholder="e.g. Watch YouTube Video"></div>
     <div class="form-row"><label>Ad Link (URL) *</label><input type="url" id="adLink" placeholder="https://..."></div>
     <div class="form-grid-2">
@@ -60,7 +60,7 @@
     </div>
     <div class="form-grid-2">
       <div class="form-row"><label>Cooldown (minutes)</label><input type="number" id="adCooldown" placeholder="60" min="1"></div>
-      <div class="form-row"><label>Status</label><select id="adStatus"><option value="1">✅ Active</option><option value="0">❌ Inactive</option></select></div>
+      
     </div>
     <div class="modal-actions">
       <button class="modal-cancel-btn" onclick="closeModal()">Cancel</button>
@@ -104,7 +104,7 @@ async function loadAds(){
             <div style="font-size:2rem">${ad.icon||'📺'}</div>
             <div><div style="font-weight:900;font-size:0.95rem">${ad.title}</div><div style="font-size:0.72rem;font-weight:700;color:rgba(0,0,0,0.5)">⭐ ${ad.reward_coins} coins · ⏱ ${ad.cooldown_minutes||60}min</div></div>
             <div style="margin-left:auto;">
-              <label class="toggle-switch"><input type="checkbox" ${ad.is_active?'checked':''} onchange="toggleAd(${ad.id},this.checked)"><span class="toggle-slider"></span></label>
+              <label class="toggle-switch"><input type="checkbox" ${ad.is_enabled?'checked':''} onchange="toggleAd(${ad.id},this.checked)"><span class="toggle-slider"></span></label>
             </div>
           </div>
           <div style="padding:12px 16px;background:#fff;">
@@ -120,12 +120,12 @@ async function loadAds(){
 }
 
 function openAdModal(){document.getElementById("editAdId").value="";document.getElementById("modalHead").innerHTML='<i class="fas fa-plus"></i> Add New Ad';document.getElementById("adTitle").value="";document.getElementById("adLink").value="";document.getElementById("adIcon").value="📺";document.getElementById("adReward").value="";document.getElementById("adCooldown").value="60";document.getElementById("adStatus").value="1";document.getElementById("adModal").classList.add("open");}
-function editAd(ad){document.getElementById("editAdId").value=ad.id;document.getElementById("modalHead").innerHTML='<i class="fas fa-edit"></i> Edit Ad';document.getElementById("adTitle").value=ad.title||"";document.getElementById("adLink").value=ad.link||"";document.getElementById("adIcon").value=ad.icon||"📺";document.getElementById("adReward").value=ad.reward_coins||"";document.getElementById("adCooldown").value=ad.cooldown_minutes||60;document.getElementById("adStatus").value=ad.is_active?1:0;document.getElementById("adModal").classList.add("open");}
+function editAd(ad){document.getElementById("editAdId").value=ad.id;document.getElementById("modalHead").innerHTML='<i class="fas fa-edit"></i> Edit Ad';document.getElementById("adTitle").value=ad.title||"";document.getElementById("adLink").value=ad.link||"";document.getElementById("adIcon").value=ad.icon||"📺";document.getElementById("adReward").value=ad.reward_coins||"";document.getElementById("adCooldown").value=ad.cooldown_minutes||60;document.getElementById("adStatus").value=ad.is_enabled?1:0;document.getElementById("adModal").classList.add("open");}
 function closeModal(){document.getElementById("adModal").classList.remove("open");}
 
 async function saveAd(){
   const id=document.getElementById("editAdId").value;
-  const p={title:document.getElementById("adTitle").value.trim(),link:document.getElementById("adLink").value.trim(),icon:document.getElementById("adIcon").value||"📺",reward_coins:parseInt(document.getElementById("adReward").value)||0,cooldown_minutes:parseInt(document.getElementById("adCooldown").value)||60,is_active:parseInt(document.getElementById("adStatus").value)};
+  const p={title:document.getElementById("adTitle").value.trim(),link:document.getElementById("adLink").value.trim(),icon:document.getElementById("adIcon").value||"📺",reward_coins:parseFloat(document.getElementById("adReward").value)||0,cooldown_minutes:parseInt(document.getElementById("adCooldown").value)||60,is_enabled:parseInt(document.getElementById("adStatus").value)};
   if(!p.title||!p.link||!p.reward_coins){toast("⚠️ Fill Title, Link and Reward!");return;}
   const btn=document.querySelector(".modal-save-btn");btn.textContent="Saving...";btn.disabled=true;
   try{
@@ -138,7 +138,7 @@ async function saveAd(){
 }
 
 async function toggleAd(id,state){
-  try{await fetch(`/admin/api/ads/${id}/toggle`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify({is_active:state?1:0})});loadStats();}catch(e){}
+  try{await fetch(`/admin/api/ads/${id}/toggle`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify({is_enabled:state?1:0})});loadStats();}catch(e){}
 }
 async function deleteAd(id){
   if(!confirm("Delete this ad?"))return;
