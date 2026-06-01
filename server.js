@@ -324,39 +324,6 @@ app.get("/api/spin/history/:telegram_id", (req, res) => {
   });
 });
 
-// ✅ FIX: Admin Spin Stats endpoint (was missing — caused 0 in all stat cards)
-app.get("/admin/api/spin/history", (req, res) => {
-  const token = (req.headers["authorization"] || "").replace("Bearer ", "");
-  if (token !== process.env.ADMIN_TOKEN) return res.status(401).json({ success: false, message: "Unauthorized" });
-
-  const q1 = "SELECT COUNT(*) as total_spins FROM spins";
-  const q2 = "SELECT COALESCE(SUM(reward_amount), 0) as total_coins FROM spins";
-  const q3 = "SELECT COUNT(*) as today_spins FROM spins WHERE DATE(created_at) = CURDATE()";
-  const q4 = `SELECT s.*, u.name as user_name 
-               FROM spins s 
-               LEFT JOIN users u ON s.user_id = u.id 
-               ORDER BY s.created_at DESC LIMIT 50`;
-
-  db.query(q1, (e1, r1) => {
-    if (e1) return res.status(500).json({ success: false });
-    db.query(q2, (e2, r2) => {
-      if (e2) return res.status(500).json({ success: false });
-      db.query(q3, (e3, r3) => {
-        if (e3) return res.status(500).json({ success: false });
-        db.query(q4, (e4, r4) => {
-          if (e4) return res.status(500).json({ success: false });
-          res.json({
-            total_spins: r1[0].total_spins || 0,
-            total_coins: r2[0].total_coins || 0,
-            today_spins: r3[0].today_spins || 0,
-            history: r4 || []
-          });
-        });
-      });
-    });
-  });
-});
-
 // --- SPIN CONFIG ---
 app.get("/api/spin/config", (req, res) => {
   const defaultSegments = [
@@ -483,3 +450,4 @@ app.get("/api/leaderboard", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 CashZilla API running on port ${PORT}`);
 });
+      
