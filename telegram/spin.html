@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Spin | CashZilla</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
-
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 :root {
@@ -20,7 +19,6 @@ body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--dark);
 .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
 .page-title { font-size:1.4rem; font-weight:900; }
 
-/* SPIN BANNER */
 .spin-banner {
   background:var(--purple); border:var(--border); box-shadow:var(--shadow);
   border-radius:var(--radius); padding:18px; margin-bottom:20px; text-align:center;
@@ -33,7 +31,6 @@ body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--dark);
   padding:6px 16px; border-radius:20px; font-size:0.82rem; font-weight:900;
 }
 
-/* WHEEL CONTAINER */
 .wheel-wrap {
   display:flex; flex-direction:column; align-items:center;
   margin-bottom:20px;
@@ -62,7 +59,6 @@ canvas#spinWheel {
   font-size:1.6rem; z-index:5;
 }
 
-/* SPIN BUTTON */
 .spin-btn {
   width:100%; max-width:300px; padding:18px; margin-top:20px;
   background:var(--green); border:var(--border); box-shadow:var(--shadow);
@@ -73,7 +69,6 @@ canvas#spinWheel {
 .spin-btn:active:not(:disabled) { transform:translate(3px,3px); box-shadow:2px 2px 0px #000; }
 .spin-btn:disabled { opacity:0.5; cursor:not-allowed; }
 
-/* WIN POPUP */
 .win-overlay {
   position:fixed; top:0; left:0; width:100%; height:100%;
   background:rgba(0,0,0,0.75); z-index:1000;
@@ -95,7 +90,6 @@ canvas#spinWheel {
   font-family:'Outfit',sans-serif; font-weight:900; font-size:1rem; cursor:pointer;
 }
 
-/* HISTORY */
 .history-section { background:var(--white); border:var(--border); box-shadow:var(--shadow); border-radius:var(--radius); padding:16px; margin-top:20px; }
 .section-title { font-size:1rem; font-weight:900; margin-bottom:12px; }
 .spin-h-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border:2px solid #eee; border-radius:12px; margin-bottom:8px; }
@@ -103,7 +97,6 @@ canvas#spinWheel {
 .sh-date { font-size:0.72rem; color:#888; font-weight:600; }
 .sh-reward { font-size:0.9rem; font-weight:900; color:#00aa44; }
 
-/* BOTTOM NAV */
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:1000; background:var(--white); border-top:var(--border); display:flex; align-items:stretch; box-shadow:0 -3px 0 #000; }
 .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 4px; gap:3px; cursor:pointer; border:none; background:transparent; font-family:'Outfit',sans-serif; color:#888; font-size:0.6rem; font-weight:800; text-transform:uppercase; text-decoration:none; border-right:2px solid #000; }
 .nav-item:last-child { border-right:none; }
@@ -113,7 +106,7 @@ canvas#spinWheel {
 
 @keyframes popIn { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
 </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
@@ -169,7 +162,6 @@ let tg; try{tg=window.Telegram.WebApp;tg.expand();}catch(e){tg=null;}
 let user=tg?.initDataUnsafe?.user||{id:localStorage.getItem("app_user_id")||0,first_name:"User"};
 const API="";
 
-// Default segments — overridden by admin if spin_config table exists
 let SEGMENTS = [
   {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
   {label:"Sorry!",color:"#FF66B2",value:0,coins:0},
@@ -218,7 +210,6 @@ function drawWheel(angle=0) {
     ctx.fillText(seg.label,r-18,10);
     ctx.restore();
   });
-  // center hole
   ctx.beginPath(); ctx.arc(cx,cy,30,0,2*Math.PI);
   ctx.fillStyle="#fff"; ctx.fill();
   ctx.strokeStyle="#000"; ctx.lineWidth=4; ctx.stroke();
@@ -240,18 +231,36 @@ function doSpin() {
     const remaining=Math.ceil((24*60*60*1000-(Date.now()-last))/3600000);
     alert(`⏱ Come back in ${remaining}h for your next spin!`); return;
   }
-  // Weighted: 60% sorry/zero, 40% reward
-  const weights=[3,4,4,1,4,4,3,4]; // higher = more likely
+
+  // Weighted random: higher number = more likely
+  const weights=[3,4,4,1,4,4,3,4];
   let total=weights.reduce((a,b)=>a+b,0);
   let rand=Math.random()*total;
   let winIdx=0;
   for(let i=0;i<weights.length;i++){rand-=weights[i];if(rand<=0){winIdx=i;break;}}
-  
+
   isSpinning=true;
   document.getElementById("spinBtn").disabled=true;
-  const targetAngle = (2*Math.PI*5) + (2*Math.PI - winIdx*arc - arc/2);
-  const duration=4000; const startTime=performance.now();
+
+  // ✅ FIX: Pointer is at TOP of canvas (angle = -π/2 = 270°)
+  // Segment i starts at: currentAngle + i*arc
+  // Segment center is at: currentAngle + i*arc + arc/2
+  // We need segment center to align with -π/2 (top pointer)
+  // So we add enough rotation: rotate until winIdx center hits top
+  const TWO_PI = 2 * Math.PI;
+  const fullRotations = TWO_PI * 5; // 5 full spins for visual effect
+  const normalizedCurrent = currentAngle % TWO_PI;
+  // Where does winIdx center need to land? At -π/2 (top)
+  // Segment center in wheel coords (relative to current): winIdx*arc + arc/2
+  // We need: (normalizedCurrent + extraRotation + winIdx*arc + arc/2) % TWO_PI = (3/2)*π  (i.e. -π/2)
+  const targetPointer = (3/2) * Math.PI; // top = 270 degrees
+  const segCenter = winIdx * arc + arc/2;
+  let extraRotation = (targetPointer - normalizedCurrent - segCenter % TWO_PI + TWO_PI * 2) % TWO_PI;
+  const targetAngle = fullRotations + extraRotation;
+
+  const duration=4000;
   const startAngle=currentAngle;
+  const startTime=performance.now();
 
   function animate(now) {
     const elapsed=now-startTime;
@@ -259,14 +268,18 @@ function doSpin() {
     const ease=1-Math.pow(1-progress,4);
     currentAngle=startAngle+targetAngle*ease;
     drawWheel(currentAngle);
-    if(progress<1){requestAnimationFrame(animate);}
-    else{
+    if(progress<1){
+      requestAnimationFrame(animate);
+    } else {
+      // ✅ Set exact final angle so next spin starts correctly
+      currentAngle = startAngle + targetAngle;
       isSpinning=false;
       const won=SEGMENTS[winIdx];
       showWin(won);
       localStorage.setItem("spin_last_"+user.id, Date.now().toString());
       document.getElementById("spinsLeft").textContent="0";
       canSpin=false;
+      // Only claim if reward > 0
       if(won.coins>0) claimSpin(won.coins);
     }
   }
@@ -320,6 +333,7 @@ async function loadSpinHistory() {
   } catch(e){ el.innerHTML=''; }
 }
 
+// On load: check cooldown
 if(!checkCooldown()){
   canSpin=false;
   document.getElementById("spinBtn").disabled=true;
@@ -331,3 +345,4 @@ loadSpinConfig(); loadUserData(); loadSpinHistory();
 </script>
 </body>
 </html>
+
