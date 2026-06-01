@@ -85,13 +85,15 @@ input:checked + .toggle-slider:before { transform:translateX(18px); }
     <span>CASHZILLA<br><small style="font-size:8px;">ADMIN PANEL</small></span>
   </div>
   <ul class="nav-menu">
-    <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
-    <li class="nav-item"><a href="user.html" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
-    <li class="nav-item"><a href="quiz.html" class="nav-link"><i class="fas fa-question-circle"></i> Quizzes</a></li>
-    <li class="nav-item"><a href="tasks.html" class="nav-link active"><i class="fas fa-tasks"></i> Tasks</a></li>
-    <li class="nav-item"><a href="ads.html" class="nav-link"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item"><a href="dashboard.html"  class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
+    <li class="nav-item"><a href="user.html"        class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+    <li class="nav-item"><a href="quiz.html"        class="nav-link"><i class="fas fa-brain"></i> Quizzes</a></li>
+    <li class="nav-item"><a href="tasks.html"       class="nav-link active"><i class="fas fa-tasks"></i> Tasks</a></li>
+    <li class="nav-item"><a href="spin.html"        class="nav-link"><i class="fas fa-sync-alt"></i> Spin Wheel</a></li>
+    <li class="nav-item"><a href="referrals.html"   class="nav-link"><i class="fas fa-user-friends"></i> Referrals</a></li>
     <li class="nav-item"><a href="withdrawals.html" class="nav-link"><i class="fas fa-wallet"></i> Withdrawals</a></li>
-    <li class="nav-item"><a href="#" class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    <li class="nav-item"><a href="ads.html"         class="nav-link"><i class="fas fa-ad"></i> Ads Manager</a></li>
+    <li class="nav-item" style="margin-top:16px;"><a href="#" class="nav-link nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
   </ul>
 </div>
 
@@ -211,13 +213,13 @@ input:checked + .toggle-slider:before { transform:translateX(18px); }
 
 <script>
 const API_ADMIN = "";
-const ADMIN_TOKEN = localStorage.getItem("admin_token")||"";
+const ADMIN_TOKEN = localStorage.getItem("adminToken")||"";
 let allTasks=[]; let currentSubFilter='Pending'; let activeStatusFilter='all';
 
 const TYPE_ICONS={youtube:'📺',instagram:'📸',website:'🌐',telegram:'✈️',twitter:'🐦',custom:'⭐'};
 const TYPE_COLORS={youtube:'#ff4444',instagram:'#E1306C',website:'#00D1FF',telegram:'#0088cc',twitter:'#1da1f2',custom:'#FFD600'};
 
-function logout(){ localStorage.removeItem("admin_token"); window.location.href="login.html"; }
+function logout(){ localStorage.removeItem("adminToken"); window.location.href="login.html"; }
 
 async function apiFetch(url,opts={}){ return fetch(url,{...opts,headers:{'Content-Type':'application/json','Authorization':'Bearer '+ADMIN_TOKEN,...(opts.headers||{})}}); }
 
