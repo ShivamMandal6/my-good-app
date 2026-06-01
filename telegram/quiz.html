@@ -3,48 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CashZilla - Quizzes</title>
+<title>CashTitan | Quiz Arena</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
-:root {
-  --bg:#F5F0E8; --white:#FFFFFF; --dark:#000000;
-  --gold:#FFD600; --cyan:#00D1FF; --pink:#FF66B2;
-  --purple:#A29BFE; --orange:#FF9F43; --green:#00E676; --red:#FF4757;
-  --border:3px solid #000; --shadow:5px 5px 0px #000; --shadow-sm:3px 3px 0px #000; --radius:16px;
-  /* Legacy compat */
-  --primary:#00D1FF; --success:#00E676; --danger:#FF4757; --white:#FFFFFF;
+:root{
+  --bg:#F5F0E8;--white:#FFFFFF;--dark:#000000;
+  --gold:#FFD600;--cyan:#00D1FF;--pink:#FF66B2;
+  --purple:#A29BFE;--orange:#FF9F43;--green:#00E676;--red:#FF4757;
+  --border:3px solid #000;--shadow:5px 5px 0px #000;--shadow-sm:3px 3px 0px #000;--radius:16px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
 body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--dark);padding:14px 14px 90px;min-height:100vh;}
 
 /* HEADER */
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
-.logo-box{background:var(--gold);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:12px;font-size:1.2rem;font-weight:900;letter-spacing:-0.5px;}
-.logo-box span{color:#ff3860;}
-.coins-chip{background:var(--white);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:30px;font-weight:900;font-size:0.9rem;display:flex;align-items:center;gap:6px;}
+.app-logo{font-size:1.3rem;font-weight:900;background:#000;color:var(--gold);border:var(--border);box-shadow:var(--shadow-sm);padding:7px 16px;border-radius:12px;letter-spacing:-0.5px;display:flex;align-items:center;gap:6px;}
+.app-logo .accent{color:var(--cyan);}
+.coins-chip{background:#000;color:var(--gold);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:30px;font-weight:900;font-size:0.9rem;display:flex;align-items:center;gap:6px;}
 
 /* QUIZ LIST */
-#listScreen{}
-.quiz-search{width:100%;padding:11px 14px;border:var(--border);border-radius:12px;font-family:'Outfit',sans-serif;font-size:0.92rem;font-weight:700;background:var(--white);outline:none;margin-bottom:14px;}
+.page-title{font-size:1.1rem;font-weight:900;margin-bottom:14px;}
+.quiz-search{width:100%;padding:11px 14px;border:var(--border);border-radius:12px;font-family:'Outfit',sans-serif;font-size:0.92rem;font-weight:700;background:var(--white);outline:none;margin-bottom:14px;box-shadow:var(--shadow-sm);}
 .quiz-count{font-size:0.78rem;font-weight:800;color:#888;text-transform:uppercase;margin-bottom:12px;}
-.quiz-card{background:var(--white);border:var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform .1s,box-shadow .1s;}
+.quiz-card{background:var(--white);border:var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px;margin-bottom:12px;cursor:pointer;transition:transform .1s,box-shadow .1s;}
 .quiz-card:active{transform:translate(3px,3px);box-shadow:2px 2px 0 #000;}
-.quiz-icon{width:52px;height:52px;border-radius:14px;border:var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
-.quiz-info{flex:1;}
-.quiz-title{font-weight:900;font-size:0.92rem;margin-bottom:4px;}
-.quiz-reward{background:var(--gold);border:2px solid #000;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:900;display:inline-flex;align-items:center;gap:4px;}
-.quiz-play-btn{background:var(--green);border:var(--border);box-shadow:var(--shadow-sm);padding:8px 16px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.82rem;cursor:pointer;white-space:nowrap;}
+.quiz-card-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.quiz-icon{width:48px;height:48px;border-radius:12px;border:var(--border);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;background:var(--bg);}
+.quiz-title{font-weight:900;font-size:0.95rem;margin-bottom:3px;}
+.quiz-meta{font-size:0.72rem;font-weight:700;color:#888;}
+.quiz-card-footer{display:flex;align-items:center;justify-content:space-between;}
+.quiz-reward{background:var(--gold);border:2px solid #000;border-radius:20px;padding:4px 12px;font-size:0.75rem;font-weight:900;display:inline-flex;align-items:center;gap:4px;}
+.quiz-play-btn{background:var(--green);border:var(--border);box-shadow:var(--shadow-sm);padding:8px 18px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.82rem;cursor:pointer;transition:transform .1s,box-shadow .1s;}
+.quiz-play-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000;}
 .load-more-btn{width:100%;padding:13px;background:var(--white);border:var(--border);box-shadow:var(--shadow-sm);border-radius:12px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.9rem;cursor:pointer;margin-top:8px;}
 
 /* GAME SCREEN */
 #gameScreen{display:none;}
-.game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;}
 .back-btn{background:var(--white);border:var(--border);box-shadow:var(--shadow-sm);padding:8px 14px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.88rem;cursor:pointer;}
-.q-pts{background:var(--gold);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:30px;font-weight:900;font-size:0.88rem;}
-.q-usd{background:var(--green);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:30px;font-weight:900;font-size:0.88rem;}
-.quiz-title-bar{font-size:0.9rem;font-weight:900;margin-bottom:10px;}
+.q-pts{background:var(--gold);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:30px;font-weight:900;font-size:0.85rem;}
+.q-usd{background:var(--green);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:30px;font-weight:900;font-size:0.85rem;}
+.quiz-title-bar{font-size:0.85rem;font-weight:900;margin-bottom:10px;color:#555;}
 .progress-bar{width:100%;height:10px;background:#e0e0e0;border:2px solid #000;border-radius:10px;overflow:hidden;margin-bottom:14px;}
 .progress-fill{height:100%;background:var(--cyan);width:0%;transition:width .3s;border-radius:8px;}
 .question-box{background:var(--white);border:var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
@@ -60,326 +61,66 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 
 /* RESULT */
 #resultScreen{display:none;}
-.result-card{border:var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:28px 20px;text-align:center;margin-bottom:16px;}
+.result-card{background:var(--white);border:var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:28px 20px;text-align:center;margin-bottom:16px;}
 .result-emoji{font-size:3.5rem;margin-bottom:10px;}
 .result-title{font-size:1.6rem;font-weight:900;margin-bottom:8px;}
-.result-coins{font-size:2rem;font-weight:900;color:#00aa44;margin-bottom:16px;}
+.result-coins{font-size:2rem;font-weight:900;color:var(--green);margin-bottom:16px;}
+.result-usd{font-size:1rem;font-weight:700;color:#888;margin-bottom:20px;}
 
 /* BUTTONS */
-.btn{border:var(--border);box-shadow:var(--shadow);border-radius:12px;padding:13px 20px;font-family:'Outfit',sans-serif;font-weight:900;font-size:1rem;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s,box-shadow .1s;width:100%;color:var(--dark);}
+.btn{border:var(--border);box-shadow:var(--shadow);border-radius:12px;padding:13px 20px;font-family:'Outfit',sans-serif;font-weight:900;font-size:1rem;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s,box-shadow .1s;width:100%;color:var(--dark);margin-bottom:10px;}
 .btn:active{transform:translate(3px,3px);box-shadow:2px 2px 0 #000;}
-.btn-primary{background:var(--gold);}
-.btn-secondary{background:var(--cyan);}
-.btn-success{background:var(--green);}
-.btn-danger{background:var(--red);color:#fff;}
+.btn-gold{background:var(--gold);}
+.btn-cyan{background:var(--cyan);}
+.btn-green{background:var(--green);}
+.btn-red{background:var(--red);color:#fff;}
 
 /* BOTTOM NAV */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:var(--white);border-top:var(--border);display:flex;align-items:stretch;box-shadow:0 -3px 0 #000;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:3px;cursor:pointer;border:none;background:transparent;font-family:'Outfit',sans-serif;color:#888;font-size:0.6rem;font-weight:800;text-transform:uppercase;text-decoration:none;border-right:2px solid #000;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:3px;cursor:pointer;border:none;background:transparent;font-family:'Outfit',sans-serif;color:#888;font-size:0.6rem;font-weight:800;text-transform:uppercase;text-decoration:none;border-right:2px solid #000;position:relative;}
 .nav-item:last-child{border-right:none;}
 .nav-item i{font-size:20px;}
 .nav-item.active{background:var(--gold);color:var(--dark);}
+.nav-item:active{background:var(--gold);}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px 20px;color:#888;}
+.empty-state .emoji{font-size:3rem;margin-bottom:12px;}
+.empty-state p{font-weight:700;font-size:0.9rem;}
 </style>
 </head>
+<body>
 
-    <header id="mainHeader">
-        <div class="back-btn" onclick="window.location.href='dashboard.html'">
-            <i class="fas fa-arrow-left"></i>
-        </div>
-        <div class="header-title">Quiz Arena</div>
-        <div style="width:40px;"></div>
-    </header>
+<header>
+  <div class="app-logo">⚡ CASH<span class="accent">TITAN</span></div>
+  <div class="coins-chip">⭐ <span id="userCoins">0</span> coins</div>
+</header>
 
-    <div id="quizTopBanner" class="ad-banner-slot">
-        <span>Advertisement</span>
-    </div>
+<div id="listScreen">
+  <div class="page-title">🧠 Quiz Arena</div>
+  <input class="quiz-search" type="text" placeholder="🔍 Search quizzes..." oninput="filterQuizzes(this.value)">
+  <div class="quiz-count" id="quizCount"></div>
+  <div id="quizList"></div>
+  <button id="loadMoreBtn" class="load-more-btn" style="display:none" onclick="loadMore()">Load More Quizzes ↓</button>
+</div>
 
-    <div id="listScreen" class="quiz-container">
-        <div class="shimmer"></div>
-        <div class="shimmer"></div>
-    </div>
-    
-    <button id="loadMoreBtn" class="load-more-btn" style="display:none;" onclick="loadMoreQuizzes()">Load More Quizzes</button>
+<div id="gameScreen">
+  <div class="game-header">
+    <button class="back-btn" onclick="backToList()"><i class="fas fa-arrow-left"></i> Back</button>
+    <div class="q-pts" id="gamePts">0 pts</div>
+    <div class="q-usd" id="gameUsd">$0.000</div>
+  </div>
+  <div class="quiz-title-bar" id="gameTitleBar"></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+  <div class="question-box">
+    <div class="question-num" id="questionNum">Question 1 / 8</div>
+    <div class="question-text" id="questionText">Loading...</div>
+  </div>
+  <div class="options-grid" id="optionsGrid"></div>
+</div>
 
-    <div id="quizBottomBanner" class="ad-banner-slot">
-        <span>Advertisement</span>
-    </div>
+<div id="resultScreen"></div>
 
-    <div id="playArea">
-        <div class="progress-track">
-            <div class="progress-fill" id="progressBar"></div>
-        </div>
-        <div class="question-box">
-            <div style="margin-bottom:20px; color:#888; font-size:0.9rem; font-weight: 500;">
-                Question <span id="qCurrent" style="color:#fff;">1</span> <span style="opacity:0.5">/</span> <span id="qTotal">8</span>
-            </div>
-            <div class="q-text" id="qText">Loading Question...</div>
-            <div id="optionsGrid"></div>
-        </div>
-    </div>
-
-    <div id="resultScreen"></div>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        // Init Telegram
-        const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg && tg.expand) {
-            tg.expand();
-        }
-
-        let user = tg?.initDataUnsafe?.user || { id: localStorage.getItem("cz_uid") || 0 };
-        let allQuizzes = [], currentQuiz = null, qIndex = 1, score = 0, displayCount = 5;
-
-        // ? NEW: ONLINE TRACKER (HEARTBEAT) ?
-        function sendHeartbeat() {
-            if(user && user.id) {
-                fetch("/api/heartbeat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ telegram_id: user.id })
-                }).catch(e => console.log("Heartbeat error"));
-            }
-        }
-        sendHeartbeat(); // Page load hote hi ping
-        setInterval(sendHeartbeat, 45000); // Phir har 45 sec baad ping
-
-        // ? MONETAG 1-MINUTE AUTO AD (IN-APP INTERSTITIAL) ?
-        setTimeout(() => {
-            if (typeof show_10051927 === 'function') {
-                show_10051927({
-                    type: 'inApp',
-                    inAppSettings: {
-                        frequency: 999,
-                        capping: 0,
-                        interval: 60, // Har 60 seconds (1 minute) baad ad aayega
-                        timeout: 5,
-                        everyPage: false
-                    }
-                }).catch(e => console.log("Auto Ad Setup Error:", e));
-            }
-        }, 3000); // Wait 3 seconds for SDK to load completely
-
-        // --- 1. Fetch Quiz List ---
-        async function loadQuizList() {
-            const listScreen = document.getElementById("listScreen");
-            try {
-                const res = await fetch(`/api/quizzes/${user.id}`);
-                const data = await res.json();
-                listScreen.innerHTML = "";
-
-                if (!data.success || !data.quizzes?.length) {
-                    listScreen.innerHTML = `<div style="text-align:center; padding:40px; color:#666;">No unplayed quizzes right now.</div>`;
-                    return;
-                }
-                allQuizzes = data.quizzes;
-                renderList();
-            } catch (err) {
-                listScreen.innerHTML = `<div style="text-align:center; padding: 20px; color:var(--danger);">Error loading Arena.</div>`;
-            }
-        }
-
-        function renderList() {
-            const listScreen = document.getElementById("listScreen");
-            const btn = document.getElementById("loadMoreBtn");
-            const visible = allQuizzes.slice(0, displayCount);
-            
-            listScreen.innerHTML = "";
-            
-            visible.forEach((q, index) => {
-                const usdValue = (q.total_points / 1000).toFixed(2);
-
-                const card = document.createElement("div");
-                card.className = "quiz-card";
-                card.onclick = () => tryStartQuiz(q.id, q.title);
-
-                card.innerHTML = `
-                    <div class="q-title">${q.title}</div>
-                    <div class="q-meta-badge">
-                        <i class="fas fa-brain"></i> 8 Qs | <i class="fas fa-clock"></i> 2 Mins
-                    </div>
-                    <div class="q-footer">
-                        <div class="q-pts">+${q.total_points}<span>POINTS</span></div>
-                        <button class="start-btn">START</button>
-                        <div class="q-usd">$${usdValue}<span>USD</span></div>
-                    </div>
-                `;
-                listScreen.appendChild(card);
-
-                if ((index + 1) % 2 === 0 && (index + 1) !== visible.length) {
-                    const adSlot = document.createElement("div");
-                    adSlot.className = "ad-banner-slot";
-                    adSlot.innerHTML = `<span>Advertisement</span>`;
-                    listScreen.appendChild(adSlot);
-                }
-            });
-
-            btn.style.display = allQuizzes.length > displayCount ? "block" : "none";
-        }
-
-        function loadMoreQuizzes() { displayCount += 5; renderList(); }
-
-        // --- 2. Start Game Logic (Rewarded Ad) ---
-        function tryStartQuiz(id, title) {
-            if(tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            
-            // ? MONETAG REWARDED AD ON START ?
-            if (typeof show_10051927 === 'function') {
-                show_10051927('pop').then(() => {
-                    fetchQuizData(id); // Ad dekhne ke baad game start hoga
-                }).catch((e) => {
-                    fetchQuizData(id); // Agar ad fail hua toh bhi game start ho jayega
-                });
-            } else {
-                fetchQuizData(id);
-            }
-        }
-
-        async function fetchQuizData(id) {
-            // Hide list elements
-            document.getElementById("listScreen").style.display = "none";
-            document.getElementById("loadMoreBtn").style.display = "none";
-            document.getElementById("mainHeader").style.display = "none";
-            document.getElementById("quizTopBanner").style.display = "none"; 
-            document.getElementById("quizBottomBanner").style.display = "none"; 
-            
-            document.getElementById("playArea").style.display = "block";
-            document.getElementById("qText").innerText = "Wait, Loading...";
-            
-            try {
-                const res = await fetch(`/api/quiz/${id}`);
-                const data = await res.json();
-                if(data.success && data.quiz) {
-                    currentQuiz = data.quiz;
-                    qIndex = 1; score = 0;
-                    renderQuestion();
-                } else { location.reload(); }
-            } catch(e) { location.reload(); }
-        }
-
-        // --- 3. Rendering Questions (Rewarded Ads on Q2, Q4, Q7) ---
-        function renderQuestion() {
-            const qData = currentQuiz[`question${qIndex}`];
-            if(!qData) { finishQuiz(); return; }
-
-            // ? MONETAG REWARDED AD ON Q2, Q4, and Q7 ?
-            if (qIndex === 2 || qIndex === 4 || qIndex === 7) {
-                if (typeof show_10051927 === 'function') {
-                    show_10051927('pop').catch(e => console.log("In-Game Ad Error:", e));
-                }
-            }
-
-            document.getElementById("qCurrent").innerText = qIndex;
-            document.getElementById("qText").innerText = qData;
-            document.getElementById("progressBar").style.width = `${((qIndex - 1) / 8) * 100}%`;
-
-            const optsContainer = document.getElementById("optionsGrid");
-            optsContainer.innerHTML = "";
-            ['a', 'b', 'c', 'd'].forEach(opt => {
-                const text = currentQuiz[`option${qIndex}${opt}`];
-                if(text) {
-                    const btn = document.createElement("div");
-                    btn.className = "option-btn";
-                    btn.innerHTML = `<span style="opacity:0.5; font-weight:800; width:20px;">${opt.toUpperCase()}</span> ${text}`;
-                    btn.onclick = () => handleAnswer(btn, text);
-                    optsContainer.appendChild(btn);
-                }
-            });
-        }
-
-        function handleAnswer(btn, selectedText) {
-            document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = "none");
-            const isCorrect = selectedText.trim().toLowerCase() === currentQuiz[`correct${qIndex}`].trim().toLowerCase();
-            
-            if(isCorrect) {
-                btn.classList.add("correct");
-                score++;
-                if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                btn.classList.add("wrong");
-                if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-            }
-
-            setTimeout(() => { qIndex++; renderQuestion(); }, 1000);
-        }
-
-        // --- 4. Result Processing (Big Interstitial Ad) ---
-        async function finishQuiz() {
-            // ? MONETAG BIG INTERSTITIAL AD ON RESULT SCREEN ?
-            if (typeof show_10051927 === 'function') {
-                show_10051927().catch(e => console.log("Result Screen Ad Error:", e));
-            }
-
-            const playArea = document.getElementById("playArea");
-            const resultScreen = document.getElementById("resultScreen");
-            playArea.style.display = "none";
-            resultScreen.style.display = "block";
-
-            const total = 8;
-            const isWin = score === total;
-            const usdEarned = (currentQuiz.total_points / 1000).toFixed(3);
-
-            let htmlContent = "";
-
-            if (isWin) {
-                if (typeof confetti === "function") {
-                    confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
-                }
-                
-                try {
-                    await fetch("/api/add_points", {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ telegram_id: user.id, points: currentQuiz.total_points })
-                    });
-                    await fetch("/api/submit_quiz", {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ telegram_id: user.id, quiz_id: currentQuiz.id, score: score })
-                    });
-                } catch(err) { console.log("Save error", err); }
-
-                htmlContent = `
-                    <div class="result-icon-box win-mode"><i class="fas fa-check"></i></div>
-                    <div class="result-title" style="color:var(--success)">Perfect Score!</div>
-                    <div style="color:#aaa; margin-bottom:20px;">You earned the rewards.</div>
-                    <div class="cash-earned">+$${usdEarned}</div>
-                    <div style="color:var(--gold); font-weight:800; margin-bottom:40px;">+${currentQuiz.total_points} POINTS</div>
-                    <div class="btn-group">
-                        <button class="action-btn btn-primary" onclick="location.reload()">Next Quiz <i class="fas fa-arrow-right"></i></button>
-                        <button class="action-btn btn-secondary" onclick="window.location.href='dashboard.html'">Go Home</button>
-                    </div>
-                `;
-            } else {
-                // ? NEW: SEND FAIL SIGNAL TO BACKEND ?
-                try {
-                    fetch("/api/fail_quiz", {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ telegram_id: user.id })
-                    }).catch(e => console.log("Fail ping error"));
-                } catch(err) {}
-
-                htmlContent = `
-                    <div class="result-icon-box lose-mode">😅</div>
-                    <div class="result-title" style="color:var(--danger)">Quiz Failed</div>
-                    <div style="color:#aaa; margin-bottom:15px;">You scored ${score}/8. Need 8/8 to earn.</div>
-                    <div class="btn-group">
-                        <button class="action-btn btn-danger" onclick="retryQuiz()">Try Again <i class="fas fa-redo"></i></button>
-                        <button class="action-btn btn-secondary" onclick="window.location.href='dashboard.html'">Go Home</button>
-                    </div>
-                `;
-            }
-            resultScreen.innerHTML = htmlContent;
-        }
-
-        function retryQuiz() {
-            qIndex = 1; score = 0;
-            document.getElementById("resultScreen").style.display = "none";
-            document.getElementById("playArea").style.display = "block";
-            renderQuestion();
-        }
-
-        // Initialize Arena
-        loadQuizList();
-    </script>
 <nav class="bottom-nav">
   <a class="nav-item" href="dashboard.html"><i class="fas fa-home"></i>HOME</a>
   <a class="nav-item active" href="quiz.html"><i class="fas fa-brain"></i>QUIZ</a>
@@ -388,5 +129,222 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
   <a class="nav-item" href="refer.html"><i class="fas fa-user-plus"></i>REFER</a>
   <a class="nav-item" href="withdrawals.html"><i class="fas fa-wallet"></i>CASH</a>
 </nav>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+const tg = window.Telegram?.WebApp;
+if(tg?.expand) tg.expand();
+
+let user = tg?.initDataUnsafe?.user || { id: localStorage.getItem("cz_uid") || 0 };
+let allQuizzes = [], currentQuiz = null, qIndex = 1, score = 0, displayCount = 10;
+
+// Heartbeat
+function heartbeat() {
+  if(user?.id) fetch("/api/heartbeat", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ telegram_id: user.id }) }).catch(()=>{});
+}
+heartbeat();
+setInterval(heartbeat, 45000);
+
+// Load user balance
+async function loadBalance() {
+  try {
+    const res = await fetch(`/api/user_balance/${user.id}`);
+    const data = await res.json();
+    if(data.success) document.getElementById("userCoins").textContent = data.user.points || 0;
+  } catch(e) {}
+}
+loadBalance();
+
+// Load quiz list
+async function loadQuizList() {
+  const listEl = document.getElementById("quizList");
+  listEl.innerHTML = `<div class="empty-state"><div class="emoji">⏳</div><p>Loading quizzes...</p></div>`;
+  try {
+    const res = await fetch(`/api/quizzes/${user.id}`);
+    const data = await res.json();
+    if(!data.success || !data.quizzes?.length) {
+      listEl.innerHTML = `<div class="empty-state"><div class="emoji">🎉</div><p>No new quizzes right now.<br>Check back later!</p></div>`;
+      document.getElementById("quizCount").textContent = "";
+      return;
+    }
+    allQuizzes = data.quizzes;
+    renderList();
+  } catch(e) {
+    listEl.innerHTML = `<div class="empty-state"><div class="emoji">❌</div><p>Error loading quizzes. Try again.</p></div>`;
+  }
+}
+
+const ICONS = ["🧠","⚡","🌍","🎬","🏆","🔬","🎯","📚","🎮","💡","🌟","🔥"];
+
+function renderList() {
+  const listEl = document.getElementById("quizList");
+  const btn = document.getElementById("loadMoreBtn");
+  const visible = allQuizzes.slice(0, displayCount);
+  document.getElementById("quizCount").textContent = `${allQuizzes.length} quizzes available`;
+  listEl.innerHTML = "";
+  visible.forEach((q, i) => {
+    const usd = (q.total_points / 1000).toFixed(3);
+    const icon = ICONS[i % ICONS.length];
+    const div = document.createElement("div");
+    div.className = "quiz-card";
+    div.innerHTML = `
+      <div class="quiz-card-header">
+        <div class="quiz-icon">${icon}</div>
+        <div>
+          <div class="quiz-title">${q.title}</div>
+          <div class="quiz-meta"><i class="fas fa-brain"></i> 8 Questions · <i class="fas fa-clock"></i> ~2 min</div>
+        </div>
+      </div>
+      <div class="quiz-card-footer">
+        <div class="quiz-reward">⭐ ${q.total_points} pts · $${usd}</div>
+        <button class="quiz-play-btn" onclick="event.stopPropagation(); startQuiz(${q.id})">▶ PLAY</button>
+      </div>`;
+    div.onclick = () => startQuiz(q.id);
+    listEl.appendChild(div);
+  });
+  btn.style.display = allQuizzes.length > displayCount ? "block" : "none";
+}
+
+function loadMore() { displayCount += 10; renderList(); }
+
+function filterQuizzes(val) {
+  const q = val.toLowerCase();
+  const filtered = allQuizzes.filter(x => x.title.toLowerCase().includes(q));
+  const listEl = document.getElementById("quizList");
+  listEl.innerHTML = "";
+  if(!filtered.length) { listEl.innerHTML = `<div class="empty-state"><div class="emoji">🔍</div><p>No quizzes found.</p></div>`; return; }
+  filtered.forEach((q, i) => {
+    const usd = (q.total_points / 1000).toFixed(3);
+    const icon = ICONS[i % ICONS.length];
+    const div = document.createElement("div");
+    div.className = "quiz-card";
+    div.innerHTML = `
+      <div class="quiz-card-header">
+        <div class="quiz-icon">${icon}</div>
+        <div>
+          <div class="quiz-title">${q.title}</div>
+          <div class="quiz-meta"><i class="fas fa-brain"></i> 8 Questions · <i class="fas fa-clock"></i> ~2 min</div>
+        </div>
+      </div>
+      <div class="quiz-card-footer">
+        <div class="quiz-reward">⭐ ${q.total_points} pts · $${usd}</div>
+        <button class="quiz-play-btn" onclick="event.stopPropagation(); startQuiz(${q.id})">▶ PLAY</button>
+      </div>`;
+    div.onclick = () => startQuiz(q.id);
+    listEl.appendChild(div);
+  });
+}
+
+// Start quiz
+async function startQuiz(id) {
+  if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+  document.getElementById("listScreen").style.display = "none";
+  document.getElementById("gameScreen").style.display = "block";
+  document.getElementById("resultScreen").style.display = "none";
+  try {
+    const res = await fetch(`/api/quiz/${id}`);
+    const data = await res.json();
+    if(data.success && data.quiz) {
+      currentQuiz = data.quiz;
+      qIndex = 1; score = 0;
+      document.getElementById("gameTitleBar").textContent = currentQuiz.title;
+      document.getElementById("gamePts").textContent = `${currentQuiz.total_points} pts`;
+      document.getElementById("gameUsd").textContent = `$${(currentQuiz.total_points/1000).toFixed(3)}`;
+      renderQuestion();
+    } else { backToList(); }
+  } catch(e) { backToList(); }
+}
+
+function backToList() {
+  document.getElementById("listScreen").style.display = "block";
+  document.getElementById("gameScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "none";
+}
+
+function renderQuestion() {
+  const qData = currentQuiz[`question${qIndex}`];
+  if(!qData) { finishQuiz(); return; }
+  document.getElementById("questionNum").textContent = `Question ${qIndex} / 8`;
+  document.getElementById("questionText").textContent = qData;
+  document.getElementById("progressBar").style.width = `${((qIndex-1)/8)*100}%`;
+  const grid = document.getElementById("optionsGrid");
+  grid.innerHTML = "";
+  ['a','b','c','d'].forEach(opt => {
+    const text = currentQuiz[`option${qIndex}${opt}`];
+    if(text) {
+      const btn = document.createElement("div");
+      btn.className = "option-btn";
+      btn.innerHTML = `<span style="opacity:0.5;font-weight:800;width:20px;">${opt.toUpperCase()}</span> ${text}`;
+      btn.onclick = () => handleAnswer(btn, text);
+      grid.appendChild(btn);
+    }
+  });
+}
+
+function handleAnswer(btn, selected) {
+  document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = "none");
+  const correct = currentQuiz[`correct${qIndex}`];
+  const isCorrect = selected.trim().toLowerCase() === correct?.trim().toLowerCase();
+  if(isCorrect) {
+    btn.classList.add("correct");
+    score++;
+    if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+  } else {
+    btn.classList.add("wrong");
+    // Highlight correct
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if(b.textContent.includes(correct?.trim())) b.classList.add("correct");
+    });
+    if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+  }
+  setTimeout(() => { qIndex++; renderQuestion(); }, 1000);
+}
+
+async function finishQuiz() {
+  document.getElementById("gameScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "block";
+  const total = 8;
+  const isWin = score === total;
+  const usd = (currentQuiz.total_points / 1000).toFixed(3);
+  const resultEl = document.getElementById("resultScreen");
+
+  if(isWin) {
+    if(typeof confetti === "function") confetti({ particleCount:200, spread:80, origin:{y:0.6} });
+    try {
+      await fetch("/api/add_points", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ telegram_id:user.id, points:currentQuiz.total_points }) });
+      await fetch("/api/submit_quiz", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ telegram_id:user.id, quiz_id:currentQuiz.id, score }) });
+      document.getElementById("userCoins").textContent = parseInt(document.getElementById("userCoins").textContent||0) + currentQuiz.total_points;
+    } catch(e) {}
+    resultEl.innerHTML = `
+      <div class="result-card">
+        <div class="result-emoji">🏆</div>
+        <div class="result-title" style="color:var(--green)">Perfect Score!</div>
+        <div class="result-coins">+${currentQuiz.total_points} coins</div>
+        <div class="result-usd">+$${usd} USD earned</div>
+        <button class="btn btn-gold" onclick="location.reload()"><i class="fas fa-arrow-right"></i> Next Quiz</button>
+        <button class="btn btn-cyan" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Go Home</button>
+      </div>`;
+  } else {
+    try { fetch("/api/fail_quiz", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ telegram_id:user.id }) }); } catch(e) {}
+    resultEl.innerHTML = `
+      <div class="result-card">
+        <div class="result-emoji">😅</div>
+        <div class="result-title" style="color:var(--red)">Quiz Failed</div>
+        <div style="font-size:0.95rem;font-weight:700;color:#888;margin-bottom:20px">You scored ${score}/8 — Need all 8 correct to earn!</div>
+        <button class="btn btn-red" onclick="retryQuiz()"><i class="fas fa-redo"></i> Try Again</button>
+        <button class="btn btn-cyan" onclick="window.location.href='dashboard.html'"><i class="fas fa-home"></i> Go Home</button>
+      </div>`;
+  }
+}
+
+function retryQuiz() {
+  qIndex = 1; score = 0;
+  document.getElementById("resultScreen").style.display = "none";
+  document.getElementById("gameScreen").style.display = "block";
+  renderQuestion();
+}
+
+loadQuizList();
+</script>
 </body>
 </html>
