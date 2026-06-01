@@ -165,12 +165,10 @@ app.get("/admin/api/quizzes", adminAuth, (req, res) => {
   });
 });
 
-
 app.get("/admin/api/quizzes/:id", adminAuth, (req, res) => {
   db.query("SELECT * FROM quizzes WHERE id = ?", [req.params.id], (err, rows) => {
     if (err || !rows.length) return res.json({ success: false });
     const q = rows[0];
-    // Convert flat columns back to questions array
     const questions = [];
     for (let i = 1; i <= 8; i++) {
       if (q[`question${i}`]) {
@@ -191,7 +189,6 @@ app.get("/admin/api/quizzes/:id", adminAuth, (req, res) => {
 app.post("/admin/api/quizzes", adminAuth, (req, res) => {
   const { title, reward_coins, time_per_question, questions } = req.body;
   const data = { title, reward_coins: reward_coins || 0, time_per_question: time_per_question || 15 };
-  // Map questions array to flat DB columns
   if (questions && questions.length) {
     questions.forEach((q, i) => {
       const n = i + 1;
@@ -324,11 +321,35 @@ app.post("/admin/api/tasks/submissions/:id/review", adminAuth, (req, res) => {
 
 // =============================================
 // SPIN WHEEL MANAGEMENT
+// ✅ FIX: /admin/api/spin/history now returns stats + history together
+// so admin spin.html stat cards (total_spins, total_coins, today_spins) work correctly
 // =============================================
 app.get("/admin/api/spin/history", adminAuth, (req, res) => {
-  const sql = `SELECT s.*, u.name as user_name FROM spins s JOIN users u ON s.user_id = u.id ORDER BY s.created_at DESC LIMIT 50`;
-  db.query(sql, (err, results) => {
-    res.json({ success: true, history: results || [] });
+  const q1 = "SELECT COUNT(*) as total_spins FROM spins";
+  const q2 = "SELECT COALESCE(SUM(reward_amount), 0) as total_coins FROM spins";
+  const q3 = "SELECT COUNT(*) as today_spins FROM spins WHERE DATE(created_at) = CURDATE()";
+  const q4 = `SELECT s.*, u.name as user_name 
+               FROM spins s 
+               LEFT JOIN users u ON s.user_id = u.id 
+               ORDER BY s.created_at DESC LIMIT 50`;
+
+  db.query(q1, (e1, r1) => {
+    if (e1) return res.status(500).json({ success: false });
+    db.query(q2, (e2, r2) => {
+      if (e2) return res.status(500).json({ success: false });
+      db.query(q3, (e3, r3) => {
+        if (e3) return res.status(500).json({ success: false });
+        db.query(q4, (e4, r4) => {
+          if (e4) return res.status(500).json({ success: false });
+          res.json({
+            total_spins: r1[0].total_spins || 0,
+            total_coins: r2[0].total_coins || 0,
+            today_spins: r3[0].today_spins || 0,
+            history: r4 || []
+          });
+        });
+      });
+    });
   });
 });
 
@@ -447,3 +468,4 @@ app.get("/admin/api/leaderboard", adminAuth, (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 CashZilla Admin API running on port ${PORT}`);
 });
+           
