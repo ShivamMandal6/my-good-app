@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
   `description` TEXT,
   `image_url` VARCHAR(255),
   `task_type` ENUM('YouTube','Instagram','Website','Telegram','Twitter','Custom') DEFAULT 'Custom',
-  `reward_coins` INT DEFAULT 0,
+  `reward_coins` DECIMAL(10,2) DEFAULT 0,
   `link` VARCHAR(500),
   `proof_type` ENUM('Screenshot','Text','Both') DEFAULT 'Screenshot',
   `is_active` TINYINT(1) DEFAULT 1,
