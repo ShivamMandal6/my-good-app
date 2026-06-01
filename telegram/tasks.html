@@ -19,7 +19,7 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
 /* HEADER */
 .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
 .page-title { font-size:1.4rem; font-weight:900; }
-.coins-chip { background:var(--gold); border:var(--border); box-shadow:var(--shadow-sm); padding:6px 14px; border-radius:30px; font-weight:900; font-size:0.9rem; }
+.coins-chip { background:#000; color:var(--gold); border:var(--border); box-shadow:var(--shadow-sm); padding:6px 14px; border-radius:30px; font-weight:900; font-size:0.9rem; }
 
 /* VIEW ADS SECTION */
 .ads-section { background:var(--purple); border:var(--border); box-shadow:var(--shadow); border-radius:var(--radius); padding:16px; margin-bottom:18px; }
@@ -153,21 +153,12 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
 .success-msg { background:var(--green); border:var(--border); border-radius:12px; padding:12px; font-weight:800; text-align:center; margin-top:10px; display:none; }
 
 /* BOTTOM NAV */
-.bottom-nav {
-  position:fixed; bottom:0; left:0; right:0; z-index:1000;
-  background:var(--white); border-top:var(--border);
-  display:flex; align-items:stretch; box-shadow:0 -3px 0 #000;
-}
-.nav-item {
-  flex:1; display:flex; flex-direction:column; align-items:center;
-  justify-content:center; padding:8px 4px; gap:3px; cursor:pointer;
-  border:none; background:transparent; font-family:'Outfit',sans-serif;
-  color:#888; font-size:0.6rem; font-weight:800; text-transform:uppercase;
-  text-decoration:none; border-right:2px solid #000;
-}
-.nav-item:last-child { border-right:none; }
-.nav-btn i { font-size:22px; }
-.nav-btn.active { background:var(--gold); color:var(--dark); }
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:var(--white);border-top:var(--border);display:flex;align-items:stretch;box-shadow:0 -3px 0 #000;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:3px;border:none;background:transparent;font-family:'Outfit',sans-serif;color:#888;font-size:0.6rem;font-weight:800;text-transform:uppercase;text-decoration:none;border-right:2px solid #000;position:relative;}
+.nav-item:last-child{border-right:none;}
+.nav-item i{font-size:20px;}
+.nav-item.active{background:var(--gold);color:var(--dark);}
+.nav-item:active{background:var(--gold);}
 
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 </style>
@@ -250,7 +241,7 @@ const TYPE_ICONS = { youtube:'📺', instagram:'📸', website:'🌐', telegram:
 const TYPE_COLORS = { youtube:'#ff4444', instagram:'#E1306C', website:'#00D1FF', telegram:'#0088cc', twitter:'#1da1f2', custom:'#FFD600' };
 
 let currentTask = null;
-let screenshotBase64 = null;
+let screenshotBase64 = null; // Will store Cloudinary URL after upload
 
 function switchTab(tab) {
   document.getElementById('availableTab').style.display = tab==='available' ? 'block' : 'none';
@@ -285,17 +276,40 @@ document.getElementById('taskModal').addEventListener('click', function(e) {
   if(e.target===this) closeModal();
 });
 
-function previewScreenshot(input) {
+async function previewScreenshot(input) {
   const file = input.files[0];
   if(!file) return;
-  document.getElementById('fileLabel').textContent = file.name;
+  document.getElementById('fileLabel').textContent = '⏳ Uploading...';
+  const img = document.getElementById('screenshotPreview');
+
+  // Show local preview first
   const reader = new FileReader();
-  reader.onload = e => {
-    screenshotBase64 = e.target.result;
-    const img = document.getElementById('screenshotPreview');
-    img.src = screenshotBase64; img.style.display = 'block';
-  };
+  reader.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
   reader.readAsDataURL(file);
+
+  // Upload to Cloudinary
+  try {
+    const CLOUD_NAME = 'dqifgwgvi';
+    const UPLOAD_PRESET = 'KeshavMandal';
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('folder', 'cashtitan_tasks');
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+      method: 'POST', body: formData
+    });
+    const data = await res.json();
+    if(data.secure_url) {
+      screenshotBase64 = data.secure_url;
+      document.getElementById('fileLabel').textContent = '✅ Uploaded!';
+    } else {
+      document.getElementById('fileLabel').textContent = '❌ Upload failed';
+      screenshotBase64 = null;
+    }
+  } catch(e) {
+    document.getElementById('fileLabel').textContent = '❌ Upload failed';
+    screenshotBase64 = null;
+  }
 }
 
 async function submitTask() {
