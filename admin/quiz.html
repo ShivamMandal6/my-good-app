@@ -12,7 +12,7 @@
 .del-q-btn{position:absolute;top:8px;right:8px;background:var(--pink);border:2px solid #000;border-radius:8px;width:26px;height:26px;cursor:pointer;font-weight:900;font-size:0.82rem;display:flex;align-items:center;justify-content:center;}
 .opt-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
 .opt-inp{padding:8px 10px;border:2px solid #ddd;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;}
-.opt-inp.correct{border-color:var(--green);background:#f0fff5;}
+.opt-inp.correct{border-color:var(--cyan);background:#fff;}
 </style>
 </head>
 <body>
@@ -140,7 +140,7 @@ function addQuestion(){
     <label style="font-size:0.75rem;font-weight:900;text-transform:uppercase;display:block;margin-bottom:6px;">Question ${questions.length}</label>
     <input type="text" id="qt_${qIdx}" placeholder="Enter question..." style="width:100%;padding:9px 12px;border:2px solid #000;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;outline:none;margin-bottom:8px;">
     <div class="opt-row">
-      <input class="opt-inp correct" type="text" id="qa_${qIdx}" placeholder="✅ Correct answer">
+      <input class="opt-inp correct" type="text" id="qa_${qIdx}" placeholder="Correct answer">
       <input class="opt-inp" type="text" id="qw1_${qIdx}" placeholder="Wrong 1">
       <input class="opt-inp" type="text" id="qw2_${qIdx}" placeholder="Wrong 2">
       <input class="opt-inp" type="text" id="qw3_${qIdx}" placeholder="Wrong 3">
