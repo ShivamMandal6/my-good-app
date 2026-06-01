@@ -165,16 +165,67 @@ app.get("/admin/api/quizzes", adminAuth, (req, res) => {
   });
 });
 
+
+app.get("/admin/api/quizzes/:id", adminAuth, (req, res) => {
+  db.query("SELECT * FROM quizzes WHERE id = ?", [req.params.id], (err, rows) => {
+    if (err || !rows.length) return res.json({ success: false });
+    const q = rows[0];
+    // Convert flat columns back to questions array
+    const questions = [];
+    for (let i = 1; i <= 8; i++) {
+      if (q[`question${i}`]) {
+        questions.push({
+          question: q[`question${i}`],
+          correct_answer: q[`correct${i}`],
+          wrong1: q[`option${i}b`],
+          wrong2: q[`option${i}c`],
+          wrong3: q[`option${i}d`]
+        });
+      }
+    }
+    q.questions = questions;
+    res.json({ success: true, quiz: q });
+  });
+});
+
 app.post("/admin/api/quizzes", adminAuth, (req, res) => {
-  db.query("INSERT INTO quizzes SET ?", [req.body], (err, result) => {
-    if (err) return res.json({ success: false, error: err });
+  const { title, reward_coins, time_per_question, questions } = req.body;
+  const data = { title, reward_coins: reward_coins || 0, time_per_question: time_per_question || 15 };
+  // Map questions array to flat DB columns
+  if (questions && questions.length) {
+    questions.forEach((q, i) => {
+      const n = i + 1;
+      data[`question${n}`] = q.question || null;
+      data[`correct${n}`] = q.correct_answer || null;
+      data[`option${n}a`] = q.correct_answer || null;
+      data[`option${n}b`] = q.wrong1 || null;
+      data[`option${n}c`] = q.wrong2 || null;
+      data[`option${n}d`] = q.wrong3 || null;
+    });
+  }
+  db.query("INSERT INTO quizzes SET ?", [data], (err, result) => {
+    if (err) return res.json({ success: false, error: err.message });
     res.json({ success: true, id: result.insertId });
   });
 });
 
 app.put("/admin/api/quizzes/:id", adminAuth, (req, res) => {
-  db.query("UPDATE quizzes SET ? WHERE id = ?", [req.body, req.params.id], (err) => {
-    res.json({ success: !err });
+  const { title, reward_coins, time_per_question, questions } = req.body;
+  const data = { title, reward_coins: reward_coins || 0, time_per_question: time_per_question || 15 };
+  if (questions && questions.length) {
+    questions.forEach((q, i) => {
+      const n = i + 1;
+      data[`question${n}`] = q.question || null;
+      data[`correct${n}`] = q.correct_answer || null;
+      data[`option${n}a`] = q.correct_answer || null;
+      data[`option${n}b`] = q.wrong1 || null;
+      data[`option${n}c`] = q.wrong2 || null;
+      data[`option${n}d`] = q.wrong3 || null;
+    });
+  }
+  db.query("UPDATE quizzes SET ? WHERE id = ?", [data, req.params.id], (err) => {
+    if (err) return res.json({ success: false, error: err.message });
+    res.json({ success: true });
   });
 });
 
@@ -340,7 +391,8 @@ app.put("/admin/api/ads/:id", adminAuth, (req, res) => {
 });
 
 app.post("/admin/api/ads/:id/toggle", adminAuth, (req, res) => {
-  db.query("UPDATE ads SET is_enabled=? WHERE id=?", [req.body.is_enabled, req.params.id], (err) => {
+  const val = req.body.is_enabled !== undefined ? req.body.is_enabled : req.body.is_active;
+  db.query("UPDATE ads SET is_enabled=? WHERE id=?", [val, req.params.id], (err) => {
     res.json({ success: !err });
   });
 });
