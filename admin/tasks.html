@@ -194,7 +194,7 @@ input:checked + .toggle-slider:before { transform:translateX(18px); }
     <div class="form-grid-2">
       <div class="form-row">
         <label>Reward Coins *</label>
-        <input type="number" id="taskReward" placeholder="e.g. 50" min="1">
+        <input type="number" id="taskReward" placeholder="e.g. 50" min="0.1" step="0.1">
       </div>
       <div class="form-row">
         <label>Status</label>
@@ -336,7 +336,7 @@ async function saveTask(){
     title:document.getElementById('taskTitle').value.trim(),
     description:document.getElementById('taskDesc').value.trim(),
     link:document.getElementById('taskLink').value.trim(),
-    reward_coins:parseInt(document.getElementById('taskReward').value)||0,
+    reward_coins:parseFloat(document.getElementById('taskReward').value)||0,
     task_type:document.getElementById('taskType').value,
     proof_type:document.getElementById('proofType').value,
     is_active:parseInt(document.getElementById('taskStatus').value)
