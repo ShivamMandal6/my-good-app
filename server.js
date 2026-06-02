@@ -167,8 +167,7 @@ app.get("/setup", (req, res) => {
       ('Watch Ad 3', 'https://example.com/ad3', 10, 60, '📱', 1)`,
 
     `ALTER TABLE tasks MODIFY COLUMN reward_coins DECIMAL(10,2) DEFAULT 0`,
-    `ALTER TABLE quizzes ADD COLUMN IF NOT EXISTS time_per_question INT DEFAULT 15`,
-    `ALTER TABLE quizzes ADD COLUMN IF NOT EXISTS is_active TINYINT(1) DEFAULT 1`,
+
     `ALTER TABLE ads MODIFY COLUMN reward_coins DECIMAL(10,2) DEFAULT 10`
   ];
 
@@ -180,11 +179,24 @@ app.get("/setup", (req, res) => {
       completed++;
       if (err) errors.push(`Query ${i+1}: ${err.message}`);
       if (completed === queries.length) {
-        if (errors.length) {
-          res.status(500).json({ success: false, errors });
-        } else {
-          res.json({ success: true, message: "✅ All tables created successfully!" });
-        }
+        // Safe column addition — ignore duplicate column errors
+        const alterQueries = [
+          \`ALTER TABLE quizzes ADD COLUMN time_per_question INT DEFAULT 15\`,
+          \`ALTER TABLE quizzes ADD COLUMN is_active TINYINT(1) DEFAULT 1\`
+        ];
+        let altDone = 0;
+        alterQueries.forEach(sql => {
+          db.query(sql, () => { // ignore error if column already exists
+            altDone++;
+            if(altDone === alterQueries.length) {
+              if (errors.length) {
+                res.status(500).json({ success: false, errors });
+              } else {
+                res.json({ success: true, message: "✅ All tables created successfully!" });
+              }
+            }
+          });
+        });
       }
     });
   });
