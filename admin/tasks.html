@@ -170,20 +170,20 @@ input:checked + .toggle-slider:before { transform:translateX(18px); }
       <div class="form-row">
         <label>Task Type *</label>
         <select id="taskType">
-          <option value="youtube">📺 YouTube</option>
-          <option value="instagram">📸 Instagram</option>
-          <option value="website">🌐 Website</option>
-          <option value="telegram">✈️ Telegram</option>
-          <option value="twitter">🐦 Twitter</option>
-          <option value="custom">⭐ Custom</option>
+          <option value="YouTube">📺 YouTube</option>
+          <option value="Instagram">📸 Instagram</option>
+          <option value="Website">🌐 Website</option>
+          <option value="Telegram">✈️ Telegram</option>
+          <option value="Twitter">🐦 Twitter</option>
+          <option value="Custom">⭐ Custom</option>
         </select>
       </div>
       <div class="form-row">
         <label>Proof Type *</label>
         <select id="proofType">
-          <option value="both">Screenshot + Text</option>
-          <option value="screenshot">Screenshot Only</option>
-          <option value="text">Text Only</option>
+          <option value="Both">Screenshot + Text</option>
+          <option value="Screenshot">Screenshot Only</option>
+          <option value="Text">Text Only</option>
         </select>
       </div>
     </div>
@@ -194,7 +194,7 @@ input:checked + .toggle-slider:before { transform:translateX(18px); }
     <div class="form-grid-2">
       <div class="form-row">
         <label>Reward Coins *</label>
-        <input type="number" id="taskReward" placeholder="e.g. 50" min="0.1" step="0.1">
+        <input type="number" id="taskReward" placeholder="e.g. 50" min="1" step="1">
       </div>
       <div class="form-row">
         <label>Status</label>
@@ -212,7 +212,7 @@ input:checked + .toggle-slider:before { transform:translateX(18px); }
 </div>
 
 <script>
-const API_ADMIN = "";
+const API_ADMIN = "";  // base URL
 const ADMIN_TOKEN = localStorage.getItem("adminToken")||"";
 let allTasks=[]; let currentSubFilter='Pending'; let activeStatusFilter='all';
 
@@ -225,7 +225,7 @@ async function apiFetch(url,opts={}){ return fetch(url,{...opts,headers:{'Conten
 
 async function loadStats(){
   try{
-    const res=await apiFetch(`${API_ADMIN}/api/tasks/stats`);
+    const res=await apiFetch(`${API_ADMIN}/admin/api/tasks/stats`);
     const data=await res.json();
     if(data.success){
       document.getElementById('statTotal').textContent=data.total||0;
@@ -239,7 +239,7 @@ async function loadStats(){
 
 async function loadTasks(){
   try{
-    const res=await apiFetch(`${API_ADMIN}/api/tasks`);
+    const res=await apiFetch(`${API_ADMIN}/admin/api/tasks`);
     const data=await res.json();
     allTasks=data.tasks||[];
     renderTasks(allTasks);
@@ -288,14 +288,14 @@ function filterByStatus(status,btn){
 }
 
 async function toggleTask(id,state){
-  try{ await apiFetch(`${API_ADMIN}/api/tasks/${id}/toggle`,{method:'POST',body:JSON.stringify({is_active:state?1:0})}); loadStats(); }
+  try{ await apiFetch(`${API_ADMIN}/admin/api/tasks/${id}/toggle`,{method:'POST',body:JSON.stringify({is_active:state?1:0})}); loadStats(); }
   catch(e){}
 }
 
 async function deleteTask(id){
   if(!confirm('Delete this task?')) return;
   try{
-    const res=await apiFetch(`${API_ADMIN}/api/tasks/${id}`,{method:'DELETE'});
+    const res=await apiFetch(`${API_ADMIN}/admin/api/tasks/${id}`,{method:'DELETE'});
     const data=await res.json();
     if(data.success){ loadTasks(); loadStats(); }
     else alert(data.message||'Error');
@@ -322,8 +322,8 @@ function editTask(t){
   document.getElementById('taskDesc').value=t.description||'';
   document.getElementById('taskLink').value=t.link||'';
   document.getElementById('taskReward').value=t.reward_coins||'';
-  document.getElementById('taskType').value=t.task_type||'custom';
-  document.getElementById('proofType').value=t.proof_type||'both';
+  document.getElementById('taskType').value=t.task_type||'Custom';
+  document.getElementById('proofType').value=t.proof_type||'Both';
   document.getElementById('taskStatus').value=t.is_active?'1':'0';
   document.getElementById('taskModal').classList.add('open');
 }
@@ -336,15 +336,15 @@ async function saveTask(){
     title:document.getElementById('taskTitle').value.trim(),
     description:document.getElementById('taskDesc').value.trim(),
     link:document.getElementById('taskLink').value.trim(),
-    reward_coins:parseFloat(document.getElementById('taskReward').value)||0,
+    reward_coins:parseInt(document.getElementById('taskReward').value)||0,
     task_type:document.getElementById('taskType').value,
     proof_type:document.getElementById('proofType').value,
     is_active:parseInt(document.getElementById('taskStatus').value)
   };
-  if(!payload.title||!payload.link||!payload.reward_coins){ alert('Please fill Title, Link, and Reward!'); return; }
+  if(!payload.title||!payload.link||payload.reward_coins<1){ alert('Please fill Title, Link and Reward (min 1 coin)!'); return; }
   const btn=document.querySelector('.modal-save-btn'); btn.textContent='Saving...'; btn.disabled=true;
   try{
-    const url=id?`${API_ADMIN}/api/tasks/${id}`:`${API_ADMIN}/api/tasks`;
+    const url=id?`${API_ADMIN}/admin/api/tasks/${id}`:`${API_ADMIN}/admin/api/tasks`;
     const method=id?'PUT':'POST';
     const res=await apiFetch(url,{method,body:JSON.stringify(payload)});
     const data=await res.json();
@@ -362,7 +362,7 @@ async function loadSubmissions(filter,btn){
   el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">Loading...</div>';
   try{
     const status=filter==='All'?'':filter;
-    const res=await apiFetch(`${API_ADMIN}/api/tasks/submissions?status=${status}`);
+    const res=await apiFetch(`${API_ADMIN}/admin/api/tasks/submissions?status=${status}`);
     const data=await res.json();
     if(!data.success||!data.submissions?.length){ el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">No submissions found for this filter.</div>'; return; }
     const statusColors={Pending:'background:#FF9F43',Approved:'background:#00E676',Rejected:'background:#FF66B2'};
@@ -405,7 +405,7 @@ function submitReject(id){
 
 async function reviewSubmission(id,status,reason){
   try{
-    const res=await apiFetch(`${API_ADMIN}/api/tasks/submissions/${id}/review`,{method:'POST',body:JSON.stringify({status,rejection_reason:reason})});
+    const res=await apiFetch(`${API_ADMIN}/admin/api/tasks/submissions/${id}/review`,{method:'POST',body:JSON.stringify({status,rejection_reason:reason})});
     const data=await res.json();
     if(data.success){ loadSubmissions(currentSubFilter); loadStats(); }
     else alert(data.message||'Error');
