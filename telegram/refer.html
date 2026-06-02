@@ -109,7 +109,7 @@ body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--dark);
 </div>
 
 <div class="refer-banner">
-  <div class="emoji">🦕</div>
+  <div class="emoji">🐂</div>
   <h2>Invite Friends, Earn!</h2>
   <p>Earn commission on every quiz your friends win.</p>
   <div class="commission-badge">10% COMMISSION</div>
@@ -174,9 +174,9 @@ function showToast(msg){const t=document.getElementById("toast");t.textContent=m
 
 function copyLink(){if(!refLink)return;navigator.clipboard.writeText(refLink).then(()=>showToast("✅ Link copied!")).catch(()=>{const ta=document.createElement("textarea");ta.value=refLink;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);showToast("✅ Copied!");});}
 
-function shareTelegram(){if(!refLink)return;const msg=encodeURIComponent("🦕 Join me on CashZilla — Quiz to Earn app! Get paid to answer quizzes!\n\n"+refLink);window.open("https://t.me/share/url?url="+encodeURIComponent(refLink)+"&text="+msg);}
+function shareTelegram(){if(!refLink)return;const msg=encodeURIComponent("🐂 Join me on CashZilla — Quiz to Earn app! Get paid to answer quizzes!\n\n"+refLink);window.open("https://t.me/share/url?url="+encodeURIComponent(refLink)+"&text="+msg);}
 
-function shareWhatsApp(){if(!refLink)return;const msg=encodeURIComponent("🦕 Join CashZilla & earn real money!\n"+refLink);window.open("https://wa.me/?text="+msg);}
+function shareWhatsApp(){if(!refLink)return;const msg=encodeURIComponent("🐂 Join CashZilla & earn real money!\n"+refLink);window.open("https://wa.me/?text="+msg);}
 
 async function loadReferData(){
   if(!user.id)return;
