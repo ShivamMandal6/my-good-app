@@ -148,6 +148,19 @@ app.get("/admin/api/users/:id", adminAuth, (req, res) => {
   });
 });
 
+
+// Shuffle quiz options so correct answer is randomized across a/b/c/d
+function shuffleOptions(correct, wrong1, wrong2, wrong3) {
+  const opts = [correct, wrong1, wrong2, wrong3].filter(Boolean);
+  for (let i = opts.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
+  // Find where correct landed
+  const correctIdx = opts.indexOf(correct);
+  return { a: opts[0], b: opts[1], c: opts[2]||'', d: opts[3]||'', correct: opts[correctIdx] };
+}
+
 // =============================================
 // QUIZ MANAGEMENT
 // =============================================
@@ -188,16 +201,17 @@ app.get("/admin/api/quizzes/:id", adminAuth, (req, res) => {
 
 app.post("/admin/api/quizzes", adminAuth, (req, res) => {
   const { title, reward_coins, time_per_question, questions } = req.body;
-  const data = { title, reward_coins: reward_coins || 0, time_per_question: time_per_question || 15 };
+  const data = { title, total_points: reward_coins || 0, time_per_question: time_per_question || 15 };
   if (questions && questions.length) {
     questions.forEach((q, i) => {
       const n = i + 1;
+      const sh = shuffleOptions(q.correct_answer, q.wrong1, q.wrong2, q.wrong3);
       data[`question${n}`] = q.question || null;
-      data[`correct${n}`] = q.correct_answer || null;
-      data[`option${n}a`] = q.correct_answer || null;
-      data[`option${n}b`] = q.wrong1 || null;
-      data[`option${n}c`] = q.wrong2 || null;
-      data[`option${n}d`] = q.wrong3 || null;
+      data[`correct${n}`] = sh.correct || null;
+      data[`option${n}a`] = sh.a || null;
+      data[`option${n}b`] = sh.b || null;
+      data[`option${n}c`] = sh.c || null;
+      data[`option${n}d`] = sh.d || null;
     });
   }
   db.query("INSERT INTO quizzes SET ?", [data], (err, result) => {
@@ -208,16 +222,17 @@ app.post("/admin/api/quizzes", adminAuth, (req, res) => {
 
 app.put("/admin/api/quizzes/:id", adminAuth, (req, res) => {
   const { title, reward_coins, time_per_question, questions } = req.body;
-  const data = { title, reward_coins: reward_coins || 0, time_per_question: time_per_question || 15 };
+  const data = { title, total_points: reward_coins || 0, time_per_question: time_per_question || 15 };
   if (questions && questions.length) {
     questions.forEach((q, i) => {
       const n = i + 1;
+      const sh = shuffleOptions(q.correct_answer, q.wrong1, q.wrong2, q.wrong3);
       data[`question${n}`] = q.question || null;
-      data[`correct${n}`] = q.correct_answer || null;
-      data[`option${n}a`] = q.correct_answer || null;
-      data[`option${n}b`] = q.wrong1 || null;
-      data[`option${n}c`] = q.wrong2 || null;
-      data[`option${n}d`] = q.wrong3 || null;
+      data[`correct${n}`] = sh.correct || null;
+      data[`option${n}a`] = sh.a || null;
+      data[`option${n}b`] = sh.b || null;
+      data[`option${n}c`] = sh.c || null;
+      data[`option${n}d`] = sh.d || null;
     });
   }
   db.query("UPDATE quizzes SET ? WHERE id = ?", [data, req.params.id], (err) => {
@@ -296,7 +311,7 @@ app.get("/admin/api/tasks/submissions", adminAuth, (req, res) => {
   const { status } = req.query;
   let sql = `SELECT ts.*, t.title as task_title, t.reward_coins, u.name as user_name FROM task_submissions ts JOIN tasks t ON ts.task_id = t.id JOIN users u ON ts.user_id = u.id`;
   let params = [];
-  if (status && status !== 'all') { sql += ` WHERE ts.status=?`; params.push(status); }
+  if (status && status.toLowerCase() !== 'all' && status !== '') { sql += ` WHERE ts.status=?`; params.push(status); }
   sql += ` ORDER BY ts.submitted_at DESC`;
   db.query(sql, params, (err, results) => {
     if (err) return res.json({ success: false, error: err });
@@ -468,4 +483,3 @@ app.get("/admin/api/leaderboard", adminAuth, (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 CashZilla Admin API running on port ${PORT}`);
 });
-             
