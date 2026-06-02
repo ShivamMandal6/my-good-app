@@ -88,7 +88,7 @@ app.get("/setup", (req, res) => {
       description TEXT,
       image_url VARCHAR(255),
       task_type ENUM('YouTube','Instagram','Website','Telegram','Twitter','Custom') DEFAULT 'Custom',
-      reward_coins INT DEFAULT 0,
+      reward_coins DECIMAL(10,2) DEFAULT 0,
       link VARCHAR(500),
       proof_type ENUM('Screenshot','Text','Both') DEFAULT 'Screenshot',
       is_active TINYINT(1) DEFAULT 1,
@@ -120,7 +120,7 @@ app.get("/setup", (req, res) => {
       id INT NOT NULL AUTO_INCREMENT,
       title VARCHAR(255) NOT NULL,
       link VARCHAR(500),
-      reward_coins INT DEFAULT 10,
+      reward_coins DECIMAL(10,2) DEFAULT 10,
       cooldown_minutes INT DEFAULT 60,
       icon VARCHAR(10) DEFAULT '📺',
       is_enabled TINYINT(1) DEFAULT 1,
@@ -162,7 +162,10 @@ app.get("/setup", (req, res) => {
     `INSERT IGNORE INTO ads (title, link, reward_coins, cooldown_minutes, icon, is_enabled) VALUES
       ('Watch Ad 1', 'https://example.com/ad1', 10, 60, '📺', 1),
       ('Watch Ad 2', 'https://example.com/ad2', 15, 60, '🎬', 1),
-      ('Watch Ad 3', 'https://example.com/ad3', 10, 60, '📱', 1)`
+      ('Watch Ad 3', 'https://example.com/ad3', 10, 60, '📱', 1)`,
+
+    `ALTER TABLE tasks MODIFY COLUMN reward_coins DECIMAL(10,2) DEFAULT 0`,
+    `ALTER TABLE ads MODIFY COLUMN reward_coins DECIMAL(10,2) DEFAULT 10`
   ];
 
   let completed = 0;
@@ -450,4 +453,3 @@ app.get("/api/leaderboard", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 CashZilla API running on port ${PORT}`);
 });
-      
