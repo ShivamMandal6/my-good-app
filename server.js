@@ -61,6 +61,8 @@ app.get("/setup", (req, res) => {
       id INT NOT NULL AUTO_INCREMENT,
       title VARCHAR(255) NOT NULL,
       total_points INT DEFAULT 100,
+      time_per_question INT DEFAULT 15,
+      is_active TINYINT(1) DEFAULT 1,
       question1 TEXT, option1a VARCHAR(255), option1b VARCHAR(255), option1c VARCHAR(255), option1d VARCHAR(255), correct1 VARCHAR(255),
       question2 TEXT, option2a VARCHAR(255), option2b VARCHAR(255), option2c VARCHAR(255), option2d VARCHAR(255), correct2 VARCHAR(255),
       question3 TEXT, option3a VARCHAR(255), option3b VARCHAR(255), option3c VARCHAR(255), option3d VARCHAR(255), correct3 VARCHAR(255),
@@ -165,6 +167,8 @@ app.get("/setup", (req, res) => {
       ('Watch Ad 3', 'https://example.com/ad3', 10, 60, '📱', 1)`,
 
     `ALTER TABLE tasks MODIFY COLUMN reward_coins DECIMAL(10,2) DEFAULT 0`,
+    `ALTER TABLE quizzes ADD COLUMN IF NOT EXISTS time_per_question INT DEFAULT 15`,
+    `ALTER TABLE quizzes ADD COLUMN IF NOT EXISTS is_active TINYINT(1) DEFAULT 1`,
     `ALTER TABLE ads MODIFY COLUMN reward_coins DECIMAL(10,2) DEFAULT 10`
   ];
 
