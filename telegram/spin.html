@@ -125,11 +125,11 @@ canvas#spinWheel {
 </div>
 
 <div class="spin-banner">
-  <h2>🦕 Daily GodZilla Spin!</h2>
+  <h2>🐂 Daily Titan Spin!</h2>
   <p>Spin the wheel and win cash prizes every day!</p>
   <div class="spin-info-row">
     <div class="spin-info-chip">🎯 Spins Left: <span id="spinsLeft">1</span></div>
-    <div class="spin-info-chip">⏱ Cooldown: 24h</div>
+    <div class="spin-info-chip">⏱ Cooldown: 12h</div>
   </div>
 </div>
 
@@ -137,7 +137,7 @@ canvas#spinWheel {
   <div class="wheel-pointer"></div>
   <div class="wheel-container">
     <canvas id="spinWheel" width="560" height="560"></canvas>
-    <div class="wheel-center">🦕</div>
+    <div class="wheel-center">🐂</div>
   </div>
   <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎰 SPIN NOW!</button>
 </div>
@@ -165,12 +165,12 @@ const API="";
 let SEGMENTS = [
   {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
   {label:"Sorry!",color:"#FF66B2",value:0,coins:0},
-  {label:"$0.00",color:"#00D1FF",value:0,coins:0},
+  {label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
   {label:"$0.05",color:"#00E676",value:0.05,coins:50},
   {label:"Sorry!",color:"#A29BFE",value:0,coins:0},
-  {label:"$0.00",color:"#FF9F43",value:0,coins:0},
+  {label:"$0.01",color:"#FF9F43",value:0.01,coins:10},
   {label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
-  {label:"$0.00",color:"#FFD600",value:0,coins:0},
+  {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
 ];
 
 async function loadSpinConfig() {
@@ -221,14 +221,14 @@ function checkCooldown() {
   const last = localStorage.getItem("spin_last_"+user.id);
   if(!last) return true;
   const elapsed = Date.now()-parseInt(last);
-  return elapsed >= 24*60*60*1000;
+  return elapsed >= 12*60*60*1000;
 }
 
 function doSpin() {
   if(isSpinning || !canSpin) return;
   if(!checkCooldown()) {
     const last=parseInt(localStorage.getItem("spin_last_"+user.id));
-    const remaining=Math.ceil((24*60*60*1000-(Date.now()-last))/3600000);
+    const remaining=Math.ceil((12*60*60*1000-(Date.now()-last))/3600000);
     alert(`⏱ Come back in ${remaining}h for your next spin!`); return;
   }
 
@@ -345,4 +345,5 @@ loadSpinConfig(); loadUserData(); loadSpinHistory();
 </script>
 </body>
 </html>
+
 
