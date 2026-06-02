@@ -150,16 +150,6 @@ app.get("/admin/api/users/:id", adminAuth, (req, res) => {
 
 
 // Shuffle quiz options so correct answer is randomized across a/b/c/d
-function shuffleOptions(correct, wrong1, wrong2, wrong3) {
-  const opts = [correct, wrong1, wrong2, wrong3].filter(Boolean);
-  for (let i = opts.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [opts[i], opts[j]] = [opts[j], opts[i]];
-  }
-  // Find where correct landed
-  const correctIdx = opts.indexOf(correct);
-  return { a: opts[0], b: opts[1], c: opts[2]||'', d: opts[3]||'', correct: opts[correctIdx] };
-}
 
 // =============================================
 // QUIZ MANAGEMENT
@@ -218,13 +208,13 @@ app.post("/admin/api/quizzes", adminAuth, (req, res) => {
   if (questions && questions.length) {
     questions.forEach((q, i) => {
       const n = i + 1;
-      const sh = shuffleOptions(q.correct_answer, q.wrong1, q.wrong2, q.wrong3);
+      // Save options exactly as admin set them
       data[`question${n}`] = q.question || null;
-      data[`correct${n}`] = sh.correct || null;
-      data[`option${n}a`] = sh.a || null;
-      data[`option${n}b`] = sh.b || null;
-      data[`option${n}c`] = sh.c || null;
-      data[`option${n}d`] = sh.d || null;
+      data[`correct${n}`] = q.correct_answer || null;
+      data[`option${n}a`] = q.optionA || null;
+      data[`option${n}b`] = q.optionB || null;
+      data[`option${n}c`] = q.optionC || null;
+      data[`option${n}d`] = q.optionD || null;
     });
   }
   db.query("INSERT INTO quizzes SET ?", [data], (err, result) => {
@@ -239,13 +229,13 @@ app.put("/admin/api/quizzes/:id", adminAuth, (req, res) => {
   if (questions && questions.length) {
     questions.forEach((q, i) => {
       const n = i + 1;
-      const sh = shuffleOptions(q.correct_answer, q.wrong1, q.wrong2, q.wrong3);
+      // NO shuffle on edit — keep positions as admin set them
       data[`question${n}`] = q.question || null;
-      data[`correct${n}`] = sh.correct || null;
-      data[`option${n}a`] = sh.a || null;
-      data[`option${n}b`] = sh.b || null;
-      data[`option${n}c`] = sh.c || null;
-      data[`option${n}d`] = sh.d || null;
+      data[`correct${n}`] = q.correct_answer || null;
+      data[`option${n}a`] = q.optionA || null;
+      data[`option${n}b`] = q.optionB || null;
+      data[`option${n}c`] = q.optionC || null;
+      data[`option${n}d`] = q.optionD || null;
     });
   }
   db.query("UPDATE quizzes SET ? WHERE id = ?", [data, req.params.id], (err) => {
