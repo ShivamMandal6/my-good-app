@@ -118,12 +118,21 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
 .modal-sheet {
   background:var(--bg); border:var(--border); border-bottom:none;
   border-radius:24px 24px 0 0; padding:20px; width:100%;
-  max-height:88vh; overflow-y:auto;
+  height:60vh;
+  overflow-y:auto;
   animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  transition:transform 0.3s ease;
-  will-change:transform;
+  transition:height 0.3s ease, transform 0.3s ease;
+  will-change:transform, height;
 }
-.modal-handle { width:40px; height:5px; background:#bbb; border-radius:4px; margin:0 auto 16px; cursor:grab; touch-action:none; }
+.modal-sheet.expanded {
+  height:95vh;
+  border-radius:24px 24px 0 0;
+}
+.modal-handle-wrap {
+  display:flex; justify-content:center; align-items:center;
+  padding:4px 0 12px; cursor:grab; touch-action:none; user-select:none;
+}
+.modal-handle { width:48px; height:5px; background:#bbb; border-radius:4px; }
 .modal-title { font-size:1.1rem; font-weight:900; margin-bottom:6px; }
 .modal-desc { font-size:0.82rem; color:#555; font-weight:600; line-height:1.5; margin-bottom:16px; }
 .open-link-btn {
@@ -171,7 +180,7 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
 <!-- TASK MODAL -->
 <div class="modal-overlay" id="taskModal">
   <div class="modal-sheet">
-    <div class="modal-handle"></div>
+    <div class="modal-handle-wrap" id="modalHandleWrap"><div class="modal-handle"></div></div>
     <div id="modalTypeIcon" style="font-size:2rem;margin-bottom:8px;"></div>
     <div class="modal-title" id="modalTitle">Task Title</div>
     <div class="reward-badge" style="display:inline-block;margin-bottom:12px;" id="modalReward">⭐ 0 coins</div>
@@ -289,7 +298,7 @@ async function previewScreenshot(input) {
   reader.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
   reader.readAsDataURL(file);
 
-// Upload to Cloudinary
+  // Upload to Cloudinary
   try {
     const CLOUD_NAME = 'dqifgwgvi';
     const UPLOAD_PRESET = 'KeshavMandal';
