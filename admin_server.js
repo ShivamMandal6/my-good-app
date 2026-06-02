@@ -173,7 +173,19 @@ app.get("/admin/api/quiz/stats", adminAuth, (req, res) => {
 });
 
 app.get("/admin/api/quizzes", adminAuth, (req, res) => {
-  db.query("SELECT * FROM quizzes ORDER BY id DESC", (err, results) => {
+  db.query(`
+    SELECT q.*,
+      (SELECT COUNT(*) FROM quiz_results qr WHERE qr.quiz_id = q.id) as plays,
+      (CASE WHEN q.question1 IS NOT NULL THEN 1 ELSE 0 END +
+       CASE WHEN q.question2 IS NOT NULL THEN 1 ELSE 0 END +
+       CASE WHEN q.question3 IS NOT NULL THEN 1 ELSE 0 END +
+       CASE WHEN q.question4 IS NOT NULL THEN 1 ELSE 0 END +
+       CASE WHEN q.question5 IS NOT NULL THEN 1 ELSE 0 END +
+       CASE WHEN q.question6 IS NOT NULL THEN 1 ELSE 0 END +
+       CASE WHEN q.question7 IS NOT NULL THEN 1 ELSE 0 END +
+       CASE WHEN q.question8 IS NOT NULL THEN 1 ELSE 0 END) as question_count
+    FROM quizzes q ORDER BY q.id DESC
+  `, (err, results) => {
     res.json({ success: true, quizzes: results || [] });
   });
 });
