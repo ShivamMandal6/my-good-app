@@ -126,7 +126,7 @@ function closeModal(){document.getElementById("adModal").classList.remove("open"
 async function saveAd(){
   const id=document.getElementById("editAdId").value;
   const p={title:document.getElementById("adTitle").value.trim(),link:document.getElementById("adLink").value.trim(),icon:document.getElementById("adIcon").value||"📺",reward_coins:parseFloat(document.getElementById("adReward").value)||0,cooldown_minutes:parseInt(document.getElementById("adCooldown").value)||60,is_enabled:parseInt(document.getElementById("adStatus").value)};
-  if(!p.title||!p.link||!p.reward_coins){toast("⚠️ Fill Title, Link and Reward!");return;}
+  if(!p.title||!p.link||p.reward_coins<0.1){toast("⚠️ Fill Title, Link and Reward (min 0.1 coin)!");return;}
   const btn=document.querySelector(".modal-save-btn");btn.textContent="Saving...";btn.disabled=true;
   try{
     const r=await fetch(id?`/admin/api/ads/${id}`:"/admin/api/ads",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify(p)});
