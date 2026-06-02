@@ -120,8 +120,10 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
   border-radius:24px 24px 0 0; padding:20px; width:100%;
   max-height:88vh; overflow-y:auto;
   animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  transition:transform 0.3s ease;
+  will-change:transform;
 }
-.modal-handle { width:40px; height:4px; background:#ccc; border-radius:4px; margin:0 auto 16px; }
+.modal-handle { width:40px; height:5px; background:#bbb; border-radius:4px; margin:0 auto 16px; cursor:grab; touch-action:none; }
 .modal-title { font-size:1.1rem; font-weight:900; margin-bottom:6px; }
 .modal-desc { font-size:0.82rem; color:#555; font-weight:600; line-height:1.5; margin-bottom:16px; }
 .open-link-btn {
@@ -287,7 +289,7 @@ async function previewScreenshot(input) {
   reader.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
   reader.readAsDataURL(file);
 
-  // Upload to Cloudinary
+// Upload to Cloudinary
   try {
     const CLOUD_NAME = 'dqifgwgvi';
     const UPLOAD_PRESET = 'KeshavMandal';
@@ -435,6 +437,76 @@ async function loadUserCoins() {
 }
 
 loadUserCoins(); loadAvailable(); loadMyTasks(); loadAds();
+
+// ── Swipe up/down on modal handle ──
+(function(){
+  const sheet = document.querySelector('.modal-sheet');
+  const handle = document.querySelector('.modal-handle');
+  let startY = 0, curY = 0, dragging = false;
+  let isExpanded = false;
+
+  function onStart(e){
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    curY = 0;
+    dragging = true;
+    sheet.style.transition = 'none';
+  }
+
+  function onMove(e){
+    if(!dragging) return;
+    curY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+    if(isExpanded){
+      // Expanded mode: only allow downward drag
+      if(curY < 0) return;
+      sheet.style.transform = `translateY(${curY}px)`;
+    } else {
+      // Normal mode: allow upward drag (negative curY) and downward
+      if(curY < -150) curY = -150; // limit upward drag
+      sheet.style.transform = `translateY(${curY}px)`;
+    }
+  }
+
+  function onEnd(){
+    if(!dragging) return;
+    dragging = false;
+    sheet.style.transition = 'transform 0.3s ease';
+
+    if(!isExpanded){
+      if(curY < -60){
+        // Swipe UP — expand to full screen
+        isExpanded = true;
+        sheet.style.maxHeight = '100vh';
+        sheet.style.borderRadius = '0';
+        sheet.style.transform = '';
+      } else if(curY > 120){
+        // Swipe DOWN — close modal
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(()=>{ closeModal(); sheet.style.transform=''; sheet.style.maxHeight='88vh'; sheet.style.borderRadius='24px 24px 0 0'; isExpanded=false; }, 300);
+      } else {
+        sheet.style.transform = '';
+      }
+    } else {
+      if(curY > 120){
+        // Swipe DOWN from expanded — back to normal size
+        isExpanded = false;
+        sheet.style.maxHeight = '88vh';
+        sheet.style.borderRadius = '24px 24px 0 0';
+        sheet.style.transform = '';
+      } else {
+        sheet.style.transform = '';
+      }
+    }
+    curY = 0;
+  }
+
+  handle.addEventListener('touchstart', onStart, {passive:true});
+  handle.addEventListener('touchmove', onMove, {passive:true});
+  handle.addEventListener('touchend', onEnd);
+  handle.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+})();
+
 </script>
 </body>
 </html>
