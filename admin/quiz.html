@@ -11,8 +11,13 @@
 #questionsWrap .q-block{background:#fafafa;border:2px solid #000;border-radius:12px;padding:14px;margin-bottom:10px;position:relative;}
 .del-q-btn{position:absolute;top:8px;right:8px;background:var(--pink);border:2px solid #000;border-radius:8px;width:26px;height:26px;cursor:pointer;font-weight:900;font-size:0.82rem;display:flex;align-items:center;justify-content:center;}
 .opt-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
-.opt-inp{padding:8px 10px;border:2px solid #ddd;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;}
-.opt-inp.correct{border-color:#000;background:#fff;}
+.opt-inp{padding:8px 10px;border:2px solid #ddd;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;width:100%;box-sizing:border-box;}
+.opt-wrap{position:relative;display:flex;align-items:center;gap:0;}
+.opt-wrap input[type="text"]{padding-left:32px;}
+.opt-wrap .radio-correct{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:16px;height:16px;cursor:pointer;accent-color:#22c55e;}
+.opt-wrap.is-correct input[type="text"]{border-color:#22c55e;background:#f0fff4;}
+.correct-label{font-size:0.68rem;font-weight:900;color:#22c55e;position:absolute;right:6px;top:50%;transform:translateY(-50%);pointer-events:none;display:none;}
+.opt-wrap.is-correct .correct-label{display:block;}
 </style>
 </head>
 <body>
@@ -119,7 +124,7 @@ function renderQ(qs){
     <td style="font-weight:900">${i+1}</td>
     <td style="font-weight:800;max-width:200px">${q.title}</td>
     <td><strong>${q.question_count||0}</strong></td>
-    <td><span class="badge badge-gold">⭐ ${q.reward_coins}</span></td>
+    <td><span class="badge badge-gold">⭐ ${q.total_points}</span></td>
     <td>${q.play_count||0}</td>
     <td><label class="toggle-switch"><input type="checkbox" ${q.is_active?'checked':''} onchange="toggleQ(${q.id},this.checked)"><span class="toggle-slider"></span></label></td>
     <td><div style="display:flex;gap:6px;">
@@ -132,18 +137,47 @@ function renderQ(qs){
 function filterQ(v){renderQ(allQ.filter(q=>q.title.toLowerCase().includes(v.toLowerCase())));}
 
 let questions=[];
+function selectCorrect(qId, optNum){
+  // Update radio UI for this question
+  ['a','b','c','d'].forEach(o=>{
+    const wrap=document.getElementById('wrap_'+qId+'_'+o);
+    if(wrap) wrap.classList.remove('is-correct');
+  });
+  const selWrap=document.getElementById('wrap_'+qId+'_'+optNum);
+  if(selWrap) selWrap.classList.add('is-correct');
+  document.getElementById('qcorrect_'+qId).value=optNum;
+}
 function addQuestion(){
   qIdx++;
   questions.push({id:qIdx});
   const d=document.createElement("div");d.className="q-block";d.id="qb_"+qIdx;
-  d.innerHTML=`<button class="del-q-btn" onclick="removeQ(${qIdx})">✕</button>
+  const qi=qIdx;
+  d.innerHTML=`<button class="del-q-btn" onclick="removeQ(${qi})">✕</button>
     <label style="font-size:0.75rem;font-weight:900;text-transform:uppercase;display:block;margin-bottom:6px;">Question ${questions.length}</label>
-    <input type="text" id="qt_${qIdx}" placeholder="Enter question..." style="width:100%;padding:9px 12px;border:2px solid #000;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;outline:none;margin-bottom:8px;">
+    <input type="text" id="qt_${qi}" placeholder="Enter question..." style="width:100%;padding:9px 12px;border:2px solid #000;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;outline:none;margin-bottom:8px;">
+    <p style="font-size:0.72rem;font-weight:800;color:#555;margin:4px 0 6px;">🟢 Radio button click karke CORRECT answer select karo</p>
+    <input type="hidden" id="qcorrect_${qi}" value="a">
     <div class="opt-row">
-      <input class="opt-inp correct" type="text" id="qa_${qIdx}" placeholder="Correct answer">
-      <input class="opt-inp" type="text" id="qw1_${qIdx}" placeholder="Wrong 1">
-      <input class="opt-inp" type="text" id="qw2_${qIdx}" placeholder="Wrong 2">
-      <input class="opt-inp" type="text" id="qw3_${qIdx}" placeholder="Wrong 3">
+      <div class="opt-wrap is-correct" id="wrap_${qi}_a">
+        <input class="radio-correct" type="radio" name="correct_${qi}" value="a" checked onclick="selectCorrect(${qi},'a')">
+        <input class="opt-inp" type="text" id="qa_${qi}" placeholder="Option A">
+        <span class="correct-label">✓ CORRECT</span>
+      </div>
+      <div class="opt-wrap" id="wrap_${qi}_b">
+        <input class="radio-correct" type="radio" name="correct_${qi}" value="b" onclick="selectCorrect(${qi},'b')">
+        <input class="opt-inp" type="text" id="qb_inp_${qi}" placeholder="Option B">
+        <span class="correct-label">✓ CORRECT</span>
+      </div>
+      <div class="opt-wrap" id="wrap_${qi}_c">
+        <input class="radio-correct" type="radio" name="correct_${qi}" value="c" onclick="selectCorrect(${qi},'c')">
+        <input class="opt-inp" type="text" id="qc_inp_${qi}" placeholder="Option C">
+        <span class="correct-label">✓ CORRECT</span>
+      </div>
+      <div class="opt-wrap" id="wrap_${qi}_d">
+        <input class="radio-correct" type="radio" name="correct_${qi}" value="d" onclick="selectCorrect(${qi},'d')">
+        <input class="opt-inp" type="text" id="qd_inp_${qi}" placeholder="Option D">
+        <span class="correct-label">✓ CORRECT</span>
+      </div>
     </div>`;
   document.getElementById("questionsWrap").appendChild(d);
 }
@@ -161,18 +195,41 @@ async function editQuiz(id){
     const r=await fetch(`/admin/api/quizzes/${id}`,{headers:{"Authorization":"Bearer "+TOKEN}});
     const d=await r.json();const q=d.quiz;
     document.getElementById("editId").value=id;document.getElementById("mHead").innerHTML='<i class="fas fa-edit"></i> Edit Quiz';
-    document.getElementById("qTitle").value=q.title||"";document.getElementById("qReward").value=q.reward_coins||"";document.getElementById("qTime").value=q.time_per_question||15;
+    document.getElementById("qTitle").value=q.title||"";document.getElementById("qReward").value=q.total_points||"";document.getElementById("qTime").value=q.time_per_question||15;
     document.getElementById("questionsWrap").innerHTML="";questions=[];qIdx=0;
-    (q.questions||[]).forEach(qq=>{qIdx++;questions.push({id:qIdx});
-      const d2=document.createElement("div");d2.className="q-block";d2.id="qb_"+qIdx;
-      d2.innerHTML=`<button class="del-q-btn" onclick="removeQ(${qIdx})">✕</button>
+    (q.questions||[]).forEach(qq=>{
+      qIdx++;questions.push({id:qIdx});
+      const qi=qIdx;
+      // Figure out which option slot is correct
+      const opts=[qq.correct_answer||'',qq.wrong1||'',qq.wrong2||'',qq.wrong3||''];
+      // correct_answer is always opts[0], assign to slot A
+      const d2=document.createElement("div");d2.className="q-block";d2.id="qb_"+qi;
+      d2.innerHTML=`<button class="del-q-btn" onclick="removeQ(${qi})">✕</button>
         <label style="font-size:0.75rem;font-weight:900;text-transform:uppercase;display:block;margin-bottom:6px;">Question ${questions.length}</label>
-        <input type="text" id="qt_${qIdx}" value="${qq.question||''}" style="width:100%;padding:9px 12px;border:2px solid #000;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;outline:none;margin-bottom:8px;">
+        <input type="text" id="qt_${qi}" value="${(qq.question||'').replace(/"/g,'&quot;')}" style="width:100%;padding:9px 12px;border:2px solid #000;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:0.88rem;outline:none;margin-bottom:8px;">
+        <p style="font-size:0.72rem;font-weight:800;color:#555;margin:4px 0 6px;">🟢 Radio button click karke CORRECT answer select karo</p>
+        <input type="hidden" id="qcorrect_${qi}" value="a">
         <div class="opt-row">
-          <input class="opt-inp correct" type="text" id="qa_${qIdx}" value="${qq.correct_answer||''}">
-          <input class="opt-inp" type="text" id="qw1_${qIdx}" value="${qq.wrong1||''}">
-          <input class="opt-inp" type="text" id="qw2_${qIdx}" value="${qq.wrong2||''}">
-          <input class="opt-inp" type="text" id="qw3_${qIdx}" value="${qq.wrong3||''}">
+          <div class="opt-wrap is-correct" id="wrap_${qi}_a">
+            <input class="radio-correct" type="radio" name="correct_${qi}" value="a" checked onclick="selectCorrect(${qi},'a')">
+            <input class="opt-inp" type="text" id="qa_${qi}" value="${opts[0].replace(/"/g,'&quot;')}" placeholder="Option A">
+            <span class="correct-label">✓ CORRECT</span>
+          </div>
+          <div class="opt-wrap" id="wrap_${qi}_b">
+            <input class="radio-correct" type="radio" name="correct_${qi}" value="b" onclick="selectCorrect(${qi},'b')">
+            <input class="opt-inp" type="text" id="qb_inp_${qi}" value="${opts[1].replace(/"/g,'&quot;')}" placeholder="Option B">
+            <span class="correct-label">✓ CORRECT</span>
+          </div>
+          <div class="opt-wrap" id="wrap_${qi}_c">
+            <input class="radio-correct" type="radio" name="correct_${qi}" value="c" onclick="selectCorrect(${qi},'c')">
+            <input class="opt-inp" type="text" id="qc_inp_${qi}" value="${opts[2].replace(/"/g,'&quot;')}" placeholder="Option C">
+            <span class="correct-label">✓ CORRECT</span>
+          </div>
+          <div class="opt-wrap" id="wrap_${qi}_d">
+            <input class="radio-correct" type="radio" name="correct_${qi}" value="d" onclick="selectCorrect(${qi},'d')">
+            <input class="opt-inp" type="text" id="qd_inp_${qi}" value="${opts[3].replace(/"/g,'&quot;')}" placeholder="Option D">
+            <span class="correct-label">✓ CORRECT</span>
+          </div>
         </div>`;
       document.getElementById("questionsWrap").appendChild(d2);
     });
@@ -184,17 +241,35 @@ function closeModal(){document.getElementById("quizModal").classList.remove("ope
 
 async function saveQuiz(){
   const id=document.getElementById("editId").value;
-  const qs=questions.map(q=>({question:document.getElementById("qt_"+q.id)?.value?.trim(),correct_answer:document.getElementById("qa_"+q.id)?.value?.trim(),wrong1:document.getElementById("qw1_"+q.id)?.value?.trim(),wrong2:document.getElementById("qw2_"+q.id)?.value?.trim(),wrong3:document.getElementById("qw3_"+q.id)?.value?.trim()})).filter(q=>q.question&&q.correct_answer);
-  const p={title:document.getElementById("qTitle").value.trim(),reward_coins:parseFloat(document.getElementById("qReward").value)||0,time_per_question:parseInt(document.getElementById("qTime").value)||15,questions:qs};
-  if(!p.title||!(parseFloat(document.getElementById("qReward").value)>0)){toast("⚠️ Fill Title and Reward (min 0.1)!");return;}
+  const qs=questions.map(q=>{
+    const correctOpt=document.getElementById("qcorrect_"+q.id)?.value||'a';
+    const optA=document.getElementById("qa_"+q.id)?.value?.trim()||'';
+    const optB=document.getElementById("qb_inp_"+q.id)?.value?.trim()||'';
+    const optC=document.getElementById("qc_inp_"+q.id)?.value?.trim()||'';
+    const optD=document.getElementById("qd_inp_"+q.id)?.value?.trim()||'';
+    const optMap={a:optA,b:optB,c:optC,d:optD};
+    const correct_answer=optMap[correctOpt]||optA;
+    const allOpts=[optA,optB,optC,optD];
+    const wrongOpts=allOpts.filter((_,i)=>['a','b','c','d'][i]!==correctOpt&&allOpts[i]);
+    return {
+      question:document.getElementById("qt_"+q.id)?.value?.trim(),
+      correct_answer,
+      wrong1:wrongOpts[0]||'',
+      wrong2:wrongOpts[1]||'',
+      wrong3:wrongOpts[2]||''
+    };
+  }).filter(q=>q.question&&q.correct_answer);
+  const rewardVal=parseInt(document.getElementById("qReward").value)||0;
+  const p={title:document.getElementById("qTitle").value.trim(),reward_coins:rewardVal,time_per_question:parseInt(document.getElementById("qTime").value)||15,questions:qs};
+  if(!p.title||rewardVal<1){toast("⚠️ Fill Title and Reward (min 1 coin)!");return;}
   if(!qs.length){toast("⚠️ Add at least 1 question!");return;}
   const btn=document.querySelector(".modal-save-btn");btn.textContent="Saving...";btn.disabled=true;
   try{
     const r=await fetch(id?`/admin/api/quizzes/${id}`:"/admin/api/quizzes",{method:id?"PUT":"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:JSON.stringify(p)});
     const d=await r.json();
     if(d.success){closeModal();loadQuizzes();loadStats();toast("✅ Quiz saved!");}
-    else toast("❌ "+(d.message||"Error"));
-  }catch(e){toast("❌ Network error");}
+    else toast("❌ "+(d.message||d.error||"Error saving quiz"));
+  }catch(e){toast("❌ Network error: "+e.message);}
   finally{btn.textContent="Save Quiz";btn.disabled=false;}
 }
 
@@ -208,4 +283,4 @@ async function delQ(id){
 loadStats();loadQuizzes();
 </script>
 </body>
-</html>
+  </html>
