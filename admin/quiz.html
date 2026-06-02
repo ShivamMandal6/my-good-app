@@ -125,7 +125,7 @@ function renderQ(qs){
     <td style="font-weight:800;max-width:200px">${q.title}</td>
     <td><strong>${q.question_count||0}</strong></td>
     <td><span class="badge badge-gold">⭐ ${q.total_points}</span></td>
-    <td>${q.play_count||0}</td>
+    <td>${q.plays||0}</td>
     <td><label class="toggle-switch"><input type="checkbox" ${q.is_active?'checked':''} onchange="toggleQ(${q.id},this.checked)"><span class="toggle-slider"></span></label></td>
     <td><div style="display:flex;gap:6px;">
       <button style="background:var(--cyan);border:2px solid #000;border-radius:8px;padding:5px 10px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.75rem;cursor:pointer;" onclick="editQuiz(${q.id})"><i class="fas fa-edit"></i></button>
@@ -201,7 +201,11 @@ async function editQuiz(id){
       qIdx++;questions.push({id:qIdx});
       const qi=qIdx;
       // Figure out which option slot is correct
-      const opts=[qq.correct_answer||'',qq.wrong1||'',qq.wrong2||'',qq.wrong3||''];
+      // Load options: correct_answer=slot A (pre-selected), wrong1/2/3 = B/C/D
+      const optA=qq.correct_answer||'';
+      const optB=qq.wrong1||'';
+      const optC=qq.wrong2||'';
+      const optD=qq.wrong3||'';
       // correct_answer is always opts[0], assign to slot A
       const d2=document.createElement("div");d2.className="q-block";d2.id="qb_"+qi;
       d2.innerHTML=`<button class="del-q-btn" onclick="removeQ(${qi})">✕</button>
@@ -212,22 +216,22 @@ async function editQuiz(id){
         <div class="opt-row">
           <div class="opt-wrap is-correct" id="wrap_${qi}_a">
             <input class="radio-correct" type="radio" name="correct_${qi}" value="a" checked onclick="selectCorrect(${qi},'a')">
-            <input class="opt-inp" type="text" id="qa_${qi}" value="${opts[0].replace(/"/g,'&quot;')}" placeholder="Option A">
+            <input class="opt-inp" type="text" id="qa_${qi}" value="${optA.replace(/"/g,'&quot;')}" placeholder="Option A">
             <span class="correct-label">✓ CORRECT</span>
           </div>
           <div class="opt-wrap" id="wrap_${qi}_b">
             <input class="radio-correct" type="radio" name="correct_${qi}" value="b" onclick="selectCorrect(${qi},'b')">
-            <input class="opt-inp" type="text" id="qb_inp_${qi}" value="${opts[1].replace(/"/g,'&quot;')}" placeholder="Option B">
+            <input class="opt-inp" type="text" id="qb_inp_${qi}" value="${optB.replace(/"/g,'&quot;')}" placeholder="Option B">
             <span class="correct-label">✓ CORRECT</span>
           </div>
           <div class="opt-wrap" id="wrap_${qi}_c">
             <input class="radio-correct" type="radio" name="correct_${qi}" value="c" onclick="selectCorrect(${qi},'c')">
-            <input class="opt-inp" type="text" id="qc_inp_${qi}" value="${opts[2].replace(/"/g,'&quot;')}" placeholder="Option C">
+            <input class="opt-inp" type="text" id="qc_inp_${qi}" value="${optC.replace(/"/g,'&quot;')}" placeholder="Option C">
             <span class="correct-label">✓ CORRECT</span>
           </div>
           <div class="opt-wrap" id="wrap_${qi}_d">
             <input class="radio-correct" type="radio" name="correct_${qi}" value="d" onclick="selectCorrect(${qi},'d')">
-            <input class="opt-inp" type="text" id="qd_inp_${qi}" value="${opts[3].replace(/"/g,'&quot;')}" placeholder="Option D">
+            <input class="opt-inp" type="text" id="qd_inp_${qi}" value="${optD.replace(/"/g,'&quot;')}" placeholder="Option D">
             <span class="correct-label">✓ CORRECT</span>
           </div>
         </div>`;
