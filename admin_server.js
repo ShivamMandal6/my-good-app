@@ -200,9 +200,10 @@ app.get("/admin/api/quizzes/:id", adminAuth, (req, res) => {
         questions.push({
           question: q[`question${i}`],
           correct_answer: q[`correct${i}`],
-          wrong1: q[`option${i}b`],
-          wrong2: q[`option${i}c`],
-          wrong3: q[`option${i}d`]
+          optionA: q[`option${i}a`],
+          optionB: q[`option${i}b`],
+          optionC: q[`option${i}c`],
+          optionD: q[`option${i}d`]
         });
       }
     }
