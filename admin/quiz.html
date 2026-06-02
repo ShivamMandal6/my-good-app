@@ -259,9 +259,11 @@ async function saveQuiz(){
     return {
       question:document.getElementById("qt_"+q.id)?.value?.trim(),
       correct_answer,
-      wrong1:wrongOpts[0]||'',
-      wrong2:wrongOpts[1]||'',
-      wrong3:wrongOpts[2]||''
+      // Send all 4 slots as-is so PUT handler can save without reshuffling
+      optionA:optA,
+      optionB:optB,
+      optionC:optC,
+      optionD:optD
     };
   }).filter(q=>q.question&&q.correct_answer);
   const rewardVal=parseInt(document.getElementById("qReward").value)||0;
