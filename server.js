@@ -181,8 +181,8 @@ app.get("/setup", (req, res) => {
       if (completed === queries.length) {
         // Safe column addition — ignore duplicate column errors
         const alterQueries = [
-          \`ALTER TABLE quizzes ADD COLUMN time_per_question INT DEFAULT 15\`,
-          \`ALTER TABLE quizzes ADD COLUMN is_active TINYINT(1) DEFAULT 1\`
+          "ALTER TABLE quizzes ADD COLUMN time_per_question INT DEFAULT 15",
+          "ALTER TABLE quizzes ADD COLUMN is_active TINYINT(1) DEFAULT 1"
         ];
         let altDone = 0;
         alterQueries.forEach(sql => {
