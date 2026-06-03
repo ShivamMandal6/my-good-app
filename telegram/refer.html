@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Refer | CashZilla</title>
+<title>Refer | CashTitan</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -167,16 +167,16 @@ body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--dark);
 let tg;try{tg=window.Telegram.WebApp;tg.expand();}catch(e){tg=null;}
 let user=tg?.initDataUnsafe?.user||{id:localStorage.getItem("app_user_id")||0};
 const API="";
-const BOT=window.CZ_BOT||"YOUR_BOT_USERNAME";
+const BOT=window.CZ_BOT||"TheCashTitan_Bot";
 let refLink="";
 
 function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
 
 function copyLink(){if(!refLink)return;navigator.clipboard.writeText(refLink).then(()=>showToast("✅ Link copied!")).catch(()=>{const ta=document.createElement("textarea");ta.value=refLink;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);showToast("✅ Copied!");});}
 
-function shareTelegram(){if(!refLink)return;const msg=encodeURIComponent("🐂 Join me on CashZilla — Quiz to Earn app! Get paid to answer quizzes!\n\n"+refLink);window.open("https://t.me/share/url?url="+encodeURIComponent(refLink)+"&text="+msg);}
+function shareTelegram(){if(!refLink)return;const msg=encodeURIComponent("🐂 Join me on CashTitan — Quiz to Earn app! Get paid to answer quizzes!\n\n"+refLink);window.open("https://t.me/share/url?url="+encodeURIComponent(refLink)+"&text="+msg);}
 
-function shareWhatsApp(){if(!refLink)return;const msg=encodeURIComponent("🐂 Join CashZilla & earn real money!\n"+refLink);window.open("https://wa.me/?text="+msg);}
+function shareWhatsApp(){if(!refLink)return;const msg=encodeURIComponent("🐂 Join CashTitan & earn real money!\n"+refLink);window.open("https://wa.me/?text="+msg);}
 
 async function loadReferData(){
   if(!user.id)return;
