@@ -12,7 +12,7 @@ const APP_URL = process.env.APP_DOMAIN || '';
 const app = express();
 app.use(express.json());
 
-app.get('/', (req, res) => res.send('CashZilla Bot is running ✅'));
+app.get('/', (req, res) => res.send('CashTitan Bot is running ✅'));
 
 app.post('/bot' + token, (req, res) => {
   bot.processUpdate(req.body);
@@ -47,11 +47,11 @@ async function startBot() {
     await bot.deleteWebHook();
     if (WEBHOOK_URL) {
       await bot.setWebHook(WEBHOOK_URL + '/bot' + token);
-      console.log('🚀 CashZilla Bot Active — Webhook mode');
+      console.log('🚀 CashTitan Bot Active — Webhook mode');
     } else {
       await new Promise(r => setTimeout(r, 2000));
       bot.startPolling({ restart: true });
-      console.log('🚀 CashZilla Bot Active — Polling mode');
+      console.log('🚀 CashTitan Bot Active — Polling mode');
     }
   } catch (err) {
     console.error('Bot start error:', err.message);
@@ -118,7 +118,7 @@ function sendWelcome(chatId, firstName, isNew) {
   };
 
   const text = isNew
-    ? `🚀 *Welcome to CashZilla, ${firstName}!*\n\n🌍 *Turn your knowledge into real money!*\n\n📝 *How to Earn:*\n1️⃣ Play Quiz & answer questions 🧠\n2️⃣ Complete Tasks ✅\n3️⃣ Spin the wheel daily 🎰\n4️⃣ Invite friends & earn 10% commission 👥\n\n🎁 You got *10 free coins* as welcome gift!\n\n*Tap below to start earning!* 👇`
+    ? `🚀 *Welcome to CashTitan, ${firstName}!*\n\n🌍 *Turn your knowledge into real money!*\n\n📝 *How to Earn:*\n1️⃣ Play Quiz & answer questions 🧠\n2️⃣ Complete Tasks ✅\n3️⃣ Spin the wheel daily 🎰\n4️⃣ Invite friends & earn 10% commission 👥\n\n🎁 You got *10 free coins* as welcome gift!\n\n*Tap below to start earning!* 👇`
     : `👋 *Welcome back, ${firstName}!*\n\n💰 Ready to earn more today?\n\n*Tap below to continue!* 👇`;
 
   bot.sendMessage(chatId, text, { parse_mode: 'Markdown', ...keyboard })
