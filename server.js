@@ -467,5 +467,5 @@ app.get("/api/leaderboard", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 CashZilla API running on port ${PORT}`);
+  console.log(`🚀 CashTitan API running on port ${PORT}`);
 });
