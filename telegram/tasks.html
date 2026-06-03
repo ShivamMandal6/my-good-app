@@ -6,6 +6,8 @@
 <title>Tasks | CashTitan</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
 
+<!-- MONETAG SDK -->
+<script src='//libtl.com/sdk.js' data-zone='11094140' data-sdk='show_11094140'></script>
 <style>
 :root {
   --bg: #f5f0e8; --gold: #FFD600; --cyan: #00D1FF; --pink: #FF66B2;
@@ -171,8 +173,6 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<!-- MONETAG SDK -->
-<script src='//libtl.com/sdk.js' data-zone='11094140' data-sdk='show_11094140'></script>
 </head>
 <body>
 
@@ -309,7 +309,7 @@ async function previewScreenshot(input) {
   reader.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
   reader.readAsDataURL(file);
 
-// Upload to Cloudinary
+  // Upload to Cloudinary
   try {
     const CLOUD_NAME = 'dqifgwgvi';
     const UPLOAD_PRESET = 'KeshavMandal';
@@ -467,28 +467,3 @@ document.getElementById('taskModal').addEventListener('click', function(e){
 </script>
 </body>
 </html>
-            <div class="task-desc">${(t.description||'').substring(0,80)}${(t.description||'').length>80?'...':''}</div>
-          </div>
-        </div>
-        <div class="task-footer">
-          <span class="reward-badge">⭐ ${t.reward_coins} coins</span>
-          <button class="start-task-btn" onclick='openTaskModal(${JSON.stringify(t)})'>Start Task ▶</button>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e){ el.innerHTML='<div style="color:#f66;text-align:center;font-weight:700">Error loading tasks</div>'; }
-}
-
-async function loadMyTasks() {
-  const el = document.getElementById('myTaskList');
-  try {
-    const res = await fetch(`${API}/api/tasks/my/${user.id}`);
-    const data = await res.json();
-    if(!data.success || !data.submissions?.length) { el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">No task submissions yet.</div>'; return; }
-    const pending = data.submissions.filter(s=>s.status==='Pending').length;
-    const badge = document.getElementById('pendingBadge');
-    if(pending>0){ badge.style.display='inline-flex'; badge.textContent=pending; } else { badge.style.display='none'; }
-    el.innerHTML = data.submissions.map(s=>{
-      const type = (s.task_type||'custom').toLowerCase();
-      const icon = TYPE_ICONS[type]||'⭐';
-      const statusClass = s.status==='Approved'?'status-approved':s.status==='Rejected'?'status-rejected':'status-pen
