@@ -1,7 +1,7 @@
 {
-  "name": "cashzilla",
+  "name": "cashtitan",
   "version": "1.0.0",
-  "description": "CashZilla — Telegram Quiz to Earn Mini App",
+  "description": "CashTitan — Telegram Quiz to Earn Mini App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
