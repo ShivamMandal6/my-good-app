@@ -166,9 +166,13 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
 .nav-item.active{background:var(--gold);color:var(--dark);}
 .nav-item:active{background:var(--gold);}
 
+/* AD BANNER SLOT */
+.ad-banner-slot{width:100%;background:rgba(0,0,0,0.03);border:2px dashed #ccc;border-radius:var(--radius);margin:14px 0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;}
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- MONETAG SDK -->
+<script src='//libtl.com/sdk.js' data-zone='11094140' data-sdk='show_11094140'></script>
 </head>
 <body>
 
@@ -194,7 +198,7 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
       <div class="proof-label">✍️ Text Proof</div>
       <textarea class="proof-input" id="textProof" placeholder="Enter your proof here..."></textarea>
     </div>
-    <button class="submit-btn" onclick="submitTask()">✅ Submit Proof</button>
+    <button class="submit-btn" onclick="showMonetagAd(submitTask)">✅ Submit Proof</button>
     <div class="success-msg" id="successMsg">🎉 Submitted! Pending admin review.</div>
   </div>
 </div>
@@ -203,6 +207,9 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
   <div class="page-title">📋 Tasks</div>
   <div class="coins-chip">⭐ <span id="userCoins">0</span> coins</div>
 </div>
+
+<!-- AD BANNER #1 — Tasks page top -->
+<div class="ad-banner-slot"><span>Advertisement</span></div>
 
 <!-- VIEW ADS -->
 <div class="ads-section">
@@ -240,6 +247,15 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--da
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 let tg; try { tg=window.Telegram.WebApp; tg.expand(); } catch(e){tg=null;}
+
+// MONETAG — Rewarded Ad Helper
+function showMonetagAd(callback){
+  if(typeof show_11094140==='function'){
+    show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
+  } else { if(callback)callback(); }
+}
+// MONETAG — Auto Interstitial har 60 sec
+setInterval(()=>{ showMonetagAd(); }, 60000);
 let user = tg?.initDataUnsafe?.user || { id: localStorage.getItem("app_user_id")||0, first_name:"User" };
 const API = "";
 
@@ -293,7 +309,7 @@ async function previewScreenshot(input) {
   reader.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
   reader.readAsDataURL(file);
 
-  // Upload to Cloudinary
+// Upload to Cloudinary
   try {
     const CLOUD_NAME = 'dqifgwgvi';
     const UPLOAD_PRESET = 'KeshavMandal';
@@ -451,3 +467,28 @@ document.getElementById('taskModal').addEventListener('click', function(e){
 </script>
 </body>
 </html>
+            <div class="task-desc">${(t.description||'').substring(0,80)}${(t.description||'').length>80?'...':''}</div>
+          </div>
+        </div>
+        <div class="task-footer">
+          <span class="reward-badge">⭐ ${t.reward_coins} coins</span>
+          <button class="start-task-btn" onclick='openTaskModal(${JSON.stringify(t)})'>Start Task ▶</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){ el.innerHTML='<div style="color:#f66;text-align:center;font-weight:700">Error loading tasks</div>'; }
+}
+
+async function loadMyTasks() {
+  const el = document.getElementById('myTaskList');
+  try {
+    const res = await fetch(`${API}/api/tasks/my/${user.id}`);
+    const data = await res.json();
+    if(!data.success || !data.submissions?.length) { el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">No task submissions yet.</div>'; return; }
+    const pending = data.submissions.filter(s=>s.status==='Pending').length;
+    const badge = document.getElementById('pendingBadge');
+    if(pending>0){ badge.style.display='inline-flex'; badge.textContent=pending; } else { badge.style.display='none'; }
+    el.innerHTML = data.submissions.map(s=>{
+      const type = (s.task_type||'custom').toLowerCase();
+      const icon = TYPE_ICONS[type]||'⭐';
+      const statusClass = s.status==='Approved'?'status-approved':s.status==='Rejected'?'status-rejected':'status-pen
