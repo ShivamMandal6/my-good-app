@@ -139,8 +139,8 @@ body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--dark);
   <div class="form-title">🚰 FaucetPay Withdraw</div>
   <label class="form-label">FaucetPay Email</label>
   <input class="form-input" type="email" id="faucetEmail" placeholder="your@faucetpay.io">
-  <label class="form-label">Amount (USD) — Min $1</label>
-  <input class="form-input" type="number" id="faucetAmount" placeholder="1.00" min="1">
+  <label class="form-label">Amount (USD) — Min $5</label>
+  <input class="form-input" type="number" id="faucetAmount" placeholder="5.00" min="5">
   <button class="submit-withdraw-btn" onclick="submitWithdraw('faucetpay')">⚡ REQUEST WITHDRAW</button>
 </div>
 
@@ -221,7 +221,7 @@ async function submitWithdraw(method){
     account=document.getElementById('faucetEmail').value.trim();
     amount=parseFloat(document.getElementById('faucetAmount').value)||0;
     if(!account){alert('Enter FaucetPay email!');return;}
-    if(amount<1){alert('Minimum withdraw is $1');return;}
+    if(amount<5){alert('Minimum withdraw is $5');return;}
   } else if(method==='crypto'){
     const addr=document.getElementById('cryptoAddress').value.trim();
     const coin=document.getElementById('cryptoCoin').value.trim();
