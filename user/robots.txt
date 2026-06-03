@@ -13,4 +13,4 @@ Disallow: /telegram/withdrawals.html
 Disallow: /telegram/quiz.html
 
 # Sitemap Location
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://cashtitan.xyz/sitemap.xml
