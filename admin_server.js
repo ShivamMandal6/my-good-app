@@ -484,5 +484,5 @@ app.get("/admin/api/leaderboard", adminAuth, (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 CashZilla Admin API running on port ${PORT}`);
+  console.log(`🚀 CashTitan Admin API running on port ${PORT}`);
 });
