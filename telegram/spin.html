@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Spin | CashTitan</title>
+<title>Refer | CashTitan</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <style>
 :root {
   --bg:#f5f0e8; --gold:#FFD600; --cyan:#00D1FF; --pink:#FF66B2;
@@ -19,86 +19,75 @@ body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--dark);
 .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
 .page-title { font-size:1.4rem; font-weight:900; }
 
-.spin-banner {
+/* HERO BANNER */
+.refer-banner {
   background:var(--purple); border:var(--border); box-shadow:var(--shadow);
-  border-radius:var(--radius); padding:18px; margin-bottom:20px; text-align:center;
+  border-radius:var(--radius); padding:22px; margin-bottom:18px; text-align:center;
 }
-.spin-banner h2 { font-size:1.2rem; font-weight:900; margin-bottom:6px; }
-.spin-banner p { font-size:0.82rem; font-weight:600; color:rgba(0,0,0,0.6); margin-bottom:12px; }
-.spin-info-row { display:flex; gap:10px; justify-content:center; }
-.spin-info-chip {
-  background:var(--gold); border:var(--border); box-shadow:var(--shadow-sm);
-  padding:6px 16px; border-radius:20px; font-size:0.82rem; font-weight:900;
-}
-
-.wheel-wrap {
-  display:flex; flex-direction:column; align-items:center;
-  margin-bottom:20px;
-}
-.wheel-pointer {
-  width:0; height:0;
-  border-left:16px solid transparent;
-  border-right:16px solid transparent;
-  border-bottom:32px solid #000;
-  filter:drop-shadow(2px 2px 0px #888);
-  margin-bottom:-8px; z-index:10; position:relative;
-}
-.wheel-container {
-  position:relative; width:280px; height:280px;
-}
-canvas#spinWheel {
-  width:280px; height:280px;
-  border:4px solid #000; border-radius:50%;
-  box-shadow:var(--shadow);
-}
-.wheel-center {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:54px; height:54px; background:var(--gold); border:var(--border);
-  border-radius:50%; box-shadow:var(--shadow-sm);
-  display:flex; align-items:center; justify-content:center;
-  font-size:1.6rem; z-index:5;
+.refer-banner .emoji { font-size:3rem; margin-bottom:8px; }
+.refer-banner h2 { font-size:1.3rem; font-weight:900; margin-bottom:6px; }
+.refer-banner p { font-size:0.85rem; font-weight:600; color:rgba(0,0,0,0.6); margin-bottom:14px; }
+.commission-badge {
+  display:inline-block; background:var(--gold); border:var(--border);
+  box-shadow:var(--shadow-sm); padding:8px 22px; border-radius:20px;
+  font-size:1rem; font-weight:900;
 }
 
-.spin-btn {
-  width:100%; max-width:300px; padding:18px; margin-top:20px;
-  background:var(--green); border:var(--border); box-shadow:var(--shadow);
-  border-radius:var(--radius); font-family:'Outfit',sans-serif;
-  font-size:1.2rem; font-weight:900; cursor:pointer;
-  transition:transform 0.1s, box-shadow 0.1s; text-transform:uppercase;
+/* STATS GRID */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+.stat-card {
+  border:var(--border); box-shadow:var(--shadow-sm); border-radius:var(--radius);
+  padding:14px; text-align:center;
 }
-.spin-btn:active:not(:disabled) { transform:translate(3px,3px); box-shadow:2px 2px 0px #000; }
-.spin-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.stat-val { font-size:1.8rem; font-weight:900; }
+.stat-lbl { font-size:0.72rem; font-weight:800; text-transform:uppercase; color:#555; }
 
-.win-overlay {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.75); z-index:1000;
-  display:none; align-items:center; justify-content:center; padding:20px;
-}
-.win-overlay.open { display:flex; }
-.win-card {
+/* INVITE LINK BOX */
+.invite-box {
   background:var(--white); border:var(--border); box-shadow:var(--shadow);
-  border-radius:var(--radius); padding:30px 24px; text-align:center;
-  animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-  max-width:320px; width:100%;
+  border-radius:var(--radius); padding:18px; margin-bottom:16px;
 }
-.win-emoji { font-size:4rem; margin-bottom:12px; }
-.win-title { font-size:1.6rem; font-weight:900; margin-bottom:8px; }
-.win-amount { font-size:2.5rem; font-weight:900; color:#00aa44; margin-bottom:16px; }
-.win-close-btn {
-  width:100%; padding:14px; background:var(--gold); border:var(--border);
-  box-shadow:var(--shadow-sm); border-radius:14px;
-  font-family:'Outfit',sans-serif; font-weight:900; font-size:1rem; cursor:pointer;
+.invite-box h3 { font-size:0.95rem; font-weight:900; margin-bottom:12px; }
+.link-row {
+  display:flex; align-items:center; gap:8px;
+  background:#f5f5f5; border:var(--border); border-radius:12px;
+  padding:10px 14px; margin-bottom:12px;
+}
+.link-text { flex:1; font-size:0.78rem; font-weight:700; color:#333; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.copy-btn {
+  background:var(--gold); border:var(--border); box-shadow:var(--shadow-sm);
+  padding:6px 16px; border-radius:10px; font-family:'Outfit',sans-serif;
+  font-weight:900; font-size:0.82rem; cursor:pointer; white-space:nowrap;
+  transition:transform 0.1s, box-shadow 0.1s;
+}
+.copy-btn:active { transform:translate(2px,2px); box-shadow:1px 1px 0px #000; }
+.share-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.share-btn {
+  padding:12px; border:var(--border); box-shadow:var(--shadow-sm);
+  border-radius:12px; font-family:'Outfit',sans-serif; font-weight:900;
+  font-size:0.85rem; cursor:pointer; display:flex;
+  align-items:center; justify-content:center; gap:8px;
+  transition:transform 0.1s, box-shadow 0.1s;
+}
+.share-btn:active { transform:translate(2px,2px); box-shadow:1px 1px 0px #000; }
+.btn-tg { background:var(--cyan); }
+.btn-wa { background:var(--green); }
+
+/* WITHDRAW REFERRAL COINS */
+.withdraw-ref-box {
+  background:var(--orange); border:var(--border); box-shadow:var(--shadow);
+  border-radius:var(--radius); padding:18px; margin-bottom:18px;
+}
+.withdraw-ref-box h3 { font-size:0.95rem; font-weight:900; margin-bottom:4px; }
+.withdraw-ref-box p { font-size:0.78rem; font-weight:600; color:rgba(0,0,0,0.65); margin-bottom:12px; }
+.min-info { font-size:0.72rem; font-weight:800; margin-bottom:10px; }
+.withdraw-ref-btn {
+  width:100%; padding:14px; background:var(--white); border:var(--border);
+  box-shadow:var(--shadow-sm); border-radius:14px; font-family:'Outfit',sans-serif;
+  font-weight:900; font-size:1rem; cursor:pointer;
 }
 
-/* AD BANNER SLOT */
-.ad-banner-slot{width:100%;background:rgba(0,0,0,0.03);border:2px dashed #ccc;border-radius:var(--radius);margin:14px 0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;}
-.history-section { background:var(--white); border:var(--border); box-shadow:var(--shadow); border-radius:var(--radius); padding:16px; margin-top:20px; }
-.section-title { font-size:1rem; font-weight:900; margin-bottom:12px; }
-.spin-h-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border:2px solid #eee; border-radius:12px; margin-bottom:8px; }
-.sh-left { font-size:0.85rem; font-weight:700; }
-.sh-date { font-size:0.72rem; color:#888; font-weight:600; }
-.sh-reward { font-size:0.9rem; font-weight:900; color:#00aa44; }
-
+/* BOTTOM NAV */
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; z-index:1000; background:var(--white); border-top:var(--border); display:flex; align-items:stretch; box-shadow:0 -3px 0 #000; }
 .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 4px; gap:3px; cursor:pointer; border:none; background:transparent; font-family:'Outfit',sans-serif; color:#888; font-size:0.6rem; font-weight:800; text-transform:uppercase; text-decoration:none; border-right:2px solid #000; }
 .nav-item:last-child { border-right:none; }
@@ -106,260 +95,129 @@ canvas#spinWheel {
 .nav-item.active{background:var(--gold);color:var(--dark);}
 .nav-item:active{background:var(--gold);}
 
-@keyframes popIn { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
+.toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:#000; color:#fff; padding:10px 20px; border-radius:30px; font-weight:800; font-size:0.85rem; z-index:9999; opacity:0; transition:opacity 0.3s; pointer-events:none; }
+.toast.show { opacity:1; }
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<!-- MONETAG SDK -->
-<script src='//libtl.com/sdk.js' data-zone='11094140' data-sdk='show_11094140'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-<div class="win-overlay" id="winOverlay">
-  <div class="win-card">
-    <div class="win-emoji" id="winEmoji">🎉</div>
-    <div class="win-title" id="winTitle">You Won!</div>
-    <div class="win-amount" id="winAmount">$0.01</div>
-    <button class="win-close-btn" onclick="closeWin()">🔥 Awesome! Claim Reward</button>
-  </div>
-</div>
+<div class="toast" id="toast">✅ Copied!</div>
 
 <div class="header">
-  <div class="page-title">🎰 Spin Wheel</div>
-  <div style="background:#000;color:var(--gold);border:var(--border);box-shadow:var(--shadow-sm);padding:6px 14px;border-radius:30px;font-weight:900;font-size:0.9rem;">⭐ <span id="userCoins">0</span> coins</div>
+  <div class="page-title">🎯 Refer & Earn</div>
 </div>
 
-<div class="spin-banner">
-  <h2>🐂 Daily Titan Spin!</h2>
-  <p>Spin the wheel and win cash prizes every day!</p>
-  <div class="spin-info-row">
-    <div class="spin-info-chip">🎯 Spins Left: <span id="spinsLeft">1</span></div>
-    <div class="spin-info-chip">⏱ Cooldown: 12h</div>
+<div class="refer-banner">
+  <div class="emoji">🐂</div>
+  <h2>Invite Friends, Earn!</h2>
+  <p>Earn commission on every quiz your friends win.</p>
+  <div class="commission-badge">10% COMMISSION</div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card" style="background:var(--purple);">
+    <div class="stat-val" id="pendingCoins">0</div>
+    <div class="stat-lbl">Pending Coins</div>
+  </div>
+  <div class="stat-card" style="background:var(--cyan);">
+    <div class="stat-val" id="totalEarned">0</div>
+    <div class="stat-lbl">Total Earned</div>
+  </div>
+  <div class="stat-card" style="background:var(--gold);">
+    <div class="stat-val" id="totalRefs">0</div>
+    <div class="stat-lbl">Total Refs</div>
+  </div>
+  <div class="stat-card" style="background:var(--green);">
+    <div class="stat-val" id="activeRefs">0</div>
+    <div class="stat-lbl">Active Refs</div>
   </div>
 </div>
 
-<div class="wheel-wrap">
-  <div class="wheel-pointer"></div>
-  <div class="wheel-container">
-    <canvas id="spinWheel" width="560" height="560"></canvas>
-    <div class="wheel-center">🐂</div>
+<div class="invite-box">
+  <h3>🔗 Your Invite Link</h3>
+  <div class="link-row">
+    <span class="link-text" id="inviteLink">Loading...</span>
+    <button class="copy-btn" onclick="copyLink()">COPY</button>
   </div>
-  <button class="spin-btn" id="spinBtn" onclick="showMonetagAd(doSpin)">🎰 SPIN NOW!</button>
+  <div class="share-row">
+    <button class="share-btn btn-tg" onclick="shareTelegram()">✈️ Share TG</button>
+    <button class="share-btn btn-wa" onclick="shareWhatsApp()">💬 WhatsApp</button>
+  </div>
 </div>
 
-<!-- AD BANNER #1 — Spin wheel ke neeche, history ke upar -->
-<div class="ad-banner-slot"><span>Advertisement</span></div>
-
-<div class="history-section">
-  <div class="section-title">📜 Your Spin History</div>
-  <div id="spinHistory"><div style="text-align:center;color:#888;font-weight:700;padding:10px">No spins yet. Spin to win!</div></div>
+<div class="withdraw-ref-box">
+  <h3>💸 Withdraw to Main Balance</h3>
+  <p>Convert your referral coins to real cash balance.</p>
+  <div class="min-info">⭐ Min withdraw: 5,000 coins. Admin reviews within 24h.</div>
+  <button class="withdraw-ref-btn" onclick="requestRefWithdraw()">REQUEST WITHDRAW</button>
 </div>
 
 <nav class="bottom-nav">
   <a class="nav-item" href="dashboard.html"><i class="fas fa-home"></i>HOME</a>
   <a class="nav-item" href="quiz.html"><i class="fas fa-brain"></i>QUIZ</a>
   <a class="nav-item" href="tasks.html"><i class="fas fa-tasks"></i>TASKS</a>
-  <a class="nav-item active" href="spin.html"><i class="fas fa-sync-alt"></i>SPIN</a>
-  <a class="nav-item" href="refer.html"><i class="fas fa-user-plus"></i>REFER</a>
+  <a class="nav-item" href="spin.html"><i class="fas fa-sync-alt"></i>SPIN</a>
+  <a class="nav-item active" href="refer.html"><i class="fas fa-user-plus"></i>REFER</a>
   <a class="nav-item" href="withdrawals.html"><i class="fas fa-wallet"></i>CASH</a>
 </nav>
 
+<!-- MONETAG SDK -->
+<script src='//libtl.com/sdk.js' data-zone='11094140' data-sdk='show_11094140'></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-let tg; try{tg=window.Telegram.WebApp;tg.expand();}catch(e){tg=null;}
+let tg;try{tg=window.Telegram.WebApp;tg.expand();}catch(e){tg=null;}
 
-// MONETAG — Rewarded Ad Helper
+// MONETAG — Auto Interstitial har 60 sec
 function showMonetagAd(callback){
   if(typeof show_11094140==='function'){
     show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
   } else { if(callback)callback(); }
 }
-// MONETAG — Auto Interstitial har 60 sec
 setInterval(()=>{ showMonetagAd(); }, 60000);
-let user=tg?.initDataUnsafe?.user||{id:localStorage.getItem("app_user_id")||0,first_name:"User"};
+let user=tg?.initDataUnsafe?.user||{id:localStorage.getItem("app_user_id")||0};
 const API="";
+const BOT=window.CZ_BOT||"TheCashTitan_Bot";
+let refLink="";
 
-let SEGMENTS = [
-  {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
-  {label:"Sorry!",color:"#FF66B2",value:0,coins:0},
-  {label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
-  {label:"$0.05",color:"#00E676",value:0.05,coins:50},
-  {label:"Sorry!",color:"#A29BFE",value:0,coins:0},
-  {label:"$0.01",color:"#FF9F43",value:0.01,coins:10},
-  {label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
-  {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
-];
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
 
-async function loadSpinConfig() {
-  try {
-    const res = await fetch(`${API}/api/spin/config`);
-    const data = await res.json();
-    if (data.success && data.segments?.length) {
-      SEGMENTS = data.segments;
-      drawWheel(currentAngle);
-    }
-  } catch(e) {}
-}
+function copyLink(){if(!refLink)return;navigator.clipboard.writeText(refLink).then(()=>showToast("✅ Link copied!")).catch(()=>{const ta=document.createElement("textarea");ta.value=refLink;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);showToast("✅ Copied!");});}
 
-const canvas = document.getElementById("spinWheel");
-const ctx = canvas.getContext("2d");
-const numSeg = SEGMENTS.length;
-const arc = (2*Math.PI)/numSeg;
-let currentAngle = 0;
-let isSpinning = false;
-let canSpin = true;
+function shareTelegram(){if(!refLink)return;const msg=encodeURIComponent("🐂 Join me on CashTitan — Quiz to Earn app! Get paid to answer quizzes!\n\n"+refLink);window.open("https://t.me/share/url?url="+encodeURIComponent(refLink)+"&text="+msg);}
 
-function drawWheel(angle=0) {
-  ctx.clearRect(0,0,560,560);
-  const cx=280,cy=280,r=270;
-  SEGMENTS.forEach((seg,i) => {
-    const start = angle + i*arc;
-    const end = start + arc;
-    ctx.beginPath(); ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,r,start,end);
-    ctx.closePath();
-    ctx.fillStyle=seg.color; ctx.fill();
-    ctx.strokeStyle="#000"; ctx.lineWidth=3; ctx.stroke();
-    ctx.save(); ctx.translate(cx,cy);
-    ctx.rotate(start+arc/2);
-    ctx.textAlign="right"; ctx.fillStyle="#000";
-    ctx.font="bold 28px Outfit,sans-serif";
-    ctx.fillText(seg.label,r-18,10);
-    ctx.restore();
-  });
-  ctx.beginPath(); ctx.arc(cx,cy,30,0,2*Math.PI);
-  ctx.fillStyle="#fff"; ctx.fill();
-  ctx.strokeStyle="#000"; ctx.lineWidth=4; ctx.stroke();
-}
+function shareWhatsApp(){if(!refLink)return;const msg=encodeURIComponent("🐂 Join CashTitan & earn real money!\n"+refLink);window.open("https://wa.me/?text="+msg);}
 
-drawWheel(currentAngle);
-
-function checkCooldown() {
-  const last = localStorage.getItem("spin_last_"+user.id);
-  if(!last) return true;
-  const elapsed = Date.now()-parseInt(last);
-  return elapsed >= 12*60*60*1000;
-}
-
-function doSpin() {
-  if(isSpinning || !canSpin) return;
-  if(!checkCooldown()) {
-    const last=parseInt(localStorage.getItem("spin_last_"+user.id));
-    const remaining=Math.ceil((12*60*60*1000-(Date.now()-last))/3600000);
-    alert(`⏱ Come back in ${remaining}h for your next spin!`); return;
-  }
-
-  // Weighted random: higher number = more likely
-  const weights=[3,4,4,1,4,4,3,4];
-  let total=weights.reduce((a,b)=>a+b,0);
-  let rand=Math.random()*total;
-  let winIdx=0;
-  for(let i=0;i<weights.length;i++){rand-=weights[i];if(rand<=0){winIdx=i;break;}}
-
-  isSpinning=true;
-  document.getElementById("spinBtn").disabled=true;
-
-  // ✅ FIX: Pointer is at TOP of canvas (angle = -π/2 = 270°)
-  // Segment i starts at: currentAngle + i*arc
-  // Segment center is at: currentAngle + i*arc + arc/2
-  // We need segment center to align with -π/2 (top pointer)
-  // So we add enough rotation: rotate until winIdx center hits top
-  const TWO_PI = 2 * Math.PI;
-  const fullRotations = TWO_PI * 5; // 5 full spins for visual effect
-  const normalizedCurrent = currentAngle % TWO_PI;
-  // Where does winIdx center need to land? At -π/2 (top)
-  // Segment center in wheel coords (relative to current): winIdx*arc + arc/2
-  // We need: (normalizedCurrent + extraRotation + winIdx*arc + arc/2) % TWO_PI = (3/2)*π  (i.e. -π/2)
-  const targetPointer = (3/2) * Math.PI; // top = 270 degrees
-  const segCenter = winIdx * arc + arc/2;
-  let extraRotation = (targetPointer - normalizedCurrent - segCenter % TWO_PI + TWO_PI * 2) % TWO_PI;
-  const targetAngle = fullRotations + extraRotation;
-
-  const duration=4000;
-  const startAngle=currentAngle;
-  const startTime=performance.now();
-
-  function animate(now) {
-    const elapsed=now-startTime;
-    const progress=Math.min(elapsed/duration,1);
-    const ease=1-Math.pow(1-progress,4);
-    currentAngle=startAngle+targetAngle*ease;
-    drawWheel(currentAngle);
-    if(progress<1){
-      requestAnimationFrame(animate);
-    } else {
-      // ✅ Set exact final angle so next spin starts correctly
-      currentAngle = startAngle + targetAngle;
-      isSpinning=false;
-      const won=SEGMENTS[winIdx];
-      showWin(won);
-      localStorage.setItem("spin_last_"+user.id, Date.now().toString());
-      document.getElementById("spinsLeft").textContent="0";
-      canSpin=false;
-      // Only claim if reward > 0
-      if(won.coins>0) claimSpin(won.coins);
-    }
-  }
-  requestAnimationFrame(animate);
-}
-
-function showWin(seg) {
-  const overlay=document.getElementById("winOverlay");
-  if(seg.coins>0){
-    document.getElementById("winEmoji").textContent="🎉";
-    document.getElementById("winTitle").textContent="You Won!";
-    document.getElementById("winAmount").textContent=seg.label+" ("+seg.coins+" coins)";
-    if(window.confetti) confetti({particleCount:120,spread:80,colors:['#FFD600','#00D1FF','#FF66B2']});
-  } else {
-    document.getElementById("winEmoji").textContent="😅";
-    document.getElementById("winTitle").textContent="Better Luck Next Time!";
-    document.getElementById("winAmount").textContent="No reward this time";
-  }
-  overlay.classList.add("open");
-}
-
-function closeWin(){ document.getElementById("winOverlay").classList.remove("open"); }
-
-async function claimSpin(coins) {
-  try {
-    await fetch(`${API}/api/spin/claim`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:user.id,reward:coins})});
-    document.getElementById("userCoins").textContent=parseInt(document.getElementById("userCoins").textContent||0)+coins;
-    loadSpinHistory();
-  } catch(e){}
-}
-
-async function loadUserData() {
-  try {
-    const res=await fetch(`${API}/api/user_balance/${user.id}`);
+async function loadReferData(){
+  if(!user.id)return;
+  refLink=`https://t.me/${BOT}?start=ref_${user.id}`;
+  document.getElementById("inviteLink").textContent=refLink;
+  try{
+    const res=await fetch(`${API}/api/referrals/${user.id}`);
     const data=await res.json();
-    if(data.success) document.getElementById("userCoins").textContent=data.user.points||0;
-  } catch(e){}
+    if(data.success){
+      document.getElementById("pendingCoins").textContent=data.pending_coins||0;
+      document.getElementById("totalEarned").textContent=data.total_earned||0;
+      document.getElementById("totalRefs").textContent=data.total_refs||0;
+      document.getElementById("activeRefs").textContent=data.active_refs||0;
+    }
+  }catch(e){}
 }
 
-async function loadSpinHistory() {
-  const el=document.getElementById("spinHistory");
-  try {
-    const res=await fetch(`${API}/api/spin/history/${user.id}`);
+async function requestRefWithdraw(){
+  const pendingCoins=parseInt(document.getElementById("pendingCoins").textContent)||0;
+  if(pendingCoins<5000){alert(`⭐ You need at least 5,000 coins to withdraw.\nYou have: ${pendingCoins} coins.`);return;}
+  if(!confirm("Request withdrawal of your referral coins?"))return;
+  try{
+    const res=await fetch(`${API}/api/referrals/withdraw`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:user.id})});
     const data=await res.json();
-    if(!data.success||!data.history?.length){el.innerHTML='<div style="text-align:center;color:#888;font-weight:700;padding:10px">No spins yet!</div>';return;}
-    el.innerHTML=data.history.slice(0,10).map(s=>`
-      <div class="spin-h-item">
-        <div><div class="sh-left">🎰 Spin</div><div class="sh-date">${new Date(s.created_at).toLocaleDateString()}</div></div>
-        <div class="sh-reward">${s.reward_amount>0?'+'+s.reward_amount+' coins':'😅 Sorry'}</div>
-      </div>`).join('');
-  } catch(e){ el.innerHTML=''; }
+    if(data.success){showToast("🎉 Withdraw requested! Admin will review soon.");}
+    else{alert(data.message||"Error submitting request");}
+  }catch(e){alert("Network error. Try again.");}
 }
 
-// On load: check cooldown
-if(!checkCooldown()){
-  canSpin=false;
-  document.getElementById("spinBtn").disabled=true;
-  document.getElementById("spinsLeft").textContent="0";
-  document.getElementById("spinBtn").textContent="⏱ Come back tomorrow!";
-}
-
-loadSpinConfig(); loadUserData(); loadSpinHistory();
+loadReferData();
 </script>
 </body>
 </html>
-
 
