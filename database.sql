@@ -1,5 +1,5 @@
 -- =============================================
--- CashZilla — Unified Database Schema
+-- CashTitan — Unified Database Schema
 -- =============================================
 
 SET NAMES utf8mb4;
