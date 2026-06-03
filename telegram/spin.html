@@ -90,6 +90,8 @@ canvas#spinWheel {
   font-family:'Outfit',sans-serif; font-weight:900; font-size:1rem; cursor:pointer;
 }
 
+/* AD BANNER SLOT */
+.ad-banner-slot{width:100%;background:rgba(0,0,0,0.03);border:2px dashed #ccc;border-radius:var(--radius);margin:14px 0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;}
 .history-section { background:var(--white); border:var(--border); box-shadow:var(--shadow); border-radius:var(--radius); padding:16px; margin-top:20px; }
 .section-title { font-size:1rem; font-weight:900; margin-bottom:12px; }
 .spin-h-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border:2px solid #eee; border-radius:12px; margin-bottom:8px; }
@@ -107,6 +109,8 @@ canvas#spinWheel {
 @keyframes popIn { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- MONETAG SDK -->
+<script src='//libtl.com/sdk.js' data-zone='11094140' data-sdk='show_11094140'></script>
 </head>
 <body>
 
@@ -139,8 +143,11 @@ canvas#spinWheel {
     <canvas id="spinWheel" width="560" height="560"></canvas>
     <div class="wheel-center">🐂</div>
   </div>
-  <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎰 SPIN NOW!</button>
+  <button class="spin-btn" id="spinBtn" onclick="showMonetagAd(doSpin)">🎰 SPIN NOW!</button>
 </div>
+
+<!-- AD BANNER #1 — Spin wheel ke neeche, history ke upar -->
+<div class="ad-banner-slot"><span>Advertisement</span></div>
 
 <div class="history-section">
   <div class="section-title">📜 Your Spin History</div>
@@ -159,6 +166,15 @@ canvas#spinWheel {
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 let tg; try{tg=window.Telegram.WebApp;tg.expand();}catch(e){tg=null;}
+
+// MONETAG — Rewarded Ad Helper
+function showMonetagAd(callback){
+  if(typeof show_11094140==='function'){
+    show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
+  } else { if(callback)callback(); }
+}
+// MONETAG — Auto Interstitial har 60 sec
+setInterval(()=>{ showMonetagAd(); }, 60000);
 let user=tg?.initDataUnsafe?.user||{id:localStorage.getItem("app_user_id")||0,first_name:"User"};
 const API="";
 
