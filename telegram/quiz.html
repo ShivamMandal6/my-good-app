@@ -253,15 +253,22 @@ function filterQuizzes(val) {
 // MONETAG — Rewarded Ad Helper
 function showMonetagAd(callback){
   if(typeof show_11094140==='function'){
-    show_10051927().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
+    show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
   } else { if(callback)callback(); }
 }
 // MONETAG — Auto Interstitial har 60 sec
 setInterval(()=>{ showMonetagAd(); }, 60000);
 
+// MONETAG — Rewarded Interstitial (Quiz start)
+function showRewardedInterstitial(callback){
+  if(typeof show_11094140==='function'){
+    show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
+  } else { if(callback)callback(); }
+}
+
 // Start quiz — Rewarded Pop Ad pehle, phir quiz shuru
 async function startQuiz(id) {
-  showMonetagAd(async () => {
+  showRewardedInterstitial(async () => {
   if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
   document.getElementById("listScreen").style.display = "none";
   document.getElementById("gameScreen").style.display = "block";
@@ -278,7 +285,7 @@ async function startQuiz(id) {
       renderQuestion();
     } else { backToList(); }
   } catch(e) { backToList(); }
-  }); // end showMonetagAd
+  }); // end showRewardedInterstitial
 }
 
 function backToList() {
@@ -373,5 +380,4 @@ function retryQuiz() {
 loadQuizList();
 </script>
 </body>
-  </html>
-
+</html>
