@@ -347,13 +347,13 @@ app.get("/api/spin/history/:telegram_id", (req, res) => {
 app.get("/api/spin/config", (req, res) => {
   const defaultSegments = [
     {label:"$0.01",color:"#FFD600",value:0.01,coins:10},
-    {label:"Sorry!",color:"#FF66B2",value:0,coins:0},
-    {label:"$0.00",color:"#00D1FF",value:0,coins:0},
-    {label:"$0.05",color:"#00E676",value:0.05,coins:50},
-    {label:"Sorry!",color:"#A29BFE",value:0,coins:0},
-    {label:"$0.00",color:"#FF9F43",value:0,coins:0},
-    {label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
-    {label:"$0.00",color:"#FFD600",value:0,coins:0}
+{label:"Sorry!",color:"#FF66B2",value:0,coins:0},
+{label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
+{label:"$0.05",color:"#00E676",value:0.05,coins:50},
+{label:"Sorry!",color:"#A29BFE",value:0,coins:0},
+{label:"$0.01",color:"#FF9F43",value:0.01,coins:10},
+{label:"$0.01",color:"#00D1FF",value:0.01,coins:10},
+{label:"$0.01",color:"#FFD600",value:0.01,coins:10}
   ];
   res.json({ success: true, segments: defaultSegments });
 });
