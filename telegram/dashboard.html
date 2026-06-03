@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<!-- MONETAG SDK -->
+<script src='//libtl.com/sdk.js' data-zone='11094140' data-sdk='show_11094140'></script>
 <style>
 :root{--bg:#F5F0E8;--white:#fff;--dark:#000;--gold:#FFD600;--cyan:#00D1FF;--pink:#FF66B2;--purple:#A29BFE;--orange:#FF9F43;--green:#00E676;--border:3px solid #000;--shadow:5px 5px 0px #000;--shadow-sm:3px 3px 0px #000;--radius:16px;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -61,6 +63,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--dark);min-
 .nav-item.active{background:var(--gold);color:var(--dark);}
 .nav-item:active{background:var(--gold);}
 .nav-badge{position:absolute;top:4px;right:6px;background:var(--pink);color:#fff;border:2px solid #000;border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center;font-size:0.5rem;font-weight:900;}
+/* AD BANNER SLOT */
+.ad-banner-slot{width:100%;background:rgba(0,0,0,0.03);border:2px dashed #ccc;border-radius:var(--radius);margin:14px 0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;}
 </style>
 </head>
 <body>
@@ -84,6 +88,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--dark);min-
   </div>
 </div>
 
+<!-- AD BANNER #1 — Balance card ke upar -->
+<div class="ad-banner-slot"><span>Advertisement</span></div>
+
 <div class="balance-card">
   <div class="bal-label">💰 Current Balance</div>
   <div class="bal-amount" id="balanceDisplay">$0.00</div>
@@ -106,15 +113,15 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--dark);min-
   </div>
 </div>
 <div class="grid-3">
-  <div class="card" style="background:var(--green);" onclick="window.location.href='withdrawals.html'">
+  <div class="card" style="background:var(--green);" onclick="showMonetagAd(()=>window.location.href='withdrawals.html')">
     <div class="card-icon" style="background:rgba(255,255,255,0.5)"><i class="fas fa-wallet"></i></div>
     <div class="card-title">Cash Out</div><div class="card-sub">Withdraw</div>
   </div>
-  <div class="card" style="background:var(--pink);" onclick="window.location.href='refer.html'">
+  <div class="card" style="background:var(--pink);" onclick="showMonetagAd(()=>window.location.href='refer.html')">
     <div class="card-icon" style="background:rgba(255,255,255,0.5)"><i class="fas fa-user-plus"></i></div>
     <div class="card-title">Refer</div><div class="card-sub">10% earn</div>
   </div>
-  <div class="card" style="background:var(--gold);" onclick="loadUser()">
+  <div class="card" style="background:var(--gold);" onclick="showMonetagAd(loadUser)">
     <div class="card-icon" style="background:rgba(255,255,255,0.5)"><i class="fas fa-redo"></i></div>
     <div class="card-title">Refresh</div><div class="card-sub">Update</div>
   </div>
@@ -135,6 +142,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--dark);min-
   <button id="loadMoreBtn" style="display:none;width:100%;padding:11px;background:var(--gold);border:var(--border);box-shadow:var(--shadow-sm);border-radius:12px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.9rem;cursor:pointer;margin-top:8px;" onclick="loadMore()">Load More</button>
 </div>
 
+<!-- AD BANNER #2 — History card ke neeche -->
+<div class="ad-banner-slot"><span>Advertisement</span></div>
+
 <nav class="bottom-nav">
   <a class="nav-item active" href="dashboard.html"><i class="fas fa-home"></i>HOME</a>
   <a class="nav-item" href="quiz.html"><i class="fas fa-brain"></i>QUIZ</a>
@@ -152,6 +162,15 @@ let allHistory=[];let shown=5;
 
 function sendHeartbeat(){if(user?.id)fetch("/api/heartbeat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({telegram_id:user.id})}).catch(()=>{});}
 sendHeartbeat();setInterval(sendHeartbeat,45000);
+
+// MONETAG — Rewarded Ad Helper
+function showMonetagAd(callback){
+  if(typeof show_11094140==='function'){
+    show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
+  } else { if(callback)callback(); }
+}
+// MONETAG — Auto Interstitial har 60 sec
+setInterval(()=>{ showMonetagAd(); }, 60000);
 
 function animateNum(el,end,prefix=""){let start=0,dur=1200,t0=null;function step(ts){if(!t0)t0=ts;let p=Math.min((ts-t0)/dur,1);el.textContent=prefix+(start+(end-start)*p).toFixed(2);if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
 
