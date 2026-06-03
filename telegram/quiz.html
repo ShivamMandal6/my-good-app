@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<!-- MONETAG SDK -->
+<script src='//libtl.com/sdk.js' data-zone='11094140' data-sdk='show_11094140'></script>
 <style>
 :root{
   --bg:#F5F0E8;--white:#FFFFFF;--dark:#000000;
@@ -87,6 +89,8 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 .empty-state{text-align:center;padding:40px 20px;color:#888;}
 .empty-state .emoji{font-size:3rem;margin-bottom:12px;}
 .empty-state p{font-weight:700;font-size:0.9rem;}
+/* AD BANNER SLOT */
+.ad-banner-slot{width:100%;background:rgba(0,0,0,0.03);border:2px dashed #ccc;border-radius:var(--radius);margin:14px 0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;}
 </style>
 </head>
 <body>
@@ -98,10 +102,14 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 
 <div id="listScreen">
   <div class="page-title">🧠 Quiz Arena</div>
+  <!-- AD BANNER #1 — Quiz list ke upar -->
+  <div class="ad-banner-slot"><span>Advertisement</span></div>
   <input class="quiz-search" type="text" placeholder="🔍 Search quizzes..." oninput="filterQuizzes(this.value)">
   <div class="quiz-count" id="quizCount"></div>
   <div id="quizList"></div>
   <button id="loadMoreBtn" class="load-more-btn" style="display:none" onclick="loadMore()">Load More Quizzes ↓</button>
+  <!-- AD BANNER #2 — Quiz list ke neeche -->
+  <div class="ad-banner-slot"><span>Advertisement</span></div>
 </div>
 
 <div id="gameScreen">
@@ -201,6 +209,13 @@ function renderList() {
       </div>`;
     div.onclick = () => startQuiz(q.id);
     listEl.appendChild(div);
+    // AD BANNER INLINE — har 2 cards ke baad
+    if((i+1)%2===0){
+      const adDiv=document.createElement("div");
+      adDiv.className="ad-banner-slot";
+      adDiv.innerHTML="<span>Advertisement</span>";
+      listEl.appendChild(adDiv);
+    }
   });
   btn.style.display = allQuizzes.length > displayCount ? "block" : "none";
 }
@@ -235,8 +250,18 @@ function filterQuizzes(val) {
   });
 }
 
-// Start quiz
+// MONETAG — Rewarded Ad Helper
+function showMonetagAd(callback){
+  if(typeof show_11094140==='function'){
+    show_10051927().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
+  } else { if(callback)callback(); }
+}
+// MONETAG — Auto Interstitial har 60 sec
+setInterval(()=>{ showMonetagAd(); }, 60000);
+
+// Start quiz — Rewarded Pop Ad pehle, phir quiz shuru
 async function startQuiz(id) {
+  showMonetagAd(async () => {
   if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
   document.getElementById("listScreen").style.display = "none";
   document.getElementById("gameScreen").style.display = "block";
@@ -253,6 +278,7 @@ async function startQuiz(id) {
       renderQuestion();
     } else { backToList(); }
   } catch(e) { backToList(); }
+  }); // end showMonetagAd
 }
 
 function backToList() {
@@ -347,4 +373,5 @@ function retryQuiz() {
 loadQuizList();
 </script>
 </body>
-</html>
+  </html>
+
