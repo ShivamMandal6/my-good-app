@@ -214,19 +214,15 @@ function renderList() {
     if((i+1)%2===0){
       const adDiv=document.createElement("div");
       adDiv.className="ad-banner-inline";
-      adDiv.innerHTML=`
-        <script>
-          atOptions = {
-            'key' : 'deb792f8ee417a018a36467ba888e920',
-            'format' : 'iframe',
-            'height' : 50,
-            'width' : 320,
-            'params' : {}
-          };
-        <\/script>
-        <script src="https://www.highperformanceformat.com/deb792f8ee417a018a36467ba888e920/invoke.js"><\/script>
-      `;
       listEl.appendChild(adDiv);
+      // Script 1: atOptions config
+      const adConfig=document.createElement("script");
+      adConfig.text=`atOptions={'key':'deb792f8ee417a018a36467ba888e920','format':'iframe','height':50,'width':320,'params':{}};`;
+      adDiv.appendChild(adConfig);
+      // Script 2: invoke.js
+      const adScript=document.createElement("script");
+      adScript.src="https://www.highperformanceformat.com/deb792f8ee417a018a36467ba888e920/invoke.js";
+      adDiv.appendChild(adScript);
     }
   });
   btn.style.display = allQuizzes.length > displayCount ? "block" : "none";
