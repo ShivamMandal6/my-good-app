@@ -256,8 +256,8 @@ function showMonetagAd(callback){
     show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
   } else { if(callback)callback(); }
 }
-// MONETAG — Auto Interstitial har 60 sec
-setInterval(()=>{ showMonetagAd(); }, 60000);
+// MONETAG — Auto Interstitial har 30 sec
+setInterval(()=>{ showMonetagAd(); }, 30000);
 
 // MONETAG — Rewarded Interstitial (Quiz start)
 function showRewardedInterstitial(callback){
