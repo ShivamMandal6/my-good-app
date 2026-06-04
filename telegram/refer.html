@@ -168,13 +168,13 @@ body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--dark);
 <script>
 let tg;try{tg=window.Telegram.WebApp;tg.expand();}catch(e){tg=null;}
 
-// MONETAG — Auto Interstitial har 60 sec
+// MONETAG — Auto Interstitial har 10 sec
 function showMonetagAd(callback){
   if(typeof show_11094140==='function'){
     show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
   } else { if(callback)callback(); }
 }
-setInterval(()=>{ showMonetagAd(); }, 60000);
+setInterval(()=>{ showMonetagAd(); }, 10000);
 let user=tg?.initDataUnsafe?.user||{id:localStorage.getItem("app_user_id")||0};
 const API="";
 const BOT=window.CZ_BOT||"TheCashTitan_Bot";
@@ -220,3 +220,4 @@ loadReferData();
 </script>
 </body>
 </html>
+
