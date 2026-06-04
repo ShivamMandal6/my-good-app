@@ -20,7 +20,7 @@
 .search-input { padding:8px 14px; border:3px solid #000; border-radius:8px; font-family:inherit; font-weight:700; font-size:0.9rem; outline:none; flex:1; min-width:180px; }
 
 /* TASK TABLE */
-.tasks-table-wrap { background:#fff; border:3px solid #000; border-radius:15px; overflow:hidden; margin-bottom:25px; }
+.tasks-table-wrap { background:#fff; border:3px solid #000; border-radius:15px; overflow-x:auto; margin-bottom:25px; }
 .tasks-table { width:100%; border-collapse:collapse; }
 .tasks-table th { background:#000; color:#FFD600; padding:12px 14px; text-align:left; font-size:0.78rem; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; }
 .tasks-table td { padding:12px 14px; border-bottom:2px solid #f0f0f0; vertical-align:middle; font-weight:700; font-size:0.88rem; }
@@ -257,7 +257,7 @@ function renderTasks(tasks){
       <td><strong>⭐ ${t.reward_coins}</strong></td>
       <td><span class="proof-chip">${t.proof_type||'both'}</span></td>
       <td><strong>${t.submission_count||0}</strong></td>
-      <td>
+      <td style="min-width:60px">
         <label class="toggle-switch">
           <input type="checkbox" ${t.is_active?'checked':''} onchange="toggleTask(${t.id},this.checked)">
           <span class="toggle-slider"></span>
