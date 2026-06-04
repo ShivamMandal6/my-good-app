@@ -325,7 +325,7 @@ document.getElementById("csvFile").addEventListener("change", function(){
     if(!dataLines.length){ preview.innerHTML='<span style="color:red;font-weight:700">No data rows found!</span>'; return; }
     preview.innerHTML = dataLines.slice(0,5).map((line,i)=>{
       const cols = parseCSVLine(line);
-      return `<div style="padding:5px 0;border-bottom:1px solid #eee;"><strong>Quiz ${i+1}:</strong> ${cols[0]||'?'} | Coins: ${cols[1]||'?'} | Questions: ${Math.floor((cols.length-3)/5)}</div>`;
+      return `<div style="padding:5px 0;border-bottom:1px solid #eee;"><strong>Quiz ${i+1}:</strong> ${cols[0]||'?'} | Coins: ${cols[1]||'?'} | Questions: ${Math.floor((cols.length-3)/6)}</div>`;
     }).join('') + (dataLines.length>5?`<div style="color:#888;font-weight:700;padding:4px 0;">...and ${dataLines.length-5} more</div>`:'');
     document.getElementById("csvPreview").style.display="block";
   };
@@ -373,7 +373,7 @@ async function uploadCSV(){
 
         // Each question = 5 cols: question, a, b, c, d, correct
         for(let i=0; i<8; i++){
-          const base = 3 + (i*5);
+          const base = 3 + (i*6);
           const q = cols[base];
           if(!q || !q.trim()) break;
           const optA = cols[base+1]||'';
