@@ -103,13 +103,33 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 <div id="listScreen">
   <div class="page-title">🧠 Quiz Arena</div>
   <!-- AD BANNER #1 — Quiz list ke upar -->
-  <div class="ad-banner-slot"><span>Advertisement</span></div>
+  <div class="ad-banner-slot"><script>
+  atOptions = {
+    'key' : 'deb792f8ee417a018a36467ba888e920',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/deb792f8ee417a018a36467ba888e920/invoke.js"></script>
+</div>
   <input class="quiz-search" type="text" placeholder="🔍 Search quizzes..." oninput="filterQuizzes(this.value)">
   <div class="quiz-count" id="quizCount"></div>
   <div id="quizList"></div>
   <button id="loadMoreBtn" class="load-more-btn" style="display:none" onclick="loadMore()">Load More Quizzes ↓</button>
   <!-- AD BANNER #2 — Quiz list ke neeche -->
-  <div class="ad-banner-slot"><span>Advertisement</span></div>
+  <div class="ad-banner-slot"><script>
+  atOptions = {
+    'key' : '7053808b7424fbd5fe4ebce9874b43ad',
+    'format' : 'iframe',
+    'height' : 300,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/7053808b7424fbd5fe4ebce9874b43ad/invoke.js"></script>
+  </div>
 </div>
 
 <div id="gameScreen">
@@ -213,7 +233,17 @@ function renderList() {
     if((i+1)%2===0){
       const adDiv=document.createElement("div");
       adDiv.className="ad-banner-slot";
-      adDiv.innerHTML="<span>Advertisement</span>";
+      adDiv.innerHTML="<script>
+  atOptions = {
+    'key' : 'fe377f9046795dae382fbbe09484a166',
+    'format' : 'iframe',
+    'height' : 250,
+    'width' : 300,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/fe377f9046795dae382fbbe09484a166/invoke.js"></script>
+  ";
       listEl.appendChild(adDiv);
     }
   });
