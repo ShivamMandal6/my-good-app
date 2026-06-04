@@ -264,6 +264,7 @@ const TYPE_COLORS = { youtube:'#ff4444', instagram:'#E1306C', website:'#00D1FF',
 
 let currentTask = null;
 let screenshotBase64 = null; // Will store Cloudinary URL after upload
+let _taskCache = [];
 
 function switchTab(tab) {
   document.getElementById('availableTab').style.display = tab==='available' ? 'block' : 'none';
@@ -363,7 +364,8 @@ async function loadAvailable() {
     const res = await fetch(`${API}/api/tasks/available/${user.id}`);
     const data = await res.json();
     if(!data.success || !data.tasks?.length) { el.innerHTML='<div style="text-align:center;padding:30px;font-weight:700;color:#888">🎉 No available tasks right now.<br>Check back later!</div>'; return; }
-    el.innerHTML = data.tasks.map(t=>{
+    _taskCache = data.tasks;
+    el.innerHTML = data.tasks.map((t,idx)=>{
       const type = (t.task_type||'custom').toLowerCase();
       const icon = TYPE_ICONS[type]||'⭐';
       const color = TYPE_COLORS[type]||'#FFD600';
@@ -377,7 +379,7 @@ async function loadAvailable() {
         </div>
         <div class="task-footer">
           <span class="reward-badge">⭐ ${t.reward_coins} coins</span>
-          <button class="start-task-btn" onclick='openTaskModal(${JSON.stringify(t)})'>Start Task ▶</button>
+          <button class="start-task-btn" onclick='openTaskModal(_taskCache[${idx}])'>Start Task ▶</button>
         </div>
       </div>`;
     }).join('');
