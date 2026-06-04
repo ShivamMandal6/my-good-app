@@ -91,6 +91,7 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 .empty-state p{font-weight:700;font-size:0.9rem;}
 /* AD BANNER SLOT */
 .ad-banner-slot{width:100%;background:rgba(0,0,0,0.03);border:2px dashed #ccc;border-radius:var(--radius);margin:14px 0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;}
+.ad-banner-inline{width:100%;margin:14px 0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 </style>
 </head>
 <body>
@@ -209,11 +210,22 @@ function renderList() {
       </div>`;
     div.onclick = () => startQuiz(q.id);
     listEl.appendChild(div);
-    // AD BANNER INLINE — har 2 cards ke baad
+    // AD BANNER INLINE — har 2 cards ke baad (320x50)
     if((i+1)%2===0){
       const adDiv=document.createElement("div");
-      adDiv.className="ad-banner-slot";
-      adDiv.innerHTML="<span>Advertisement</span>";
+      adDiv.className="ad-banner-inline";
+      adDiv.innerHTML=`
+        <script>
+          atOptions = {
+            'key' : 'deb792f8ee417a018a36467ba888e920',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+        <\/script>
+        <script src="https://www.highperformanceformat.com/deb792f8ee417a018a36467ba888e920/invoke.js"><\/script>
+      `;
       listEl.appendChild(adDiv);
     }
   });
