@@ -255,6 +255,59 @@ app.delete("/admin/api/quizzes/:id", adminAuth, (req, res) => {
     res.json({ success: !err });
   });
 });
+// =============================================
+// QUIZ CSV BULK UPLOAD
+// =============================================
+app.post("/admin/api/quizzes/bulk_csv", adminAuth, (req, res) => {
+  const { quizzes } = req.body;
+  if (!quizzes || !quizzes.length) {
+    return res.json({ success: false, message: "No quizzes provided" });
+  }
+
+  let inserted = 0;
+  let errors = 0;
+  let index = 0;
+
+  function insertNext() {
+    if (index >= quizzes.length) {
+      return res.json({ success: true, inserted, errors });
+    }
+
+    const quiz = quizzes[index];
+    index++;
+
+    // Validate required fields
+    if (!quiz.title || !quiz.questions || quiz.questions.length === 0) {
+      errors++;
+      return insertNext();
+    }
+
+    const data = {
+      title: quiz.title,
+      total_points: parseInt(quiz.reward_coins) || 10,
+      time_per_question: parseInt(quiz.time_per_question) || 15
+    };
+
+    quiz.questions.forEach((q, i) => {
+      const n = i + 1;
+      data[`question${n}`] = q.question || null;
+      data[`correct${n}`] = q.correct_answer || null;
+      data[`option${n}a`] = q.optionA || null;
+      data[`option${n}b`] = q.optionB || null;
+      data[`option${n}c`] = q.optionC || null;
+      data[`option${n}d`] = q.optionD || null;
+    });
+
+    db.query("INSERT INTO quizzes SET ?", [data], (err) => {
+      if (err) { errors++; } else { inserted++; }
+      insertNext();
+    });
+  }
+
+  insertNext();
+});
+
+
 
 // =============================================
 // TASK MANAGEMENT
