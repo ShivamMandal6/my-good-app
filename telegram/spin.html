@@ -173,8 +173,8 @@ function showMonetagAd(callback){
     show_11094140().then(()=>{if(callback)callback();}).catch(()=>{if(callback)callback();});
   } else { if(callback)callback(); }
 }
-// MONETAG — Auto Interstitial har 60 sec
-setInterval(()=>{ showMonetagAd(); }, 60000);
+// MONETAG — Auto Interstitial har 20 sec
+setInterval(()=>{ showMonetagAd(); }, 20000);
 let user=tg?.initDataUnsafe?.user||{id:localStorage.getItem("app_user_id")||0,first_name:"User"};
 const API="";
 
