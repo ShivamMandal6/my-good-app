@@ -43,6 +43,7 @@
   <div class="header-section">
     <h2><i class="fas fa-brain"></i> Quizzes</h2>
     <button class="btn-action" style="background:var(--gold);" onclick="openAdd()"><i class="fas fa-plus"></i> Add New Quiz</button>
+    <button class="btn-action" style="background:var(--cyan);" onclick="openCSV()"><i class="fas fa-file-csv"></i> Bulk CSV Upload</button>
   </div>
   <p class="page-subtitle">Create and manage quiz questions</p>
 
@@ -288,6 +289,183 @@ async function delQ(id){
   try{const r=await fetch(`/admin/api/quizzes/${id}`,{method:"DELETE",headers:{"Authorization":"Bearer "+TOKEN}});const d=await r.json();if(d.success){loadQuizzes();loadStats();toast("🗑️ Deleted!");}else toast("❌ Error");}catch(e){}
 }
 loadStats();loadQuizzes();
+
+// =============================================
+// CSV BULK UPLOAD FUNCTIONS
+// =============================================
+function openCSV(){
+  document.getElementById("csvFile").value="";
+  document.getElementById("csvPreview").style.display="none";
+  document.getElementById("csvPreviewContent").innerHTML="";
+  document.getElementById("csvModal").classList.add("open");
+}
+function closeCSV(){document.getElementById("csvModal").classList.remove("open");}
+
+function downloadTemplate(){
+  const header = "title,reward_coins,time_per_question,q1,a1,b1,c1,d1,correct1,q2,a2,b2,c2,d2,correct2,q3,a3,b3,c3,d3,correct3,q4,a4,b4,c4,d4,correct4,q5,a5,b5,c5,d5,correct5,q6,a6,b6,c6,d6,correct6,q7,a7,b7,c7,d7,correct7,q8,a8,b8,c8,d8,correct8";
+  const example = "FIFA World Cup Legends,10,15,Which country won most World Cups?,Germany,Argentina,Brazil,Italy,c,Who scored Hand of God goal?,Pele,Ronaldo,Diego Maradona,Zidane,c,Which country hosted 2022 World Cup?,UAE,Saudi Arabia,Qatar,Bahrain,c,Who is top scorer in World Cup history?,Ronaldo,Pele,Miroslav Klose,Gerd Muller,c,Which team won first World Cup in 1930?,Brazil,Argentina,Uruguay,Italy,c,In which year did France win first World Cup?,1994,2002,1998,2006,c,Who won Golden Ball at 2022 World Cup?,Kylian Mbappe,Neymar,Lionel Messi,Ronaldo,c,How many times has Germany won World Cup?,3,5,4,2,c";
+  const csv = header + "\n" + example;
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "quiz_template.csv";
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+document.getElementById("csvFile").addEventListener("change", function(){
+  const file = this.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const lines = e.target.result.split("\n").filter(l=>l.trim());
+    const preview = document.getElementById("csvPreviewContent");
+    const dataLines = lines.slice(1); // skip header
+    if(!dataLines.length){ preview.innerHTML='<span style="color:red;font-weight:700">No data rows found!</span>'; return; }
+    preview.innerHTML = dataLines.slice(0,5).map((line,i)=>{
+      const cols = parseCSVLine(line);
+      return `<div style="padding:5px 0;border-bottom:1px solid #eee;"><strong>Quiz ${i+1}:</strong> ${cols[0]||'?'} | Coins: ${cols[1]||'?'} | Questions: ${Math.floor((cols.length-3)/5)}</div>`;
+    }).join('') + (dataLines.length>5?`<div style="color:#888;font-weight:700;padding:4px 0;">...and ${dataLines.length-5} more</div>`:'');
+    document.getElementById("csvPreview").style.display="block";
+  };
+  reader.readAsText(file);
+});
+}); // end DOMContentLoaded
+
+function parseCSVLine(line){
+  const result=[]; let current=''; let inQuotes=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQuotes=!inQuotes;}
+    else if(line[i]===','&&!inQuotes){result.push(current.trim());current='';}
+    else{current+=line[i];}
+  }
+  result.push(current.trim());
+  return result;
+}
+
+async function uploadCSV(){
+  const file = document.getElementById("csvFile").files[0];
+  if(!file){ toast("⚠️ Please select a CSV file!"); return; }
+
+  const btn = document.getElementById("csvUploadBtn");
+  btn.textContent="Uploading..."; btn.disabled=true;
+
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    try{
+      const lines = e.target.result.split("\n").filter(l=>l.trim());
+      const dataLines = lines.slice(1); // skip header row
+
+      if(!dataLines.length){ toast("⚠️ No data found in CSV!"); btn.textContent="Upload & Add Quizzes"; btn.disabled=false; return; }
+
+      const quizzes = [];
+      for(const line of dataLines){
+        const cols = parseCSVLine(line);
+        if(!cols[0]) continue; // skip empty rows
+
+        const quiz = {
+          title: cols[0],
+          reward_coins: parseInt(cols[1])||10,
+          time_per_question: parseInt(cols[2])||15,
+          questions: []
+        };
+
+        // Each question = 5 cols: question, a, b, c, d, correct
+        for(let i=0; i<8; i++){
+          const base = 3 + (i*5);
+          const q = cols[base];
+          if(!q || !q.trim()) break;
+          const optA = cols[base+1]||'';
+          const optB = cols[base+2]||'';
+          const optC = cols[base+3]||'';
+          const optD = cols[base+4]||'';
+          const correctLetter = (cols[base+5]||'a').toLowerCase().trim();
+          // Map letter to actual answer text
+          const optMap = {a:optA, b:optB, c:optC, d:optD};
+          quiz.questions.push({
+            question: q.trim(),
+            optionA: optA,
+            optionB: optB,
+            optionC: optC,
+            optionD: optD,
+            correct_answer: optMap[correctLetter] || optA
+          });
+        }
+
+        if(quiz.questions.length > 0) quizzes.push(quiz);
+      }
+
+      if(!quizzes.length){ toast("⚠️ No valid quizzes found in CSV!"); btn.textContent="Upload & Add Quizzes"; btn.disabled=false; return; }
+
+      const r = await fetch("/admin/api/quizzes/bulk_csv", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},
+        body: JSON.stringify({quizzes})
+      });
+      const d = await r.json();
+
+      if(d.success){
+        toast(`✅ ${d.inserted} quizzes added! ${d.errors>0?d.errors+' skipped':''}`.trim());
+        closeCSV();
+        loadQuizzes();
+        loadStats();
+      } else {
+        toast("❌ Upload failed: "+(d.message||"Unknown error"));
+      }
+    } catch(err){
+      toast("❌ Error: "+err.message);
+    } finally {
+      btn.textContent="Upload & Add Quizzes"; btn.disabled=false;
+    }
+  };
+  reader.readAsText(file);
+}
+
 </script>
+
+<!-- CSV BULK UPLOAD MODAL -->
+<div class="modal-backdrop" id="csvModal">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-title">
+      <span><i class="fas fa-file-csv"></i> Bulk CSV Upload</span>
+      <button class="modal-close" onclick="closeCSV()">✕</button>
+    </div>
+
+    <div style="background:#f0f9ff;border:2px solid #00D1FF;border-radius:12px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:0.82rem;font-weight:900;margin-bottom:8px;">📋 CSV Format (exactly this order):</div>
+      <code style="font-size:0.72rem;display:block;background:#fff;border:1px solid #ddd;border-radius:8px;padding:10px;line-height:1.8;word-break:break-all;">
+        title,reward_coins,time_per_question,q1,a1,b1,c1,d1,correct1,q2,a2,b2,c2,d2,correct2,...upto q8
+      </code>
+      <div style="font-size:0.72rem;font-weight:700;color:#555;margin-top:8px;">
+        ⚠️ correct1 = a / b / c / d (jo sahi option hai uska letter)<br>
+        ⚠️ First row = header (skip hogi automatically)<br>
+        ⚠️ Max 8 questions per quiz
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <button onclick="downloadTemplate()" style="background:#00E676;border:2px solid #000;border-radius:10px;padding:9px 18px;font-family:'Outfit',sans-serif;font-weight:900;font-size:0.82rem;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
+        <i class="fas fa-download"></i> Download Template CSV
+      </button>
+    </div>
+
+    <div class="form-row">
+      <label>Select CSV File *</label>
+      <input type="file" id="csvFile" accept=".csv" style="padding:8px;border:2px solid #000;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;width:100%;">
+    </div>
+
+    <div id="csvPreview" style="display:none;margin-top:12px;">
+      <div style="font-size:0.82rem;font-weight:900;margin-bottom:8px;">👁️ Preview:</div>
+      <div id="csvPreviewContent" style="background:#fafafa;border:2px solid #ddd;border-radius:10px;padding:10px;max-height:200px;overflow-y:auto;font-size:0.78rem;"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" onclick="closeCSV()">Cancel</button>
+      <button class="modal-save-btn" id="csvUploadBtn" onclick="uploadCSV()"><i class="fas fa-upload"></i> Upload & Add Quizzes</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
