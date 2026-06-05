@@ -213,7 +213,7 @@ body {
 .table-wrap {
   border: var(--border);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow-x: auto;
 }
 table {
   width: 100%;
