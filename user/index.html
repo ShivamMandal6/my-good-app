@@ -63,11 +63,20 @@ nav{position:sticky;top:0;z-index:200;background:var(--bg);border-bottom:var(--b
 .pg{max-width:1100px;margin:0 auto;padding:0 24px}
 
 /* HERO */
-.hero-wrap{padding:56px 0 48px;text-align:center}
-.hero-label{display:inline-flex;align-items:center;gap:8px;background:var(--cyan);border:var(--border);box-shadow:var(--shadow-sm);border-radius:30px;padding:6px 18px;font-size:.75rem;font-weight:900;letter-spacing:.5px;margin-bottom:24px;text-transform:uppercase}
-.hero-wrap h1{font-size:clamp(2.4rem,5.5vw,3.8rem);font-weight:900;line-height:1.08;letter-spacing:-1.5px;margin-bottom:22px}
-.hero-wrap h1 .hl{background:var(--gold);padding:2px 12px;border-radius:8px;border:2px solid #000;display:inline-block}
-.hero-wrap h1 .hl2{background:var(--pink);padding:2px 12px;border-radius:8px;border:2px solid #000;display:inline-block}
+.hero-wrap{padding:56px 0 16px;text-align:center}
+.hero-label{display:inline-flex;align-items:center;gap:8px;background:#000;color:#fff;border:var(--border);box-shadow:var(--shadow-sm);border-radius:30px;padding:8px 22px;font-size:.75rem;font-weight:900;letter-spacing:.5px;margin-bottom:32px;text-transform:uppercase;outline:3px solid var(--gold);outline-offset:2px}
+.hero-label .zap{color:var(--gold)}
+.hero-wrap h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:22px}
+.hero-wrap h1 .hl{background:var(--gold);padding:4px 18px;border-radius:12px;border:3px solid #000;box-shadow:5px 5px 0 #000;display:inline-block;color:#000}
+.hero-wrap h1 .hl2{background:var(--cyan);padding:4px 18px;border-radius:12px;border:3px solid #000;box-shadow:5px 5px 0 #000;display:inline-block;color:#000}
+.hero-wrap h1 .hl3{background:var(--pink);padding:4px 18px;border-radius:12px;border:3px solid #000;box-shadow:5px 5px 0 #000;display:inline-block;color:#fff}
+.hero-stack{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.hero-stack-row{display:flex;align-items:center;gap:12px;justify-content:center}
+.hero-stack-word{font-size:clamp(1.6rem,4vw,2.8rem);font-weight:900;letter-spacing:-0.5px}
+.hero-stack-pill{padding:8px 22px;border-radius:14px;border:3px solid #000;font-size:clamp(1.6rem,4vw,2.8rem);font-weight:900;display:inline-block;line-height:1.2}
+.hpill-gold{background:var(--gold);color:#000;box-shadow:5px 5px 0 #000}
+.hpill-cyan{background:var(--cyan);color:#000;box-shadow:5px 5px 0 #000}
+.hpill-pink{background:var(--pink);color:#fff;box-shadow:5px 5px 0 #000}
 .hero-sub{font-size:1rem;color:#444;max-width:580px;margin:0 auto 32px;font-weight:600;line-height:1.7}
 .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
 .btn-gold{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#000;padding:15px 28px;border-radius:14px;font-size:.95rem;font-weight:900;border:var(--border);box-shadow:var(--shadow);transition:transform .1s,box-shadow .1s}
@@ -275,12 +284,21 @@ footer{background:#000;border-top:var(--border);padding:52px 24px 30px}
 
 <!-- HERO -->
 <div class="hero-wrap">
-  <div class="hero-label"><span class="zap">⚡</span> Telegram's #1 Multi-Earning Platform</div>
-  <h1>
-    Turn Your Brain<br>
-    Into a <span class="hl">Money Machine</span><br>
-    Every. Single. Day.
-  </h1>
+  <div class="hero-label"><span class="zap">🏆</span> Telegram's #1 Earning Platform</div>
+  <div class="hero-stack">
+    <div class="hero-stack-row">
+      <span class="hero-stack-word">Play</span>
+      <span class="hero-stack-pill hpill-gold">Quizzes</span>
+    </div>
+    <div class="hero-stack-row">
+      <span class="hero-stack-word">Earn</span>
+      <span class="hero-stack-pill hpill-cyan">Real Cash</span>
+    </div>
+    <div class="hero-stack-row">
+      <span class="hero-stack-word">Every</span>
+      <span class="hero-stack-pill hpill-pink">Single Day.</span>
+    </div>
+  </div>
   <p class="hero-sub">CashTitan pays you through multiple ways — Quiz, Tasks, Spin Wheel, Referrals & more. No investment. No gimmicks. Just real crypto in your Binance or FaucetPay wallet.</p>
   <div class="hero-btns">
     <a class="btn-gold" href="https://t.me/TheCashTitan_Bot" target="_blank">
@@ -297,7 +315,7 @@ footer{background:#000;border-top:var(--border);padding:52px 24px 30px}
 <div class="pg">
 
 <!-- EARN METHODS -->
-<div class="sec" id="earn">
+<div class="sec" id="earn" style="padding-top:16px">
   <div class="sec-lbl"><span class="zap">⚡</span> Multiple Earning Streams</div>
   <div class="sec-title">One Platform. Multiple Ways to Win.</div>
   <div class="sec-sub" style="margin-bottom:32px">Most earning apps give you one way to earn. CashTitan gives you multiple — so your income never stops, even when one stream slows down.</div>
